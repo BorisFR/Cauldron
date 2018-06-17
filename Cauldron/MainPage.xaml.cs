@@ -11,11 +11,13 @@ namespace Cauldron
         Stopwatch watch;
         float start;
 
-        SKBitmap bmSource;
+        /*SKBitmap bmSource;
         SKBitmap bm1;
         SKBitmap bm2;
         SKBitmap bm3;
         SKBitmap bm4;
+        int posX;
+        */
 
         Tiled tiled = new Tiled();
         SKBitmap tiles;
@@ -27,11 +29,10 @@ namespace Cauldron
         const int MAP_SHOW = 100;
 
         //int destSize = 8;
-        const int SCALE = 2;
+        const int SCALE = 4;
         int tileWidth;
         int tileHeight;
 
-        int posX;
 
         public MainPage()
         {
@@ -53,7 +54,7 @@ namespace Cauldron
             startMapX = 0;//tiled.MapWidth / 2;
 
 
-
+            /*
             desiredInfo = new SKImageInfo(12, 21, SKImageInfo.PlatformColorType, SKAlphaType.Premul);
             //SKManagedStream stream = new SKManagedStream(Tools.GetStreamImage("entering_door_1"));
             stream = new SKManagedStream(Tools.GetStream("entering_door_1.png"));
@@ -65,6 +66,7 @@ namespace Cauldron
             bm4 = bmSource.Resize(x, SKBitmapResizeMethod.Triangle);
 
             posX = 0;
+            */
 
             watch = new Stopwatch();
             start = 0;
@@ -98,9 +100,9 @@ namespace Cauldron
 
                 }
 
-                posX++;
+                /*posX++;
                 if (posX > 400)
-                    posX = 0;
+                    posX = 0;*/
                 theCanvas.InvalidateSurface();
                 return true;
             });
@@ -175,7 +177,7 @@ namespace Cauldron
             canvas.DrawText("Bonjour ;)", 60, 160 + 80, textPaint);
             */
 
-            canvas.DrawBitmap(bmSource, 50, 300);
+            /*canvas.DrawBitmap(bmSource, 50, 300);
             canvas.DrawBitmap(bm1, 100, 300);
             canvas.DrawBitmap(bm2, 150, 300);
             canvas.DrawBitmap(bm3, 200, 300);
@@ -191,6 +193,7 @@ namespace Cauldron
             canvas.DrawBitmap(bm2, 150, 350, bitmapPaint);
             canvas.DrawBitmap(bm3, 200, 350, bitmapPaint);
             canvas.DrawBitmap(bm4, 250, 350, bitmapPaint);
+            */
 
             // affichage de la carte
             int currentX = startMapX;
