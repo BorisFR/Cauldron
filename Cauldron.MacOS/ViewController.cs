@@ -30,5 +30,6 @@ namespace Cauldron.MacOS
                 // Update the view, if already loaded.
             }
         }
+
     }
 }

@@ -1,10 +1,11 @@
-﻿<Properties StartupConfiguration="{1B8F5620-1398-4CA0-9914-D8EF83D8CE09}|Default">
+﻿<Properties StartupConfiguration="{7A6F53FB-0BC4-4B13-A50E-C9813BBD2812}|Default">
   <MonoDevelop.Ide.Workbench ActiveDocument="Cauldron/MainPage.xaml.cs">
     <Files>
-      <File FileName="Cauldron/MainPage.xaml.cs" Line="40" Column="28" />
-      <File FileName="Cauldron/Tools.cs" Line="6" Column="7" />
-      <File FileName="Cauldron/MainPage.xaml" Line="5" Column="46" />
-      <File FileName="Cauldron.MacOS/AppDelegate.cs" Line="1" Column="1" />
+      <File FileName="Cauldron/MainPage.xaml.cs" Line="30" Column="28" />
+      <File FileName="Cauldron/Tools.cs" Line="59" Column="15" />
+      <File FileName="Cauldron/Tiled.cs" Line="63" Column="19" />
+      <File FileName="Cauldron/MainPage.xaml" Line="7" Column="15" />
+      <File FileName="Cauldron.MacOS/AppDelegate.cs" Line="17" Column="106" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
@@ -14,6 +15,6 @@
   <MonoDevelop.Ide.ItemProperties.Cauldron.Android PreferredExecutionTarget="Android.Mon4.4nexus" FirstBuild="True" />
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
   <MonoDevelop.Ide.ItemProperties.Cauldron.MacOS PreferredExecutionTarget="Test1" />
-  <MonoDevelop.Ide.ItemProperties.Cauldron.iOS PreferredExecutionTarget="MonoDevelop.IPhone.IPhoneSimulatorTarget.208E2768-DCA0-47C1-AE9F-0CB2D36F7B42" />
+  <MonoDevelop.Ide.ItemProperties.Cauldron.iOS PreferredExecutionTarget="MonoDevelop.IPhone.IPhoneSimulatorTarget.D63E3EAA-B9B7-4701-A1C7-944C227CCECE" />
   <MultiItemStartupConfigurations />
 </Properties>

@@ -17,15 +17,46 @@ namespace Cauldron
         SKBitmap bm3;
         SKBitmap bm4;
 
+        Tiled tiled = new Tiled();
+        SKBitmap tiles;
+        SKBitmap tilesScale;
+        SKRect source = new SKRect();
+        SKRect dest = new SKRect();
+        int tile;
+        int startMapX;
+        const int MAP_SHOW = 100;
+
+        //int destSize = 8;
+        const int SCALE = 2;
+        int tileWidth;
+        int tileHeight;
+
         int posX;
 
         public MainPage()
         {
             InitializeComponent();
 
+            // on charge le plan TILED
+            tiled.Load(Tools.GetStream("Cauldron.tmx"));
+            // on charge l'image de tiles
+            SKImageInfo desiredInfo = new SKImageInfo(800, 800, SKImageInfo.PlatformColorType, SKAlphaType.Premul);
+            SKManagedStream stream = new SKManagedStream(Tools.GetStream("tiles.png"));
+            tiles = SKBitmap.Decode(stream, desiredInfo);
+            // on scale cette image
+            SKImageInfo scaleInfo = new SKImageInfo(tiles.Width * SCALE, tiles.Height * SCALE);
+            tilesScale = tiles.Resize(scaleInfo, SKBitmapResizeMethod.Hamming);
+            // dimension d'un tile
+            tileWidth = tiled.TileWidth * SCALE;
+            tileHeight = tiled.TileHeight * SCALE;
 
-            SKImageInfo desiredInfo = new SKImageInfo(12, 21, SKImageInfo.PlatformColorType, SKAlphaType.Premul);
-            SKManagedStream stream = new SKManagedStream(Tools.GetStreamImage("entering_door_1"));
+            startMapX = 0;//tiled.MapWidth / 2;
+
+
+
+            desiredInfo = new SKImageInfo(12, 21, SKImageInfo.PlatformColorType, SKAlphaType.Premul);
+            //SKManagedStream stream = new SKManagedStream(Tools.GetStreamImage("entering_door_1"));
+            stream = new SKManagedStream(Tools.GetStream("entering_door_1.png"));
             bmSource = SKBitmap.Decode(stream, desiredInfo);
             var x = new SKImageInfo(24, 42);
             bm1 = bmSource.Resize(x, SKBitmapResizeMethod.Hamming);
@@ -48,6 +79,25 @@ namespace Cauldron
                 // get the elapsed rotation
                 start += (360 * time) % 360;
 
+                switch (Tools.GetKeyCode)
+                {
+                    case 123:
+                        startMapX--;
+                        if (startMapX < 0)
+                        {
+                            startMapX = tiled.MapWidth - 1;
+                        }
+                        break;
+                    case 124:
+                        startMapX++;
+                        if (startMapX >= tiled.MapWidth)
+                        {
+                            startMapX = 0;
+                        }
+                        break;
+
+                }
+
                 posX++;
                 if (posX > 400)
                     posX = 0;
@@ -55,6 +105,8 @@ namespace Cauldron
                 return true;
             });
         }
+
+
 
         public void OnPainting(object sender, SKPaintSurfaceEventArgs e)
         {
@@ -65,7 +117,7 @@ namespace Cauldron
             // clear the canvas / view
             canvas.Clear(SKColors.Black);
 
-
+            /*
             var circleFill = new SKPaint
             {
                 IsAntialias = true,
@@ -121,7 +173,7 @@ namespace Cauldron
 
             // draw the text (from the baseline)
             canvas.DrawText("Bonjour ;)", 60, 160 + 80, textPaint);
-
+            */
 
             canvas.DrawBitmap(bmSource, 50, 300);
             canvas.DrawBitmap(bm1, 100, 300);
@@ -139,6 +191,41 @@ namespace Cauldron
             canvas.DrawBitmap(bm2, 150, 350, bitmapPaint);
             canvas.DrawBitmap(bm3, 200, 350, bitmapPaint);
             canvas.DrawBitmap(bm4, 250, 350, bitmapPaint);
+
+            // affichage de la carte
+            int currentX = startMapX;
+            // pour chaque colonne
+            for (int i = 0; i < MAP_SHOW; i++)
+            {
+                // et chaque ligne
+                for (int j = 0; j < tiled.MapHeight; j++)
+                {
+                    // le tile en cours
+                    tile = tiled.Terrain[currentX, j];
+                    if (tile > 0)
+                    {
+                        tile--;
+                        int x, y, a, b;
+                        // position de la source
+                        x = (tile % 100) * tileWidth;
+                        y = (tile / 100) * tileHeight;
+                        source = new SKRect(x, y, x + tileWidth, y + tileHeight);
+                        // position de la cible
+                        a = i * tileWidth;
+                        b = j * tileHeight;
+                        dest = new SKRect(a, b, a + tileWidth, b + tileHeight);
+                        // on effectue l'affichage
+                        canvas.DrawBitmap(tilesScale, source, dest);
+                    }
+                }
+                // colonne suivante
+                currentX++;
+                if (currentX >= tiled.MapWidth)
+                {
+                    // la carte boucle sur elle-même
+                    currentX = 0;
+                }
+            }
         }
 
     }

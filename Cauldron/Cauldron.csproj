@@ -9,13 +9,17 @@
     <PackageReference Include="Xamarin.Forms" Version="3.0.0.561731" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Images\" />
+    <Folder Include="Assets\" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="Images\entering_door_1.png" />
+    <None Remove="Assets\Cauldron.tmx" />
+    <None Remove="Assets\tiles.png" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Images\entering_door_1.png" />
+    <EmbeddedResource Include="Assets\entering_door_1.png" />
+    <EmbeddedResource Include="Assets\Cauldron.tmx" />
+    <EmbeddedResource Include="Assets\tiles.png" />
   </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>
