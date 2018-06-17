@@ -29,7 +29,7 @@ namespace Cauldron
         const int MAP_SHOW = 100;
 
         //int destSize = 8;
-        const int SCALE = 4;
+        const int SCALE = 3;
         int tileWidth;
         int tileHeight;
 
@@ -46,7 +46,7 @@ namespace Cauldron
             tiles = SKBitmap.Decode(stream, desiredInfo);
             // on scale cette image
             SKImageInfo scaleInfo = new SKImageInfo(tiles.Width * SCALE, tiles.Height * SCALE);
-            tilesScale = tiles.Resize(scaleInfo, SKBitmapResizeMethod.Hamming);
+            tilesScale = tiles.Resize(scaleInfo, SKBitmapResizeMethod.Box);
             // dimension d'un tile
             tileWidth = tiled.TileWidth * SCALE;
             tileHeight = tiled.TileHeight * SCALE;
