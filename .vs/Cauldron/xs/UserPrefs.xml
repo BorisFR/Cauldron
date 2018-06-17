@@ -1,7 +1,7 @@
 ﻿<Properties StartupConfiguration="{7A6F53FB-0BC4-4B13-A50E-C9813BBD2812}|Default">
-  <MonoDevelop.Ide.Workbench ActiveDocument="Cauldron.iOS/AppDelegate.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Cauldron/MainPage.xaml.cs">
     <Files>
-      <File FileName="Cauldron/MainPage.xaml.cs" Line="37" Column="10" />
+      <File FileName="Cauldron/MainPage.xaml.cs" Line="31" Column="28" />
       <File FileName="Cauldron/Tools.cs" Line="59" Column="15" />
       <File FileName="Cauldron/Tiled.cs" Line="63" Column="19" />
       <File FileName="Cauldron/MainPage.xaml" Line="7" Column="15" />
