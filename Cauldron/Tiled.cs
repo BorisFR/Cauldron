@@ -17,6 +17,8 @@ namespace Cauldron
         public int TileWidth { get; private set; }
         public int TileHeight { get; private set; }
 
+        public int StartHouse { get; private set; }
+
         public int[,] Terrain;
 
         public Tiled()
@@ -63,12 +65,18 @@ namespace Cauldron
                 //System.Diagnostics.Debug.Write(String.Format(" {0}x{1}", x, y));
                 width = (int)xChunk.Attribute("width");
                 height = (int)xChunk.Attribute("height");
-                values = xChunk.Value.Split(',');
+                values = xChunk.Value.Replace("\n", "").Split(',');
                 index = 0;
                 for (int j = 0; j < height; j++)
                 {
                     for (int i = 0; i < width; i++)
                     {
+                        // position de la maison
+                        if (values[index].Equals("701"))
+                        {
+                            StartHouse = x + i;
+                        }
+
                         Terrain[x + i, y + j] = Convert.ToInt32(values[index]);
                         index++;
                     }

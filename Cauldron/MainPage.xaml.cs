@@ -11,20 +11,16 @@ namespace Cauldron
         Stopwatch watch;
         float start;
 
-        /*SKBitmap bmSource;
-        SKBitmap bm1;
-        SKBitmap bm2;
-        SKBitmap bm3;
-        SKBitmap bm4;
-        int posX;
-        */
-
         Tiled tiled = new Tiled();
         SKBitmap tiles;
         SKBitmap tilesScale;
         SKRect source = new SKRect();
         SKRect dest = new SKRect();
         SKCanvas canvas;
+        const int DECAL_SCREEN_X = 10;
+        const int DECAL_SCREEN_Y = 10;
+        const int DECAL_MAP_X = 0;
+        const int DECAL_MAP_Y = 100;
         int tile;
         int startMapX;
         const int MAP_SHOW = 100;
@@ -40,7 +36,9 @@ namespace Cauldron
         int tileWidth;
         int tileHeight;
 
-        OneSprite test;
+        Witch witch;
+        OneSprite moon;
+        OneSprite sheepSkin;
 
 
         public MainPage()
@@ -60,26 +58,15 @@ namespace Cauldron
             tileWidth = Convert.ToInt32(tiled.TileWidth * SCALE);
             tileHeight = Convert.ToInt32(tiled.TileHeight * SCALE);
 
-            startMapX = 0;//tiled.MapWidth / 2;
+            startMapX = tiled.StartHouse - 10;
             //pixels = new SKColor[MAX_WIDTH * MAX_HEIGHT];
             //bmpPixels = new SKBitmap(MAX_WIDTH, MAX_HEIGHT);
 
-            test = new OneSprite(20 * 100, tiled.TileWidth, tiled.TileHeight, 24, 21, 3, 400, SCALE);
-            //test = new OneSprite(0, tiled.TileWidth, tiled.TileHeight, 24, 21, 3, 100, SCALE);
-
-            /*
-            desiredInfo = new SKImageInfo(12, 21, SKImageInfo.PlatformColorType, SKAlphaType.Premul);
-            //SKManagedStream stream = new SKManagedStream(Tools.GetStreamImage("entering_door_1"));
-            stream = new SKManagedStream(Tools.GetStream("entering_door_1.png"));
-            bmSource = SKBitmap.Decode(stream, desiredInfo);
-            var x = new SKImageInfo(24, 42);
-            bm1 = bmSource.Resize(x, SKBitmapResizeMethod.Hamming);
-            bm2 = bmSource.Resize(x, SKBitmapResizeMethod.Lanczos3);
-            bm3 = bmSource.Resize(x, SKBitmapResizeMethod.Mitchell);
-            bm4 = bmSource.Resize(x, SKBitmapResizeMethod.Triangle);
-
-            posX = 0;
-            */
+            witch = new Witch(tiled.TileWidth, tiled.TileHeight, SCALE, DECAL_MAP_X, DECAL_MAP_Y);
+            witch.X = Convert.ToInt32(17 * 8 * SCALE);
+            witch.Y = 480;
+            moon = new OneSprite(15 * 100 + 30, tiled.TileWidth, tiled.TileHeight, 6 * 8, 5 * 8, 1, 0, SCALE, DECAL_SCREEN_X, DECAL_SCREEN_Y);
+            sheepSkin = new OneSprite(15 * 100 + 21, tiled.TileWidth, tiled.TileHeight, 7 * 8, 4 * 8, 1, 0, SCALE, DECAL_SCREEN_X, DECAL_SCREEN_Y);
 
             watch = new Stopwatch();
             start = 0;
@@ -94,30 +81,39 @@ namespace Cauldron
                 // get the elapsed rotation
                 start += (360 * time) % 360;
 
-                test.DoAnim(DateTime.UtcNow);
+                witch.DoAnim(DateTime.UtcNow);
 
                 switch (Tools.GetKeyCode)
                 {
-                    case 123:
+                    case 123: // LEFT
                         startMapX--;
                         if (startMapX < 0)
                         {
                             startMapX = tiled.MapWidth - 1;
                         }
+                        witch.MoveToLeft();
                         break;
-                    case 124:
+                    case 124: // RIGHT
                         startMapX++;
                         if (startMapX >= tiled.MapWidth)
                         {
                             startMapX = 0;
                         }
+                        witch.MoveToRight();
                         break;
-
+                    case 125: // DOWN
+                        witch.MoveToDown();
+                        break;
+                    case 126: // UP
+                        witch.MoveToUp();
+                        break;
+                    case 49: // SPACE
+                        break;
+                    default:
+                        witch.MoveStop();
+                        break;
                 }
 
-                /*posX++;
-                if (posX > 400)
-                    posX = 0;*/
                 theCanvas.InvalidateSurface();
                 return true;
             });
@@ -192,23 +188,6 @@ namespace Cauldron
             canvas.DrawText("Bonjour ;)", 60, 160 + 80, textPaint);
             */
 
-            /*canvas.DrawBitmap(bmSource, 50, 300);
-            canvas.DrawBitmap(bm1, 100, 300);
-            canvas.DrawBitmap(bm2, 150, 300);
-            canvas.DrawBitmap(bm3, 200, 300);
-            canvas.DrawBitmap(bm4, 250, 300);
-
-            var bitmapPaint = new SKPaint
-            {
-                FilterQuality = SKFilterQuality.High,
-                IsAntialias = true
-            };
-            canvas.DrawBitmap(bmSource, posX, 350, bitmapPaint);
-            canvas.DrawBitmap(bm1, 100, 350, bitmapPaint);
-            canvas.DrawBitmap(bm2, 150, 350, bitmapPaint);
-            canvas.DrawBitmap(bm3, 200, 350, bitmapPaint);
-            canvas.DrawBitmap(bm4, 250, 350, bitmapPaint);
-            */
 
             // affichage de la carte
             int currentX = startMapX;
@@ -233,8 +212,8 @@ namespace Cauldron
                         y = (tile / 100) * tileHeight;
                         source = new SKRect(x, y, x + tileWidth, y + tileHeight);
                         // position de la cible
-                        a = i * tileWidth;
-                        b = j * tileHeight;
+                        a = i * tileWidth + DECAL_MAP_X;
+                        b = j * tileHeight + DECAL_MAP_Y;
                         dest = new SKRect(a, b, a + tileWidth, b + tileHeight);
                         // on effectue l'affichage
                         canvas.DrawBitmap(tilesScale, source, dest);
@@ -248,7 +227,10 @@ namespace Cauldron
                     currentX = 0;
                 }
             }
-            test.Draw(canvas, 100, 450, tilesScale);
+            sheepSkin.Draw(canvas, 1, 1, tilesScale);
+            sheepSkin.Draw(canvas, 1000, 1, tilesScale);
+            moon.Draw(canvas, 150, 200, tilesScale);
+            witch.Draw(canvas, tilesScale);
             /*bmpPixels.Pixels = pixels;
             bmpToShow = bmpPixels.Resize(scaleInfo, SKBitmapResizeMethod.Box);
             canvas.DrawBitmap(bmpPixels, 0, 0);*/
@@ -257,7 +239,7 @@ namespace Cauldron
             TimeSpan timeElaps = timeStop - timeStart;
             if ((DateTime.UtcNow - each) > TimeSpan.FromMilliseconds(1000))
             {
-                System.Diagnostics.Debug.WriteLine(timeElaps.TotalMilliseconds);
+                //System.Diagnostics.Debug.WriteLine(timeElaps.TotalMilliseconds);
                 each = DateTime.UtcNow;
             }
 
