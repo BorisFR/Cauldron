@@ -15,10 +15,8 @@
     <None Remove="Images\entering_door_1.png" />
     <None Remove="Assets\Cauldron.tmx" />
     <None Remove="Assets\tiles.png" />
-    <None Remove="Assets\entering_door_1.png" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Assets\entering_door_1.png" />
     <EmbeddedResource Include="Assets\Cauldron.tmx" />
     <EmbeddedResource Include="Assets\tiles.png" />
   </ItemGroup>

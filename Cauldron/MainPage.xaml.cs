@@ -24,14 +24,23 @@ namespace Cauldron
         SKBitmap tilesScale;
         SKRect source = new SKRect();
         SKRect dest = new SKRect();
+        SKCanvas canvas;
         int tile;
         int startMapX;
         const int MAP_SHOW = 100;
+        //SKColor[] pixels;
+        //SKBitmap bmpPixels;
+        SKImageInfo scaleInfo;
+        //const int MAX_WIDTH = 640;
+        //const int MAX_HEIGHT = 300;
+        //SKBitmap bmpToShow;
 
         //int destSize = 8;
-        const int SCALE = 3;
+        const float SCALE = 3.0f;
         int tileWidth;
         int tileHeight;
+
+        OneSprite test;
 
 
         public MainPage()
@@ -45,14 +54,18 @@ namespace Cauldron
             SKManagedStream stream = new SKManagedStream(Tools.GetStream("tiles.png"));
             tiles = SKBitmap.Decode(stream, desiredInfo);
             // on scale cette image
-            SKImageInfo scaleInfo = new SKImageInfo(tiles.Width * SCALE, tiles.Height * SCALE);
+            scaleInfo = new SKImageInfo(Convert.ToInt32(tiles.Width * SCALE), Convert.ToInt32(tiles.Height * SCALE));
             tilesScale = tiles.Resize(scaleInfo, SKBitmapResizeMethod.Box);
             // dimension d'un tile
-            tileWidth = tiled.TileWidth * SCALE;
-            tileHeight = tiled.TileHeight * SCALE;
+            tileWidth = Convert.ToInt32(tiled.TileWidth * SCALE);
+            tileHeight = Convert.ToInt32(tiled.TileHeight * SCALE);
 
             startMapX = 0;//tiled.MapWidth / 2;
+            //pixels = new SKColor[MAX_WIDTH * MAX_HEIGHT];
+            //bmpPixels = new SKBitmap(MAX_WIDTH, MAX_HEIGHT);
 
+            test = new OneSprite(20 * 100, tiled.TileWidth, tiled.TileHeight, 24, 21, 3, 400, SCALE);
+            //test = new OneSprite(0, tiled.TileWidth, tiled.TileHeight, 24, 21, 3, 100, SCALE);
 
             /*
             desiredInfo = new SKImageInfo(12, 21, SKImageInfo.PlatformColorType, SKAlphaType.Premul);
@@ -81,6 +94,8 @@ namespace Cauldron
                 // get the elapsed rotation
                 start += (360 * time) % 360;
 
+                test.DoAnim(DateTime.UtcNow);
+
                 switch (Tools.GetKeyCode)
                 {
                     case 123:
@@ -108,14 +123,14 @@ namespace Cauldron
             });
         }
 
-
+        DateTime each = DateTime.UtcNow;
 
         public void OnPainting(object sender, SKPaintSurfaceEventArgs e)
         {
             // we get the current surface from the event args
-            var surface = e.Surface;
+            //var surface = e.Surface;
             // then we get the canvas that we can draw on
-            var canvas = surface.Canvas;
+            canvas = e.Surface.Canvas;
             // clear the canvas / view
             canvas.Clear(SKColors.Black);
 
@@ -197,6 +212,8 @@ namespace Cauldron
 
             // affichage de la carte
             int currentX = startMapX;
+            //Array.Clear(pixels, 0, MAX_WIDTH * MAX_HEIGHT);
+            DateTime timeStart = DateTime.UtcNow;
             // pour chaque colonne
             for (int i = 0; i < MAP_SHOW; i++)
             {
@@ -208,6 +225,8 @@ namespace Cauldron
                     if (tile > 0)
                     {
                         tile--;
+                        //CopyPixels(tile, i, j);
+
                         int x, y, a, b;
                         // position de la source
                         x = (tile % 100) * tileWidth;
@@ -229,7 +248,55 @@ namespace Cauldron
                     currentX = 0;
                 }
             }
+            test.Draw(canvas, 100, 450, tilesScale);
+            /*bmpPixels.Pixels = pixels;
+            bmpToShow = bmpPixels.Resize(scaleInfo, SKBitmapResizeMethod.Box);
+            canvas.DrawBitmap(bmpPixels, 0, 0);*/
+
+            DateTime timeStop = DateTime.UtcNow;
+            TimeSpan timeElaps = timeStop - timeStart;
+            if ((DateTime.UtcNow - each) > TimeSpan.FromMilliseconds(1000))
+            {
+                System.Diagnostics.Debug.WriteLine(timeElaps.TotalMilliseconds);
+                each = DateTime.UtcNow;
+            }
+
         }
+
+        /*private void CopyPixels(int tileNumber, int toX, int toY)
+        {
+            int x, y, a, b;
+            a = toX * tiled.TileWidth;
+            if (a >= MAX_WIDTH)
+                return;
+
+            b = toY * tiled.TileHeight;
+            if (b >= MAX_HEIGHT)
+                return;
+
+            x = (tileNumber % 100) * tiled.TileWidth;
+            y = (tileNumber / 100) * tiled.TileHeight;
+            for (int j = 0; j < 8; j++)
+            {
+                if ((b + j) >= MAX_HEIGHT)
+                    return;
+                pixels[a + (b + j) * MAX_WIDTH] = tiles.GetPixel(x, y + j);
+                if ((a + 1) < MAX_WIDTH)
+                    pixels[a + 1 + (b + j) * MAX_WIDTH] = tiles.GetPixel(x + 1, y + j);
+                if ((a + 2) < MAX_WIDTH)
+                    pixels[a + 2 + (b + j) * MAX_WIDTH] = tiles.GetPixel(x + 2, y + j);
+                if ((a + 3) < MAX_WIDTH)
+                    pixels[a + 3 + (b + j) * MAX_WIDTH] = tiles.GetPixel(x + 3, y + j);
+                if ((a + 4) < MAX_WIDTH)
+                    pixels[a + 4 + (b + j) * MAX_WIDTH] = tiles.GetPixel(x + 4, y + j);
+                if ((a + 5) < MAX_WIDTH)
+                    pixels[a + 5 + (b + j) * MAX_WIDTH] = tiles.GetPixel(x + 5, y + j);
+                if ((a + 6) < MAX_WIDTH)
+                    pixels[a + 6 + (b + j) * MAX_WIDTH] = tiles.GetPixel(x + 6, y + j);
+                if ((a + 7) < MAX_WIDTH)
+                    pixels[a + 7 + (b + j) * MAX_WIDTH] = tiles.GetPixel(x + 7, y + j);
+            }
+        }*/
 
     }
 }

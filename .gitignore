@@ -18,3 +18,7 @@ bld/
 *.props
 *.ide-wal
 *.ide-shm
+.vs/Cauldron/xs/sqlite3/storage.ide
+.vs/Cauldron/xs/sqlite3/storage.ide
+.vs/Cauldron/xs/sqlite3/storage.ide-shm
+.vs/Cauldron/xs/sqlite3/storage.ide-wal

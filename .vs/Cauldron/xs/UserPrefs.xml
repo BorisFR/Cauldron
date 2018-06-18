@@ -1,12 +1,11 @@
 ﻿<Properties StartupConfiguration="{7A6F53FB-0BC4-4B13-A50E-C9813BBD2812}|Default">
-  <MonoDevelop.Ide.Workbench ActiveDocument="Cauldron/MainPage.xaml.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Cauldron/OneSprite.cs">
     <Files>
-      <File FileName="Cauldron/MainPage.xaml.cs" Line="31" Column="28" />
+      <File FileName="Cauldron/MainPage.xaml.cs" Line="34" Column="11" />
       <File FileName="Cauldron/Tools.cs" Line="59" Column="15" />
       <File FileName="Cauldron/Tiled.cs" Line="63" Column="19" />
-      <File FileName="Cauldron/MainPage.xaml" Line="7" Column="15" />
-      <File FileName="Cauldron.MacOS/AppDelegate.cs" Line="17" Column="106" />
-      <File FileName="Cauldron.iOS/AppDelegate.cs" Line="14" Column="56" />
+      <File FileName="Cauldron.MacOS/AppDelegate.cs" Line="17" Column="101" />
+      <File FileName="Cauldron/OneSprite.cs" Line="13" Column="9" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
