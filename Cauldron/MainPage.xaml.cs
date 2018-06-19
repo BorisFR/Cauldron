@@ -23,7 +23,9 @@ namespace Cauldron
         const int DECAL_MAP_Y = 100;
         int tile;
         int startMapX;
-        const int MAP_SHOW = 100;
+        int scrollMapCount;
+        const int SCROLL_MAP_DELAY = 3;
+        const int MAP_SHOW = 40;
         //SKColor[] pixels;
         //SKBitmap bmpPixels;
         SKImageInfo scaleInfo;
@@ -32,7 +34,7 @@ namespace Cauldron
         //SKBitmap bmpToShow;
 
         //int destSize = 8;
-        const float SCALE = 3.0f;
+        const float SCALE = 5.0f;
         int tileWidth;
         int tileHeight;
 
@@ -40,8 +42,15 @@ namespace Cauldron
         OneSprite spriteMoon;
         OneSprite spriteSheepSkin;
         OneSprite spriteEnergy;
-        OneSprite[] spritesSmoke = new OneSprite[3];
+        const int SMOKE_SPRITES_MAX = 1;
+        OneSprite[] spritesSmoke = new OneSprite[SMOKE_SPRITES_MAX];
         int smokeIndex;
+        const int BAT_SPRITES_MAX = 7;
+        OneSprite[] spritesBat = new OneSprite[BAT_SPRITES_MAX];
+        int batIndex;
+        const int GHOST_SPRITES_MAX = 7;
+        OneSprite[] spritesGhost = new OneSprite[GHOST_SPRITES_MAX];
+        int ghostIndex;
         DateTime tempo;
 
 
@@ -49,6 +58,8 @@ namespace Cauldron
         {
             InitializeComponent();
 
+            // on charge la définition des tiles
+            tiled.ProcessTileSet(Tools.GetStream("Cauldron.tsx"));
             // on charge le plan TILED
             tiled.Load(Tools.GetStream("Cauldron.tmx"));
             // on charge l'image de tiles
@@ -68,15 +79,25 @@ namespace Cauldron
 
             witch = new Witch(tiled.TileWidth, tiled.TileHeight, SCALE, DECAL_MAP_X, DECAL_MAP_Y);
             witch.X = Convert.ToInt32(17 * 8 * SCALE);
-            witch.Y = 480;
+            witch.Y = Convert.ToInt32(20 * 8 * SCALE);
             spriteMoon = new OneSprite(15 * 100 + 30, tiled.TileWidth, tiled.TileHeight, 6 * 8, 5 * 8, 1, 0, SCALE, DECAL_SCREEN_X, DECAL_SCREEN_Y);
             spriteSheepSkin = new OneSprite(15 * 100 + 21, tiled.TileWidth, tiled.TileHeight, 7 * 8, 4 * 8, 1, 0, SCALE, DECAL_SCREEN_X, DECAL_SCREEN_Y);
-            spriteEnergy = new OneSprite(0 * 100 + 100 - 32, tiled.TileWidth, tiled.TileHeight, 3 * 8, 3 * 8, 4, 30, SCALE, DECAL_SCREEN_X, DECAL_SCREEN_Y);
-            spritesSmoke[0] = new OneSprite(3 * 100 + 100 - 32, tiled.TileWidth, tiled.TileHeight, 3 * 8, 3 * 8, 7, 110, SCALE, DECAL_SCREEN_X, DECAL_SCREEN_Y);
-
+            spriteEnergy = new OneSprite(0 * 100 + 100 - 32, tiled.TileWidth, tiled.TileHeight, 3 * 8, 3 * 8, 4, 40, SCALE, DECAL_SCREEN_X, DECAL_SCREEN_Y);
+            for (int i = 0; i < SMOKE_SPRITES_MAX; i++)
+            {
+                spritesSmoke[i] = new OneSprite(3 * 100 + 100 - 32, tiled.TileWidth, tiled.TileHeight, 3 * 8, 3 * 8, 7, 110, SCALE, DECAL_SCREEN_X, DECAL_SCREEN_Y);
+            }
+            for (int i = 0; i < BAT_SPRITES_MAX; i++)
+            {
+                spritesBat[i] = new OneSprite(7 * 100 + 100 - 32, tiled.TileWidth, tiled.TileHeight, 3 * 8, 3 * 8, 4, 100, SCALE, DECAL_SCREEN_X, DECAL_SCREEN_Y);
+            }
+            for (int i = 0; i < GHOST_SPRITES_MAX; i++)
+            {
+                spritesGhost[i] = new OneSprite(11 * 100 + 100 - 32, tiled.TileWidth, tiled.TileHeight, 3 * 8, 3 * 8, 8, 100, SCALE, DECAL_SCREEN_X, DECAL_SCREEN_Y);
+            }
             watch = new Stopwatch();
             start = 0;
-            var fps = TimeSpan.FromSeconds(1.0 / 30.0);
+            var fps = TimeSpan.FromSeconds(1.0 / 60.0);
             watch.Start();
 
             Device.StartTimer(fps, () =>
@@ -89,24 +110,39 @@ namespace Cauldron
 
                 tempo = DateTime.UtcNow;
                 spriteEnergy.DoAnim(tempo);
-                spritesSmoke[0].DoAnim(tempo);
+                for (int i = 0; i < SMOKE_SPRITES_MAX; i++)
+                    spritesSmoke[i].DoAnim(tempo);
+                for (int i = 0; i < BAT_SPRITES_MAX; i++)
+                    spritesBat[i].DoAnim(tempo);
+                for (int i = 0; i < GHOST_SPRITES_MAX; i++)
+                    spritesGhost[i].DoAnim(tempo);
                 witch.DoAnim(tempo);
 
                 switch (Tools.GetKeyCode)
                 {
                     case 123: // LEFT
-                        startMapX--;
-                        if (startMapX < 0)
+                        scrollMapCount++;
+                        if (scrollMapCount > SCROLL_MAP_DELAY)
                         {
-                            startMapX = tiled.MapWidth - 1;
+                            scrollMapCount = 0;
+                            startMapX--;
+                            if (startMapX < 0)
+                            {
+                                startMapX = tiled.MapWidth - 1;
+                            }
                         }
                         witch.MoveToLeft();
                         break;
                     case 124: // RIGHT
-                        startMapX++;
-                        if (startMapX >= tiled.MapWidth)
+                        scrollMapCount++;
+                        if (scrollMapCount > SCROLL_MAP_DELAY)
                         {
-                            startMapX = 0;
+                            scrollMapCount = 0;
+                            startMapX++;
+                            if (startMapX >= tiled.MapWidth)
+                            {
+                                startMapX = 0;
+                            }
                         }
                         witch.MoveToRight();
                         break;
@@ -198,6 +234,12 @@ namespace Cauldron
             */
 
 
+            // affichage des infos
+            spriteSheepSkin.Draw(canvas, Convert.ToInt32(1 * SCALE), Convert.ToInt32(1 * SCALE), tilesScale);
+            spriteSheepSkin.Draw(canvas, Convert.ToInt32(255 * SCALE), Convert.ToInt32(1 * SCALE), tilesScale);
+            spriteMoon.Draw(canvas, Convert.ToInt32(50 * SCALE), Convert.ToInt32(69 * SCALE), tilesScale);
+
+
             // affichage de la carte
             //Array.Clear(pixels, 0, MAX_WIDTH * MAX_HEIGHT);
             int currentX = startMapX;
@@ -251,21 +293,51 @@ namespace Cauldron
                     if (tile > 0)
                     {
                         tile--;
-                        int x = i * tileWidth + DECAL_MAP_X - 8;
-                        int y = j * tileHeight + DECAL_MAP_Y - 8;
-                        switch (tile)
+                        int x = i * tileWidth + DECAL_MAP_X;
+                        int y = j * tileHeight + DECAL_MAP_Y;
+                        /*switch (tile)
                         {
                             case 68: // energy
-                                spriteEnergy.Draw(canvas, x, y, tilesScale);
+                                //spriteEnergy.Draw(canvas, x, y, tilesScale);
                                 break;
                             case 368: // smoke
-                                spritesSmoke[smokeIndex++].Draw(canvas, x, y, tilesScale);
+                                //spritesSmoke[smokeIndex++].Draw(canvas, x - Convert.ToInt32(10 * 1), y - Convert.ToInt32(10 * 1), tilesScale);
                                 break;
                             default:
                                 //System.Diagnostics.Debug.WriteLine(String.Format("Item: {0}", tile));
                                 break;
+                        }*/
+                        // un attribut particulier sur la tile ?
+                        if (tiled.Tiles.ContainsKey(tile))
+                        {
+                            Tile t = tiled.Tiles[tile];
+                            switch (t.Name)
+                            {
+                                case "item":
+                                    switch (t.Content)
+                                    {
+                                        case "key_purple":
+                                            break;
+                                        case "key_blue":
+                                            break;
+                                        case "key_red":
+                                            break;
+                                        case "key_green":
+                                            break;
+                                        case "energy":
+                                            spriteEnergy.Draw(canvas, x, y, tilesScale);
+                                            break;
+                                        case "smoke":
+                                            spritesSmoke[smokeIndex++].Draw(canvas, x - Convert.ToInt32(10 * 1), y - Convert.ToInt32(10 * 1), tilesScale);
+                                            break;
+                                        case "vial":
+                                            break;
+                                        case "chest":
+                                            break;
+                                    }
+                                    break;
+                            }
                         }
-
                     }
                 }
                 // colonne suivante
@@ -277,12 +349,56 @@ namespace Cauldron
                 }
             }
 
+            // gestion des monstres
+            batIndex = 0;
+            ghostIndex = 0;
+            currentX = startMapX;
+            // pour chaque colonne
+            for (int i = 0; i < MAP_SHOW; i++)
+            {
+                // et chaque ligne
+                for (int j = 0; j < tiled.MapHeight; j++)
+                {
+                    // le tile en cours
+                    tile = tiled.Terrain[currentX, j];
+                    if (tile > 0)
+                    {
+                        tile--;
+                        int x = i * tileWidth + DECAL_MAP_X;
+                        int y = j * tileHeight + DECAL_MAP_Y;
+                        // un attribut particulier sur la tile ?
+                        if (tiled.Tiles.ContainsKey(tile))
+                        {
+                            Tile t = tiled.Tiles[tile];
+                            switch (t.Name)
+                            {
+                                case "generator":
+                                    switch (t.Content)
+                                    {
+                                        case "bat_1":
+                                            spritesBat[batIndex++].Draw(canvas, x, y, tilesScale);
+                                            break;
+                                        case "bat_2":
+                                            spritesBat[batIndex++].Draw(canvas, x, y, tilesScale);
+                                            break;
+                                        case "ghost":
+                                            spritesGhost[ghostIndex++].Draw(canvas, x, y, tilesScale);
+                                            break;
+                                    }
+                                    break;
+                            }
+                        }
+                    }
+                }
+                // colonne suivante
+                currentX++;
+                if (currentX >= tiled.MapWidth)
+                {
+                    // la carte boucle sur elle-même
+                    currentX = 0;
+                }
+            }
 
-
-            // affichage des infos
-            spriteSheepSkin.Draw(canvas, 1, 1, tilesScale);
-            spriteSheepSkin.Draw(canvas, 1000, 1, tilesScale);
-            spriteMoon.Draw(canvas, 150, 200, tilesScale);
 
 
             witch.Draw(canvas, tilesScale);

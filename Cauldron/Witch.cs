@@ -54,7 +54,7 @@ namespace Cauldron
 
         private void PrintState()
         {
-            System.Diagnostics.Debug.WriteLine(String.Format("State: {0}, moving: {1}, current: {2}", state, moving, currentStep));
+            //System.Diagnostics.Debug.WriteLine(String.Format("State: {0}, moving: {1}, current: {2}", state, moving, currentStep));
         }
 
         private void ChangeToState(WitchState newState)

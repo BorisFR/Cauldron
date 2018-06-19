@@ -14,7 +14,7 @@ namespace Cauldron.MacOS
         {
             var style = NSWindowStyle.Closable | NSWindowStyle.Resizable | NSWindowStyle.Titled;
 
-            var rect = new CoreGraphics.CGRect(100, NSScreen.MainScreen.VisibleFrame.Size.Height - 800, 1500, 900);
+            var rect = new CoreGraphics.CGRect(100, NSScreen.MainScreen.VisibleFrame.Size.Height - 800, 1600, 999);
             _window = new NSWindow(rect, style, NSBackingStore.Buffered, false);
             _window.Title = "Cauldron";
             //_window.TitleVisibility = NSWindowTitleVisibility.Hidden;

@@ -4,11 +4,18 @@
 // 
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Xml.Linq;
 
 namespace Cauldron
 {
+    public class Tile
+    {
+        public string Name { get; set; }
+        public string Content { get; set; }
+    }
+
     public class Tiled
     {
 
@@ -19,8 +26,9 @@ namespace Cauldron
 
         public int StartHouse { get; private set; }
 
-        public int[,] Terrain;
-        public int[,] Items;
+        public Int16[,] Terrain;
+        public Int16[,] Items;
+        public Dictionary<int, Tile> Tiles = new Dictionary<int, Tile>();
 
         public Tiled()
         {
@@ -35,11 +43,11 @@ namespace Cauldron
             MapWidth = (int)xMap.Attribute("width");
             MapHeight = (int)xMap.Attribute("height");
             System.Diagnostics.Debug.WriteLine(String.Format("Map: {0}x{1}", MapWidth, MapHeight));
-            Terrain = new int[MapWidth, MapHeight];
+            Terrain = new Int16[MapWidth, MapHeight];
             TileWidth = (int)xMap.Attribute("tilewidth");
             TileHeight = (int)xMap.Attribute("tileheight");
             System.Diagnostics.Debug.WriteLine(String.Format("Tile: {0}x{1}", TileWidth, TileHeight));
-            Items = new int[MapWidth, MapHeight];
+            Items = new Int16[MapWidth, MapHeight];
 
             foreach (XElement xLayer in xMap.Elements("layer"))
             {
@@ -79,7 +87,7 @@ namespace Cauldron
                             StartHouse = x + i;
                         }
 
-                        Terrain[x + i, y + j] = Convert.ToInt32(values[index]);
+                        Terrain[x + i, y + j] = Convert.ToInt16(values[index]);
                         index++;
                     }
                 }
@@ -104,9 +112,31 @@ namespace Cauldron
                     {
                         if (!values[index].Equals("0"))
                         {
-                            Items[x + i, y + j] = Convert.ToInt32(values[index]);
+                            Items[x + i, y + j] = Convert.ToInt16(values[index]);
                         }
                         index++;
+                    }
+                }
+            }
+        }
+
+        public void ProcessTileSet(Stream stream)
+        {
+            int i;
+            string name, content;
+            XDocument xDoc = XDocument.Load(stream);
+            XElement xTileSet = xDoc.Element("tileset");
+            foreach (XElement xTile in xTileSet.Elements("tile"))
+            {
+                i = (int)xTile.Attribute("id");
+                foreach (XElement xProperties in xTile.Elements("properties"))
+                {
+                    foreach (XElement xProperty in xProperties.Elements("property"))
+                    {
+                        name = (string)xProperty.Attribute("name");
+                        content = (string)xProperty.Attribute("value");
+                        Tiles.Add(i, new Tile() { Name = name, Content = content });
+                        System.Diagnostics.Debug.WriteLine(String.Format("Tile: {0} => {1}={2}", i, name, content));
                     }
                 }
             }
