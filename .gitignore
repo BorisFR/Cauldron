@@ -1,8 +1,7 @@
 
 .DS_Store
-.vs/Cauldron/xs/sqlite3/storage.ide
-.vs/Cauldron/xs/sqlite3/storage.ide-shm
-.vs/Cauldron/xs/sqlite3/storage.ide-wal
+xs/
+sqlite3/
 /packages
 [Dd]ebug/
 [Dd]ebugPublic/
@@ -18,13 +17,3 @@ bld/
 *.props
 *.ide-wal
 *.ide-shm
-.vs/Cauldron/xs/sqlite3/storage.ide
-.vs/Cauldron/xs/sqlite3/storage.ide
-.vs/Cauldron/xs/sqlite3/storage.ide-shm
-.vs/Cauldron/xs/sqlite3/storage.ide-wal
-*.ide
-*.ide-shm
-*.ide-wal
-*.ide-wal
-*.ide-shm
-*.ide
