@@ -25,3 +25,6 @@ bld/
 *.ide
 *.ide-shm
 *.ide-wal
+*.ide-wal
+*.ide-shm
+*.ide

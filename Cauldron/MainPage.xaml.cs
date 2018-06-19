@@ -37,8 +37,12 @@ namespace Cauldron
         int tileHeight;
 
         Witch witch;
-        OneSprite moon;
-        OneSprite sheepSkin;
+        OneSprite spriteMoon;
+        OneSprite spriteSheepSkin;
+        OneSprite spriteEnergy;
+        OneSprite[] spritesSmoke = new OneSprite[3];
+        int smokeIndex;
+        DateTime tempo;
 
 
         public MainPage()
@@ -65,8 +69,10 @@ namespace Cauldron
             witch = new Witch(tiled.TileWidth, tiled.TileHeight, SCALE, DECAL_MAP_X, DECAL_MAP_Y);
             witch.X = Convert.ToInt32(17 * 8 * SCALE);
             witch.Y = 480;
-            moon = new OneSprite(15 * 100 + 30, tiled.TileWidth, tiled.TileHeight, 6 * 8, 5 * 8, 1, 0, SCALE, DECAL_SCREEN_X, DECAL_SCREEN_Y);
-            sheepSkin = new OneSprite(15 * 100 + 21, tiled.TileWidth, tiled.TileHeight, 7 * 8, 4 * 8, 1, 0, SCALE, DECAL_SCREEN_X, DECAL_SCREEN_Y);
+            spriteMoon = new OneSprite(15 * 100 + 30, tiled.TileWidth, tiled.TileHeight, 6 * 8, 5 * 8, 1, 0, SCALE, DECAL_SCREEN_X, DECAL_SCREEN_Y);
+            spriteSheepSkin = new OneSprite(15 * 100 + 21, tiled.TileWidth, tiled.TileHeight, 7 * 8, 4 * 8, 1, 0, SCALE, DECAL_SCREEN_X, DECAL_SCREEN_Y);
+            spriteEnergy = new OneSprite(0 * 100 + 100 - 32, tiled.TileWidth, tiled.TileHeight, 3 * 8, 3 * 8, 4, 30, SCALE, DECAL_SCREEN_X, DECAL_SCREEN_Y);
+            spritesSmoke[0] = new OneSprite(3 * 100 + 100 - 32, tiled.TileWidth, tiled.TileHeight, 3 * 8, 3 * 8, 7, 110, SCALE, DECAL_SCREEN_X, DECAL_SCREEN_Y);
 
             watch = new Stopwatch();
             start = 0;
@@ -81,7 +87,10 @@ namespace Cauldron
                 // get the elapsed rotation
                 start += (360 * time) % 360;
 
-                witch.DoAnim(DateTime.UtcNow);
+                tempo = DateTime.UtcNow;
+                spriteEnergy.DoAnim(tempo);
+                spritesSmoke[0].DoAnim(tempo);
+                witch.DoAnim(tempo);
 
                 switch (Tools.GetKeyCode)
                 {
@@ -190,8 +199,8 @@ namespace Cauldron
 
 
             // affichage de la carte
-            int currentX = startMapX;
             //Array.Clear(pixels, 0, MAX_WIDTH * MAX_HEIGHT);
+            int currentX = startMapX;
             DateTime timeStart = DateTime.UtcNow;
             // pour chaque colonne
             for (int i = 0; i < MAP_SHOW; i++)
@@ -227,9 +236,55 @@ namespace Cauldron
                     currentX = 0;
                 }
             }
-            sheepSkin.Draw(canvas, 1, 1, tilesScale);
-            sheepSkin.Draw(canvas, 1000, 1, tilesScale);
-            moon.Draw(canvas, 150, 200, tilesScale);
+
+            // affichage des items
+            smokeIndex = 0;
+            currentX = startMapX;
+            // pour chaque colonne
+            for (int i = 0; i < MAP_SHOW; i++)
+            {
+                // et chaque ligne
+                for (int j = 0; j < tiled.MapHeight; j++)
+                {
+                    // le tile en cours
+                    tile = tiled.Items[currentX, j];
+                    if (tile > 0)
+                    {
+                        tile--;
+                        int x = i * tileWidth + DECAL_MAP_X - 8;
+                        int y = j * tileHeight + DECAL_MAP_Y - 8;
+                        switch (tile)
+                        {
+                            case 68: // energy
+                                spriteEnergy.Draw(canvas, x, y, tilesScale);
+                                break;
+                            case 368: // smoke
+                                spritesSmoke[smokeIndex++].Draw(canvas, x, y, tilesScale);
+                                break;
+                            default:
+                                //System.Diagnostics.Debug.WriteLine(String.Format("Item: {0}", tile));
+                                break;
+                        }
+
+                    }
+                }
+                // colonne suivante
+                currentX++;
+                if (currentX >= tiled.MapWidth)
+                {
+                    // la carte boucle sur elle-même
+                    currentX = 0;
+                }
+            }
+
+
+
+            // affichage des infos
+            spriteSheepSkin.Draw(canvas, 1, 1, tilesScale);
+            spriteSheepSkin.Draw(canvas, 1000, 1, tilesScale);
+            spriteMoon.Draw(canvas, 150, 200, tilesScale);
+
+
             witch.Draw(canvas, tilesScale);
             /*bmpPixels.Pixels = pixels;
             bmpToShow = bmpPixels.Resize(scaleInfo, SKBitmapResizeMethod.Box);

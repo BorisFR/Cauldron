@@ -43,6 +43,10 @@ namespace Cauldron
         public int StepAnim { get { return animStep; } }
 
 
+        public OneSprite()
+        {
+
+        }
 
         public OneSprite(int tileNumber, int tileWidth, int tileHeight, int width, int height, int animCount, int animDelay, float scale, int decalX, int decalY)
         {
@@ -57,7 +61,7 @@ namespace Cauldron
             animElaps = TimeSpan.FromMilliseconds(animDelay);
             animStep = 0;
             animFrom = 0;
-            animTo = animCount;
+            animTo = animCount - 1;
             if (animFrom < animTo)
                 animIncrease = true;
             else

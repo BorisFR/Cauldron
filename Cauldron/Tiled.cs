@@ -20,6 +20,7 @@ namespace Cauldron
         public int StartHouse { get; private set; }
 
         public int[,] Terrain;
+        public int[,] Items;
 
         public Tiled()
         {
@@ -38,6 +39,7 @@ namespace Cauldron
             TileWidth = (int)xMap.Attribute("tilewidth");
             TileHeight = (int)xMap.Attribute("tileheight");
             System.Diagnostics.Debug.WriteLine(String.Format("Tile: {0}x{1}", TileWidth, TileHeight));
+            Items = new int[MapWidth, MapHeight];
 
             foreach (XElement xLayer in xMap.Elements("layer"))
             {
@@ -94,15 +96,16 @@ namespace Cauldron
                 y = (int)xChunk.Attribute("y");
                 width = (int)xChunk.Attribute("width");
                 height = (int)xChunk.Attribute("height");
-                values = xChunk.Value.Split(',');
+                values = xChunk.Value.Replace("\n", "").Split(',');
                 index = 0;
                 for (int j = 0; j < height; j++)
                 {
                     for (int i = 0; i < width; i++)
                     {
-                        // x+i  /  y+j
-                        //values[index];
-
+                        if (!values[index].Equals("0"))
+                        {
+                            Items[x + i, y + j] = Convert.ToInt32(values[index]);
+                        }
                         index++;
                     }
                 }
