@@ -3,7 +3,9 @@
     <Files>
       <File FileName="Cauldron/MainPage.xaml.cs" Line="27" Column="42" />
       <File FileName="Cauldron/Witch.cs" Line="56" Column="128" />
-      <File FileName="Cauldron/Monsters.cs" Line="102" Column="155" />
+      <File FileName="Cauldron/Monsters.cs" Line="310" Column="56" />
+      <File FileName="Cauldron.MacOS/Main.cs" Line="11" Column="1" />
+      <File FileName="Cauldron/Tools.cs" Line="21" Column="27" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
