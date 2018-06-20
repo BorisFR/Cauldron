@@ -16,12 +16,14 @@ namespace Cauldron
         int height;
         int widthScale;
         int heightScale;
+        bool doubleX;
         int animCount;
         int animDelay;
         int animFrom;
         int animTo;
         TimeSpan animElaps;
         bool animIncrease;
+        bool animBack;
 
         DateTime startAnim;
         int animStep;
@@ -48,12 +50,14 @@ namespace Cauldron
 
         }
 
-        public OneSprite(int tileNumber, int tileWidth, int tileHeight, int width, int height, int animCount, int animDelay, float scale, int decalX, int decalY)
+        public OneSprite(int tileNumber, int tileWidth, int tileHeight, int width, int height, int animCount, int animDelay, float scale, int decalX, int decalY, bool doubleX = false, bool animBack = false)
         {
             this.decalX = decalX;
             this.decalY = decalY;
             this.width = width;
             this.height = height;
+            this.doubleX = doubleX;
+            this.animBack = animBack;
             widthScale = Convert.ToInt32(width * scale);
             heightScale = Convert.ToInt32(height * scale);
             this.animCount = animCount;
@@ -78,6 +82,8 @@ namespace Cauldron
                 // qui est sur la même ligne, séparée par une colonne de la taille d'une tile
                 x += Convert.ToInt32(((width + tileWidth * 2 - 1) / tileWidth) * tileWidth * scale);
             }
+            if (doubleX)
+                widthScale *= 2;
         }
 
         public void DoAnim(DateTime time)
@@ -89,13 +95,33 @@ namespace Cauldron
             {
                 animStep++;
                 if (animStep > animTo)
-                    animStep = animFrom;
+                {
+                    if (animBack)
+                    {
+                        animStep = animTo - 1;
+                        animIncrease = false;
+                    }
+                    else
+                    {
+                        animStep = animFrom;
+                    }
+                }
             }
             else
             {
                 animStep--;
                 if (animStep < animTo)
-                    animStep = animFrom;
+                {
+                    if (animBack)
+                    {
+                        animStep = animFrom + 1;
+                        animIncrease = true;
+                    }
+                    else
+                    {
+                        animStep = animFrom;
+                    }
+                }
             }
         }
 

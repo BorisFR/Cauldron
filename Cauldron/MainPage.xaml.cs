@@ -83,7 +83,7 @@ namespace Cauldron
 
             witch = new Witch(tiled.TileWidth, tiled.TileHeight, SCALE, DECAL_MAP_X, DECAL_MAP_Y);
             witch.X = Convert.ToInt32(17 * 8 * SCALE);
-            witch.Y = Convert.ToInt32(20 * 8 * SCALE);
+            witch.Y = Convert.ToInt32((19 * 8 + 3) * SCALE);
             spriteMoon = new OneSprite(15 * 100 + 30, tiled.TileWidth, tiled.TileHeight, 6 * 8, 5 * 8, 1, 0, SCALE, DECAL_SCREEN_X, DECAL_SCREEN_Y);
             spriteSheepSkin = new OneSprite(15 * 100 + 21, tiled.TileWidth, tiled.TileHeight, 7 * 8, 4 * 8, 1, 0, SCALE, DECAL_SCREEN_X, DECAL_SCREEN_Y);
             spriteEnergy = new OneSprite(0 * 100 + 100 - 32, tiled.TileWidth, tiled.TileHeight, 3 * 8, 3 * 8, 4, 40, SCALE, DECAL_SCREEN_X, DECAL_SCREEN_Y);

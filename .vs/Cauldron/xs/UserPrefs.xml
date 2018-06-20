@@ -1,11 +1,11 @@
 ﻿<Properties StartupConfiguration="{7A6F53FB-0BC4-4B13-A50E-C9813BBD2812}|Default">
   <MonoDevelop.Ide.Workbench ActiveDocument="Cauldron/Monsters.cs">
     <Files>
-      <File FileName="Cauldron/MainPage.xaml.cs" Line="30" Column="61" />
+      <File FileName="Cauldron/MainPage.xaml.cs" Line="86" Column="50" />
       <File FileName="Cauldron.MacOS/AppDelegate.cs" Line="17" Column="114" />
-      <File FileName="Cauldron/Witch.cs" Line="192" Column="53" />
-      <File FileName="Cauldron/Monsters.cs" Line="76" Column="38" />
-      <File FileName="Cauldron/OneSprite.cs" Line="104" Column="51" />
+      <File FileName="Cauldron/Witch.cs" Line="43" Column="43" />
+      <File FileName="Cauldron/Monsters.cs" Line="56" Column="110" />
+      <File FileName="Cauldron/OneSprite.cs" Line="121" Column="22" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />

@@ -40,12 +40,12 @@ namespace Cauldron
 
         const int ANIM_DELAY_WALK = 70;
         const int ANIM_DELAY_MOUNT = 80;
-        const int ANIM_DELAY_FLY_SLOW = 90;
+        const int ANIM_DELAY_FLY_SLOW = 350;
 
         public Witch(int tileWidth, int tileHeight, float scale, int decalX, int decalY)
         {
-            toLeft = new OneSprite(20 * 100, tileWidth, tileHeight, 16, 21, 18, 100, scale, decalX, decalY);
-            toRight = new OneSprite(24 * 100, tileWidth, tileHeight, 16, 21, 18, 100, scale, decalX, decalY);
+            toLeft = new OneSprite(20 * 100, tileWidth, tileHeight, 16, 21, 18, 100, scale, decalX, decalY, true);
+            toRight = new OneSprite(24 * 100, tileWidth, tileHeight, 16, 21, 18, 100, scale, decalX, decalY, true);
             currentStep = 0;
             toRight.SetAnimSteps(currentStep, currentStep, 0);
             ChangeToState(WitchState.RightWalk);
@@ -65,12 +65,12 @@ namespace Cauldron
                     animElaps = TimeSpan.FromMilliseconds(ANIM_DELAY_WALK);
                     break;
                 case WitchState.LeftMount:
-                    toLeft.SetAnimSteps(3, 8, ANIM_DELAY_FLY_SLOW);
-                    animElaps = TimeSpan.FromMilliseconds(ANIM_DELAY_FLY_SLOW);
+                    toLeft.SetAnimSteps(3, 8, ANIM_DELAY_MOUNT);
+                    animElaps = TimeSpan.FromMilliseconds(ANIM_DELAY_MOUNT);
                     break;
                 case WitchState.LeftDescend:
-                    toLeft.SetAnimSteps(8, 3, ANIM_DELAY_FLY_SLOW);
-                    animElaps = TimeSpan.FromMilliseconds(ANIM_DELAY_FLY_SLOW);
+                    toLeft.SetAnimSteps(8, 3, ANIM_DELAY_MOUNT);
+                    animElaps = TimeSpan.FromMilliseconds(ANIM_DELAY_MOUNT);
                     break;
                 case WitchState.LeftFlySlow:
                     toLeft.SetAnimSteps(8, 9, ANIM_DELAY_FLY_SLOW);
@@ -82,12 +82,12 @@ namespace Cauldron
                     animElaps = TimeSpan.FromMilliseconds(ANIM_DELAY_WALK);
                     break;
                 case WitchState.RightMount:
-                    toRight.SetAnimSteps(3, 8, ANIM_DELAY_FLY_SLOW);
-                    animElaps = TimeSpan.FromMilliseconds(ANIM_DELAY_FLY_SLOW);
+                    toRight.SetAnimSteps(3, 8, ANIM_DELAY_MOUNT);
+                    animElaps = TimeSpan.FromMilliseconds(ANIM_DELAY_MOUNT);
                     break;
                 case WitchState.RightDescend:
-                    toRight.SetAnimSteps(8, 3, ANIM_DELAY_FLY_SLOW);
-                    animElaps = TimeSpan.FromMilliseconds(ANIM_DELAY_FLY_SLOW);
+                    toRight.SetAnimSteps(8, 3, ANIM_DELAY_MOUNT);
+                    animElaps = TimeSpan.FromMilliseconds(ANIM_DELAY_MOUNT);
                     break;
                 case WitchState.RightFlySlow:
                     toRight.SetAnimSteps(8, 9, ANIM_DELAY_FLY_SLOW);

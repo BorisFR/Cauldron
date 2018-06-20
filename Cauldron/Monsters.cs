@@ -34,7 +34,8 @@ namespace Cauldron
         int INHIBE_DELAY;
 
         const int BAT_SPRITES_MAX = 4;
-        OneSprite[] spritesBat = new OneSprite[BAT_SPRITES_MAX];
+        OneSprite[] spritesBat1 = new OneSprite[BAT_SPRITES_MAX];
+        OneSprite[] spritesBat2 = new OneSprite[BAT_SPRITES_MAX];
         //int batIndex;
         const int GHOST_SPRITES_MAX = 8;
         OneSprite[] spritesGhost = new OneSprite[GHOST_SPRITES_MAX];
@@ -50,12 +51,14 @@ namespace Cauldron
 
             for (int i = 0; i < BAT_SPRITES_MAX; i++)
             {
-                spritesBat[i] = new OneSprite(7 * 100 + 100 - 32, tileWidth, tileHeight, 3 * 8, 3 * 8, 4, 100, scale, decalX, decalY);
-                spritesBat[i].StepAnim = i % 4;
+                spritesBat1[i] = new OneSprite(7 * 100 + 100 - 32, tileWidth, tileHeight, 3 * 8, 3 * 8, 4, 120, scale, decalX, decalY, animBack: true);
+                spritesBat1[i].StepAnim = i % 4;
+                spritesBat2[i] = new OneSprite(7 * 100 + 100 - 16, tileWidth, tileHeight, 3 * 8, 3 * 8, 4, 120, scale, decalX, decalY, animBack: true);
+                spritesBat2[i].StepAnim = i % 4;
             }
             for (int i = 0; i < GHOST_SPRITES_MAX; i++)
             {
-                spritesGhost[i] = new OneSprite(11 * 100 + 100 - 32, tileWidth, tileHeight, 3 * 8, 3 * 8, 8, 100, scale, decalX, decalY);
+                spritesGhost[i] = new OneSprite(11 * 100 + 100 - 32, tileWidth, tileHeight, 3 * 8, 3 * 8, 8, 120, scale, decalX, decalY);
                 spritesGhost[i].StepAnim = i % 8;
             }
         }
@@ -132,7 +135,10 @@ namespace Cauldron
         public void DoAnim(DateTime time)
         {
             for (int i = 0; i < BAT_SPRITES_MAX; i++)
-                spritesBat[i].DoAnim(time);
+            {
+                spritesBat1[i].DoAnim(time);
+                spritesBat2[i].DoAnim(time);
+            }
             for (int i = 0; i < GHOST_SPRITES_MAX; i++)
                 spritesGhost[i].DoAnim(time);
             List<OneMonster> toDelete = new List<OneMonster>();
@@ -177,8 +183,10 @@ namespace Cauldron
                 switch (monster.Category)
                 {
                     case MonsterType.Bat_1:
+                        spritesBat1[monster.AnimationStep].Draw(canvas, monster.X, monster.Y, tiles, scrollX);
+                        break;
                     case MonsterType.Bat_2:
-                        spritesBat[monster.AnimationStep].Draw(canvas, monster.X, monster.Y, tiles, scrollX);
+                        spritesBat2[monster.AnimationStep].Draw(canvas, monster.X, monster.Y, tiles, scrollX);
                         break;
                     case MonsterType.Ghost:
                         spritesGhost[monster.AnimationStep].Draw(canvas, monster.X, monster.Y, tiles, scrollX);
