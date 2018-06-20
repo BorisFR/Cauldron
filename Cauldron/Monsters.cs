@@ -17,6 +17,24 @@ namespace Cauldron
         Ghost
     }
 
+    public enum MonsterDirection : short
+    {
+        DiagUpLeft,
+        DiagUpLeftSpeed,
+        DiagDownLeft,
+        DiagDownLeftSpeed,
+        DiagUpRight,
+        DiagUpRightSpeed,
+        DiagDownRight,
+        DiagDownRightSpeed,
+        ToLeft,
+        ToRight,
+        ToTop,
+        ToDown,
+        ToUp,
+        ToWitch,
+    }
+
     public class OneMonster
     {
         public MonsterType Category { get; set; }
@@ -24,10 +42,24 @@ namespace Cauldron
         public int AnimationStep { get; set; }
         public int X { get; set; }
         public int Y { get; set; }
+        public short[] Pattern { get; set; }
     }
 
     public class Monsters
     {
+        // Bat 1
+        List<short[]> patternBat1 = new List<short[]>(); /*{
+            { (short) MonsterDirection.DiagUpLeftSpeed, 6, (short) MonsterDirection.DiagDownLeftSpeed, 6, (short) MonsterDirection.ToLeft, 0 },
+            { (short) MonsterDirection.DiagUpLeftSpeed, 6, (short) MonsterDirection.DiagDownLeftSpeed, 6, (short) MonsterDirection.ToRight, 0 },
+            { (short)MonsterDirection.DiagUpRight, 3, (short)MonsterDirection.DiagDownRight, 3, (short)MonsterDirection.ToLeft, 0 },
+            { (short)MonsterDirection.DiagUpRight, 3, (short)MonsterDirection.DiagDownRight, 3, (short)MonsterDirection.ToRight, 0 },
+        };*/
+        // Bat 2
+        short[,] patternBat2 = {
+            { (short)MonsterDirection.ToTop, 0, (short)MonsterDirection.ToLeft, 6, (short)MonsterDirection.ToDown, 4, (short)MonsterDirection.ToRight, 4, (short)MonsterDirection.ToUp, 3, (short)MonsterDirection.ToWitch, 0 },
+            { (short)MonsterDirection.ToTop, 0, (short)MonsterDirection.ToRight, 6, (short)MonsterDirection.ToDown, 4, (short)MonsterDirection.ToLeft, 4, (short)MonsterDirection.ToUp, 3, (short)MonsterDirection.ToWitch, 0 }
+        };
+
         int tileWidthScale;
         List<OneMonster> monsters;
         Dictionary<int, int> inhibeID;
@@ -61,6 +93,14 @@ namespace Cauldron
                 spritesGhost[i] = new OneSprite(11 * 100 + 100 - 32, tileWidth, tileHeight, 3 * 8, 3 * 8, 8, 120, scale, decalX, decalY);
                 spritesGhost[i].StepAnim = i % 8;
             }
+            short[] pattern = { (short)MonsterDirection.DiagUpLeftSpeed, 6, (short)MonsterDirection.DiagDownLeftSpeed, 6, (short)MonsterDirection.ToLeft, 0 };
+            patternBat1.Add(pattern);
+            pattern = new short[] { (short)MonsterDirection.DiagUpLeftSpeed, 6, (short)MonsterDirection.DiagDownLeftSpeed, 6, (short)MonsterDirection.ToRight, 0 };
+            patternBat1.Add(pattern);
+            pattern = new short[] { (short)MonsterDirection.DiagUpRight, 3, (short)MonsterDirection.DiagDownRight, 3, (short)MonsterDirection.ToLeft, 0 };
+            patternBat1.Add(pattern);
+            pattern = new short[] { (short)MonsterDirection.DiagUpRight, 3, (short)MonsterDirection.DiagDownRight, 3, (short)MonsterDirection.ToRight, 0 };
+            patternBat1.Add(pattern);
         }
 
         public void Generator(MonsterType category, int idGenerator, int x, int y)
@@ -84,6 +124,15 @@ namespace Cauldron
             monster.X = x;
             monster.Y = y;
             monster.AnimationStep = Tools.RND(4);
+            switch (category)
+            {
+                case MonsterType.Bat_1:
+                    monster.Pattern = patternBat1[Tools.RND(patternBat1.Count)];
+                    break;
+                case MonsterType.Bat_2:
+                    monster.Pattern = patternBat1[Tools.RND(patternBat1.Count)];
+                    break;
+            }
             monsters.Add(monster);
             System.Diagnostics.Debug.WriteLine(String.Format("Monster #{3}: {0} at {1}/{2}", category, x, y, monsters.Count));
             // on rend inactif ce générateur

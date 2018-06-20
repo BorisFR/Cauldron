@@ -37,6 +37,9 @@ namespace Cauldron
 
         public int X { get; set; }
         public int Y { get; set; }
+        public int MinY { get; set; }
+        public int MaxY { get; set; }
+        int stepY = 3;
 
         const int ANIM_DELAY_WALK = 70;
         const int ANIM_DELAY_MOUNT = 80;
@@ -50,6 +53,7 @@ namespace Cauldron
             toRight.SetAnimSteps(currentStep, currentStep, 0);
             ChangeToState(WitchState.RightWalk);
             moving = false;
+            stepY = Convert.ToInt32((17 / 6) * scale); // on monte/descend d'1/6 de la taille du sprite qui vaut 17 (mode vole)
         }
 
         private void PrintState()
@@ -227,9 +231,9 @@ namespace Cauldron
                 case WitchState.ExitingDoor:
                     break;
             }
-        }
+        } // MoveStop
 
-        public void MoveToRight()
+        public int MoveToRight()
         {
             moving = true;
             switch (state)
@@ -238,70 +242,72 @@ namespace Cauldron
                     currentStep = toLeft.StepAnim;
                     toRight.SetAnimSteps(currentStep, currentStep, 0);
                     state = WitchState.RightWalk;
-                    break;
+                    return 0;
                 case WitchState.LeftMount:
-                    break;
+                    return 0;
                 case WitchState.LeftDescend:
-                    break;
+                    return 0;
                 case WitchState.LeftFlySlow:
                     ChangeToState(WitchState.RightFlySlow);
-                    break;
+                    return 0;
                 case WitchState.LeftFly:
-                    break;
+                    return 0;
                 case WitchState.RightWalk:
-                    break;
+                    return 1;
                 case WitchState.RightMount:
-                    break;
+                    return 0;
                 case WitchState.RightDescend:
-                    break;
+                    return 0;
                 case WitchState.RightFlySlow:
-                    break;
+                    return 1;
                 case WitchState.RightFly:
-                    break;
+                    return 2;
                 case WitchState.EnteringDoor:
-                    break;
+                    return 0;
                 case WitchState.ExitingDoor:
-                    break;
+                    return 0;
             }
-        }
+            return 0;
+        } // MoveToRight
 
-        public void MoveToLeft()
+        public int MoveToLeft()
         {
             moving = true;
             switch (state)
             {
                 case WitchState.LeftWalk:
-                    break;
+                    return 1;
                 case WitchState.LeftMount:
-                    break;
+                    return 0;
                 case WitchState.LeftDescend:
-                    break;
+                    return 0;
                 case WitchState.LeftFlySlow:
-                    break;
+                    return 1;
                 case WitchState.LeftFly:
-                    break;
+                    return 2;
                 case WitchState.RightWalk:
                     currentStep = toRight.StepAnim;
                     toLeft.SetAnimSteps(currentStep, currentStep, 0);
                     state = WitchState.LeftWalk;
-                    break;
+                    return 0;
                 case WitchState.RightMount:
-                    break;
+                    return 0;
                 case WitchState.RightDescend:
-                    break;
+                    return 0;
                 case WitchState.RightFlySlow:
                     ChangeToState(WitchState.LeftFlySlow);
-                    break;
+                    return 0;
                 case WitchState.RightFly:
-                    break;
+                    return 0;
                 case WitchState.EnteringDoor:
-                    break;
+                    return 0;
                 case WitchState.ExitingDoor:
-                    break;
+                    return 0;
             }
-        }
+            return 0;
+        } // MoveToLeft
 
-        public void MoveToUp()
+        public int MoveToUp()
         {
             switch (state)
             {
@@ -314,8 +320,20 @@ namespace Cauldron
                 case WitchState.LeftDescend:
                     break;
                 case WitchState.LeftFlySlow:
+                    if (Y > MinY)
+                    {
+                        Y -= stepY;
+                        if (Y < MinY)
+                            Y = MinY;
+                    }
                     break;
                 case WitchState.LeftFly:
+                    if (Y > MinY)
+                    {
+                        Y -= stepY;
+                        if (Y < MinY)
+                            Y = MinY;
+                    }
                     break;
                 case WitchState.RightWalk:
                     if (!moving)
@@ -326,17 +344,30 @@ namespace Cauldron
                 case WitchState.RightDescend:
                     break;
                 case WitchState.RightFlySlow:
+                    if (Y > MinY)
+                    {
+                        Y -= stepY;
+                        if (Y < MinY)
+                            Y = MinY;
+                    }
                     break;
                 case WitchState.RightFly:
+                    if (Y > MinY)
+                    {
+                        Y -= stepY;
+                        if (Y < MinY)
+                            Y = MinY;
+                    }
                     break;
                 case WitchState.EnteringDoor:
                     break;
                 case WitchState.ExitingDoor:
                     break;
             }
-        }
+            return 0;
+        } // MoveToUp
 
-        public void MoveToDown()
+        public int MoveToDown()
         {
             switch (state)
             {
@@ -347,10 +378,26 @@ namespace Cauldron
                 case WitchState.LeftDescend:
                     break;
                 case WitchState.LeftFlySlow:
-                    if (!moving)
+                    //if (!moving)
+                    if (Y == MaxY)
                         ChangeToState(WitchState.LeftDescend);
+                    else
+                    {
+                        if (Y < MaxY)
+                        {
+                            Y += stepY;
+                            if (Y > MaxY)
+                                Y = MaxY;
+                        }
+                    }
                     break;
                 case WitchState.LeftFly:
+                    if (Y < MaxY)
+                    {
+                        Y += stepY;
+                        if (Y > MaxY)
+                            Y = MaxY;
+                    }
                     break;
                 case WitchState.RightWalk:
                     break;
@@ -359,16 +406,34 @@ namespace Cauldron
                 case WitchState.RightDescend:
                     break;
                 case WitchState.RightFlySlow:
-                    if (!moving)
+                    //if (!moving)
+                    if (Y == MaxY)
                         ChangeToState(WitchState.RightDescend);
+                    else
+                    {
+                        if (Y < MaxY)
+                        {
+                            Y += stepY;
+                            if (Y > MaxY)
+                                Y = MaxY;
+                        }
+                    }
                     break;
                 case WitchState.RightFly:
+                    if (Y < MaxY)
+                    {
+                        Y += stepY;
+                        if (Y > MaxY)
+                            Y = MaxY;
+                    }
                     break;
                 case WitchState.EnteringDoor:
                     break;
                 case WitchState.ExitingDoor:
                     break;
             }
-        }
+            return 0;
+        } // MoveToDown
+
     }
 }

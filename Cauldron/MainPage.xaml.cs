@@ -24,13 +24,14 @@ namespace Cauldron
         int tile;
 
         int startMapX; // colonne de départ d'affichage de la map
-        // pour "ralentir" le scroll horzontale
+        // pour "ralentir" le scroll horizontale
         int scrollMapCount;
         const int SCROLL_MAP_DELAY = 3;
         // mais de façon fluide avec un scroll intermédiaire
         // on ne scrolle pas de la taille d'une tile
         int scrollX;
         int scrollStep;
+        int scrollSpeed;
 
         // combien on affiche de colonne à l'écran
         const int MAP_SHOW = 40;
@@ -84,6 +85,9 @@ namespace Cauldron
             witch = new Witch(tiled.TileWidth, tiled.TileHeight, SCALE, DECAL_MAP_X, DECAL_MAP_Y);
             witch.X = Convert.ToInt32(17 * 8 * SCALE);
             witch.Y = Convert.ToInt32((19 * 8 + 3) * SCALE);
+            witch.MinY = 0;
+            witch.MaxY = witch.Y;
+
             spriteMoon = new OneSprite(15 * 100 + 30, tiled.TileWidth, tiled.TileHeight, 6 * 8, 5 * 8, 1, 0, SCALE, DECAL_SCREEN_X, DECAL_SCREEN_Y);
             spriteSheepSkin = new OneSprite(15 * 100 + 21, tiled.TileWidth, tiled.TileHeight, 7 * 8, 4 * 8, 1, 0, SCALE, DECAL_SCREEN_X, DECAL_SCREEN_Y);
             spriteEnergy = new OneSprite(0 * 100 + 100 - 32, tiled.TileWidth, tiled.TileHeight, 3 * 8, 3 * 8, 4, 40, SCALE, DECAL_SCREEN_X, DECAL_SCREEN_Y);
@@ -119,36 +123,42 @@ namespace Cauldron
                 switch (Tools.GetKeyCode)
                 {
                     case 123: // LEFT
-                        scrollMapCount++;
-                        scrollX += scrollStep;
-                        if (scrollMapCount > SCROLL_MAP_DELAY)
+                        scrollSpeed = witch.MoveToLeft();
+                        if (scrollSpeed > 0)
                         {
-                            scrollMapCount = 0;
-                            startMapX--;
-                            scrollX = 0;
-                            if (startMapX < 0)
+                            scrollMapCount++;
+                            scrollX += scrollStep;
+                            if (scrollMapCount > SCROLL_MAP_DELAY)
                             {
-                                startMapX = tiled.MapWidth - 1;
+                                scrollMapCount = 0;
+                                startMapX--;
+                                scrollX = 0;
+                                if (startMapX < 0)
+                                {
+                                    startMapX = tiled.MapWidth - 1;
+                                }
+                                monsters.MapScrollToRight();
                             }
-                            monsters.MapScrollToRight();
                         }
-                        witch.MoveToLeft();
                         break;
                     case 124: // RIGHT
-                        scrollMapCount++;
-                        scrollX -= scrollStep;
-                        if (scrollMapCount > SCROLL_MAP_DELAY)
+                        scrollSpeed = witch.MoveToRight();
+                        if (scrollSpeed > 0)
                         {
-                            scrollMapCount = 0;
-                            startMapX++;
-                            scrollX = 0;
-                            if (startMapX >= tiled.MapWidth)
+                            scrollMapCount++;
+                            scrollX -= scrollStep;
+                            if (scrollMapCount > SCROLL_MAP_DELAY)
                             {
-                                startMapX = 0;
+                                scrollMapCount = 0;
+                                startMapX++;
+                                scrollX = 0;
+                                if (startMapX >= tiled.MapWidth)
+                                {
+                                    startMapX = 0;
+                                }
+                                monsters.MapScrollToLeft();
                             }
-                            monsters.MapScrollToLeft();
                         }
-                        witch.MoveToRight();
                         break;
                     case 125: // DOWN
                         witch.MoveToDown();
