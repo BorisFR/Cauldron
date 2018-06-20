@@ -22,19 +22,28 @@ namespace Cauldron
         const int DECAL_MAP_X = 0;
         const int DECAL_MAP_Y = 100;
         int tile;
-        int startMapX;
+
+        int startMapX; // colonne de départ d'affichage de la map
+        // pour "ralentir" le scroll horzontale
         int scrollMapCount;
         const int SCROLL_MAP_DELAY = 3;
+        // mais de façon fluide avec un scroll intermédiaire
+        // on ne scrolle pas de la taille d'une tile
+        int scrollX;
+        int scrollStep;
+
+        // combien on affiche de colonne à l'écran
         const int MAP_SHOW = 40;
+
         //SKColor[] pixels;
         //SKBitmap bmpPixels;
-        SKImageInfo scaleInfo;
         //const int MAX_WIDTH = 640;
         //const int MAX_HEIGHT = 300;
         //SKBitmap bmpToShow;
 
         //int destSize = 8;
         const float SCALE = 5.0f;
+        SKImageInfo scaleInfo;
         int tileWidth;
         int tileHeight;
 
@@ -45,12 +54,7 @@ namespace Cauldron
         const int SMOKE_SPRITES_MAX = 1;
         OneSprite[] spritesSmoke = new OneSprite[SMOKE_SPRITES_MAX];
         int smokeIndex;
-        const int BAT_SPRITES_MAX = 7;
-        OneSprite[] spritesBat = new OneSprite[BAT_SPRITES_MAX];
-        int batIndex;
-        const int GHOST_SPRITES_MAX = 7;
-        OneSprite[] spritesGhost = new OneSprite[GHOST_SPRITES_MAX];
-        int ghostIndex;
+        Monsters monsters;
         DateTime tempo;
 
 
@@ -87,14 +91,11 @@ namespace Cauldron
             {
                 spritesSmoke[i] = new OneSprite(3 * 100 + 100 - 32, tiled.TileWidth, tiled.TileHeight, 3 * 8, 3 * 8, 7, 110, SCALE, DECAL_SCREEN_X, DECAL_SCREEN_Y);
             }
-            for (int i = 0; i < BAT_SPRITES_MAX; i++)
-            {
-                spritesBat[i] = new OneSprite(7 * 100 + 100 - 32, tiled.TileWidth, tiled.TileHeight, 3 * 8, 3 * 8, 4, 100, SCALE, DECAL_SCREEN_X, DECAL_SCREEN_Y);
-            }
-            for (int i = 0; i < GHOST_SPRITES_MAX; i++)
-            {
-                spritesGhost[i] = new OneSprite(11 * 100 + 100 - 32, tiled.TileWidth, tiled.TileHeight, 3 * 8, 3 * 8, 8, 100, SCALE, DECAL_SCREEN_X, DECAL_SCREEN_Y);
-            }
+            monsters = new Monsters(tiled.TileWidth, tiled.TileHeight, SCALE, DECAL_MAP_X, DECAL_MAP_Y);
+
+            scrollStep = Convert.ToInt32(tiled.TileWidth * SCALE / SCROLL_MAP_DELAY);
+            scrollX = 0;
+
             watch = new Stopwatch();
             start = 0;
             var fps = TimeSpan.FromSeconds(1.0 / 60.0);
@@ -112,37 +113,40 @@ namespace Cauldron
                 spriteEnergy.DoAnim(tempo);
                 for (int i = 0; i < SMOKE_SPRITES_MAX; i++)
                     spritesSmoke[i].DoAnim(tempo);
-                for (int i = 0; i < BAT_SPRITES_MAX; i++)
-                    spritesBat[i].DoAnim(tempo);
-                for (int i = 0; i < GHOST_SPRITES_MAX; i++)
-                    spritesGhost[i].DoAnim(tempo);
+                monsters.DoAnim(tempo);
                 witch.DoAnim(tempo);
 
                 switch (Tools.GetKeyCode)
                 {
                     case 123: // LEFT
                         scrollMapCount++;
+                        scrollX += scrollStep;
                         if (scrollMapCount > SCROLL_MAP_DELAY)
                         {
                             scrollMapCount = 0;
                             startMapX--;
+                            scrollX = 0;
                             if (startMapX < 0)
                             {
                                 startMapX = tiled.MapWidth - 1;
                             }
+                            monsters.MapScrollToRight();
                         }
                         witch.MoveToLeft();
                         break;
                     case 124: // RIGHT
                         scrollMapCount++;
+                        scrollX -= scrollStep;
                         if (scrollMapCount > SCROLL_MAP_DELAY)
                         {
                             scrollMapCount = 0;
                             startMapX++;
+                            scrollX = 0;
                             if (startMapX >= tiled.MapWidth)
                             {
                                 startMapX = 0;
                             }
+                            monsters.MapScrollToLeft();
                         }
                         witch.MoveToRight();
                         break;
@@ -242,10 +246,16 @@ namespace Cauldron
 
             // affichage de la carte
             //Array.Clear(pixels, 0, MAX_WIDTH * MAX_HEIGHT);
-            int currentX = startMapX;
-            DateTime timeStart = DateTime.UtcNow;
+            // on commence et termine l'affichage en dehors de l'écran => pour le scroll X que l'on fait de façon intermédiaire et pas par la taille d'une tile
+            int currentX = startMapX - 1; // donc on commence une colonne avant
+            if (currentX < 0)
+            {
+                // la carte boucle sur elle-même
+                currentX = tiled.MapWidth - 1;
+            }
+            //DateTime timeStart = DateTime.UtcNow;
             // pour chaque colonne
-            for (int i = 0; i < MAP_SHOW; i++)
+            for (int i = -1; i < (MAP_SHOW + 1); i++) // 1 colonne avant et après
             {
                 // et chaque ligne
                 for (int j = 0; j < tiled.MapHeight; j++)
@@ -263,7 +273,7 @@ namespace Cauldron
                         y = (tile / 100) * tileHeight;
                         source = new SKRect(x, y, x + tileWidth, y + tileHeight);
                         // position de la cible
-                        a = i * tileWidth + DECAL_MAP_X;
+                        a = i * tileWidth + DECAL_MAP_X + scrollX;
                         b = j * tileHeight + DECAL_MAP_Y;
                         dest = new SKRect(a, b, a + tileWidth, b + tileHeight);
                         // on effectue l'affichage
@@ -281,9 +291,14 @@ namespace Cauldron
 
             // affichage des items
             smokeIndex = 0;
-            currentX = startMapX;
+            currentX = startMapX - 1;
+            if (currentX < 0)
+            {
+                // la carte boucle sur elle-même
+                currentX = tiled.MapWidth - 1;
+            }
             // pour chaque colonne
-            for (int i = 0; i < MAP_SHOW; i++)
+            for (int i = -1; i < (MAP_SHOW + 1); i++)
             {
                 // et chaque ligne
                 for (int j = 0; j < tiled.MapHeight; j++)
@@ -325,10 +340,10 @@ namespace Cauldron
                                         case "key_green":
                                             break;
                                         case "energy":
-                                            spriteEnergy.Draw(canvas, x, y, tilesScale);
+                                            spriteEnergy.Draw(canvas, x, y, tilesScale, scrollX);
                                             break;
                                         case "smoke":
-                                            spritesSmoke[smokeIndex++].Draw(canvas, x - Convert.ToInt32(10 * 1), y - Convert.ToInt32(10 * 1), tilesScale);
+                                            spritesSmoke[smokeIndex++].Draw(canvas, x - Convert.ToInt32(10 * 1), y - Convert.ToInt32(10 * 1), tilesScale, scrollX);
                                             break;
                                         case "vial":
                                             break;
@@ -350,11 +365,14 @@ namespace Cauldron
             }
 
             // gestion des monstres
-            batIndex = 0;
-            ghostIndex = 0;
-            currentX = startMapX;
+            currentX = startMapX - 1;
+            if (currentX < 0)
+            {
+                // la carte boucle sur elle-même
+                currentX = tiled.MapWidth - 1;
+            }
             // pour chaque colonne
-            for (int i = 0; i < MAP_SHOW; i++)
+            for (int i = -1; i < (MAP_SHOW + 1); i++)
             {
                 // et chaque ligne
                 for (int j = 0; j < tiled.MapHeight; j++)
@@ -376,13 +394,16 @@ namespace Cauldron
                                     switch (t.Content)
                                     {
                                         case "bat_1":
-                                            spritesBat[batIndex++].Draw(canvas, x, y, tilesScale);
+                                            monsters.Generator(MonsterType.Bat_1, currentX, x, y);
+                                            //spritesBat[batIndex++].Draw(canvas, x, y, tilesScale);
                                             break;
                                         case "bat_2":
-                                            spritesBat[batIndex++].Draw(canvas, x, y, tilesScale);
+                                            monsters.Generator(MonsterType.Bat_2, currentX, x, y);
+                                            //spritesBat[batIndex++].Draw(canvas, x, y, tilesScale);
                                             break;
                                         case "ghost":
-                                            spritesGhost[ghostIndex++].Draw(canvas, x, y, tilesScale);
+                                            monsters.Generator(MonsterType.Ghost, currentX, x, y);
+                                            //spritesGhost[ghostIndex++].Draw(canvas, x, y, tilesScale);
                                             break;
                                     }
                                     break;
@@ -398,21 +419,23 @@ namespace Cauldron
                     currentX = 0;
                 }
             }
+            monsters.Draw(canvas, tilesScale, scrollX);
 
 
 
             witch.Draw(canvas, tilesScale);
+
             /*bmpPixels.Pixels = pixels;
             bmpToShow = bmpPixels.Resize(scaleInfo, SKBitmapResizeMethod.Box);
             canvas.DrawBitmap(bmpPixels, 0, 0);*/
 
-            DateTime timeStop = DateTime.UtcNow;
+            /*DateTime timeStop = DateTime.UtcNow;
             TimeSpan timeElaps = timeStop - timeStart;
             if ((DateTime.UtcNow - each) > TimeSpan.FromMilliseconds(1000))
             {
                 //System.Diagnostics.Debug.WriteLine(timeElaps.TotalMilliseconds);
                 each = DateTime.UtcNow;
-            }
+            }*/
 
         }
 

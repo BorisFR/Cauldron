@@ -3,6 +3,7 @@
 // Create: 14/06/2018
 // 
 
+using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -15,11 +16,18 @@ namespace Cauldron
         private static readonly string[] resources;
 
         private static int lastKey;
+        private static Random rnd;
+
+        public static int RND(int max)
+        {
+            return rnd.Next(max);
+        }
 
         static Tools()
         {
             assembly = typeof(Tools).GetTypeInfo().Assembly;
             resources = assembly.GetManifestResourceNames();
+            rnd = new Random(DateTime.UtcNow.Millisecond);
         }
 
         public static Stream GetStreamImage(string name)

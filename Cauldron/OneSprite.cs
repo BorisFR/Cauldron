@@ -40,7 +40,7 @@ namespace Cauldron
             animStep = from;
         }
 
-        public int StepAnim { get { return animStep; } }
+        public int StepAnim { get { return animStep; } set { animStep = value; } }
 
 
         public OneSprite()
@@ -99,9 +99,9 @@ namespace Cauldron
             }
         }
 
-        public void Draw(SKCanvas canvas, int x, int y, SKBitmap tiles)
+        public void Draw(SKCanvas canvas, int x, int y, SKBitmap tiles, int scrollX = 0)
         {
-            dest = new SKRect(decalX + x, decalY + y, decalX + x + widthScale, decalY + y + heightScale);
+            dest = new SKRect(decalX + x + scrollX, decalY + y, decalX + x + widthScale + scrollX, decalY + y + heightScale);
             canvas.DrawBitmap(tiles, sources[animStep], dest);
         }
 
