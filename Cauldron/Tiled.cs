@@ -10,11 +10,7 @@ using System.Xml.Linq;
 
 namespace Cauldron
 {
-    public class Tile
-    {
-        public string Name { get; set; }
-        public string Content { get; set; }
-    }
+
 
     public class Tiled
     {
@@ -55,16 +51,16 @@ namespace Cauldron
                 switch (name)
                 {
                     case "terrain":
-                        processTerrain(xLayer.Element("data"));
+                        ProcessTerrain(xLayer.Element("data"));
                         break;
                     case "items":
-                        processItems(xLayer.Element("data"));
+                        ProcessItems(xLayer.Element("data"));
                         break;
                 }
             }
-        }
+        } // Load
 
-        public void processTerrain(XElement element)
+        private void ProcessTerrain(XElement element)
         {
             int x, y, width, height, index;
             string[] values;
@@ -92,9 +88,9 @@ namespace Cauldron
                     }
                 }
             }
-        }
+        } // ProcessTerrain
 
-        public void processItems(XElement element)
+        private void ProcessItems(XElement element)
         {
             int x, y, width, height, index;
             string[] values;
@@ -118,7 +114,7 @@ namespace Cauldron
                     }
                 }
             }
-        }
+        } // ProcessItems
 
         public void ProcessTileSet(Stream stream)
         {
@@ -140,7 +136,7 @@ namespace Cauldron
                     }
                 }
             }
-        }
+        } // ProcessTileSet
 
     }
 }

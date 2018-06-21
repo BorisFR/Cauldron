@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using SkiaSharp;
 using SkiaSharp.Views.Forms;
 using Xamarin.Forms;
@@ -60,10 +61,16 @@ namespace Cauldron
         DateTime tempo;
 
         OneSprite spriteBullet;
-        Dictionary<int, OneExplode> bullets = new Dictionary<int, OneExplode>();
-        TimeSpan bulletElaps = TimeSpan.FromMilliseconds(40);
+        Dictionary<int, OneObject> bullets = new Dictionary<int, OneObject>();
+        TimeSpan bulletElaps = TimeSpan.FromMilliseconds(30);
         int idBullet = 0;
+        bool keyFireRelease;
+        int bulletDecalXLeft;
+        int bulletDecalXRight;
+        int bulletDecalY;
 
+        int stepX;
+        int stepY;
 
         public MainPage()
         {
@@ -88,8 +95,8 @@ namespace Cauldron
             //pixels = new SKColor[MAX_WIDTH * MAX_HEIGHT];
             //bmpPixels = new SKBitmap(MAX_WIDTH, MAX_HEIGHT);
 
-            int stepX = Convert.ToInt32((24 / 12) * SCALE / 3); // on monte/descend d'1/6 de la taille du sprite qui vaut 17 (mode vole)
-            int stepY = Convert.ToInt32((17 / 6) * SCALE / 2); // on monte/descend d'1/6 de la taille du sprite qui vaut 17 (mode vole)
+            stepX = Convert.ToInt32((24 / 12) * SCALE / 3); // on monte/descend d'1/6 de la taille du sprite qui vaut 17 (mode vole)
+            stepY = Convert.ToInt32((17 / 6) * SCALE / 2); // on monte/descend d'1/6 de la taille du sprite qui vaut 17 (mode vole)
 
 
             witch = new Witch(tiled.TileWidth, tiled.TileHeight, SCALE, DECAL_MAP_X, DECAL_MAP_Y, stepX, stepY * 2);
@@ -97,8 +104,12 @@ namespace Cauldron
             witch.Y = Convert.ToInt32((19 * 8 + 3) * SCALE);
             witch.MinY = 0;
             witch.MaxY = witch.Y;
+            keyFireRelease = true;
 
             spriteBullet = new OneSprite(0 * 100 + 100 - 16, tiled.TileWidth, tiled.TileHeight, 3 * 8, 3 * 8, 4, 40, SCALE, DECAL_SCREEN_X, DECAL_SCREEN_Y);
+            bulletDecalXLeft = Convert.ToInt32(3 * 8 * SCALE / 2) + Convert.ToInt32(0.5f * 8 * SCALE / 2);
+            bulletDecalXRight = Convert.ToInt32(3 * 8 * SCALE / 2) - Convert.ToInt32(0.5f * 8 * SCALE / 2);
+            bulletDecalY = Convert.ToInt32(3 * 8 * SCALE / 2);
 
             spriteMoon = new OneSprite(15 * 100 + 30, tiled.TileWidth, tiled.TileHeight, 6 * 8, 5 * 8, 1, 0, SCALE, DECAL_SCREEN_X, DECAL_SCREEN_Y);
             spriteSheepSkin = new OneSprite(15 * 100 + 21, tiled.TileWidth, tiled.TileHeight, 7 * 8, 4 * 8, 1, 0, SCALE, DECAL_SCREEN_X, DECAL_SCREEN_Y);
@@ -132,7 +143,42 @@ namespace Cauldron
                 monsters.DoAnim(tempo, witch.X, witch.Y);
                 witch.DoAnim(tempo);
 
-                switch (Tools.GetKeyCode)
+
+                List<int> deleteList = new List<int>();
+
+                foreach (var kvp in bullets.ToList<KeyValuePair<int, OneObject>>())
+                {
+                    bullets[kvp.Key].TimeToLive--;
+                    if (bullets[kvp.Key].TimeToLive == 0)
+                    {
+                        deleteList.Add(kvp.Key);
+                        continue;
+                    }
+                    switch (kvp.Value.Moving)
+                    {
+                        case MovingDirection.ToLeft:
+                            bullets[kvp.Key].X -= stepX * 3;
+                            //if (bullets[kvp.Key].X < 0) // TODO: 0...
+                            //    deleteList.Add(kvp.Key);
+                            break;
+                        case MovingDirection.ToRight:
+                            bullets[kvp.Key].X += stepX * 3;
+                            //if (bullets[kvp.Key].X > 1640) // TODO: 1640...
+                            //    deleteList.Add(kvp.Key);
+                            break;
+                    }
+                    if ((tempo - kvp.Value.Start) < bulletElaps)
+                        continue;
+                    bullets[kvp.Key].Start = DateTime.UtcNow;
+                    bullets[kvp.Key].Step++;
+                    if (bullets[kvp.Key].Step >= 4)
+                        bullets[kvp.Key].Step = 0;
+                }
+
+                foreach (int k in deleteList)
+                    bullets.Remove(k);
+
+                /*switch (Tools.GetKeyCode)
                 {
                     case 123: // LEFT
                         break;
@@ -143,18 +189,10 @@ namespace Cauldron
                     case 126: // UP
                         break;
                     case 49: // SPACE
-                        OneExplode temp = new OneExplode();
-                        temp.ID = idBullet++;
-                        temp.Start = DateTime.UtcNow;
-                        temp.Step = 0;
-                        temp.X = witch.X;
-                        temp.Y = witch.Y;
-                        bullets.Add(temp.ID, temp);
-
                         break;
                     default:
                         break;
-                }
+                }*/
 
                 if (Tools.KeyLeft && !Tools.KeyRight)
                 {
@@ -211,6 +249,35 @@ namespace Cauldron
                 if (Tools.KeyDown && !Tools.KeyUp)
                 {
                     witch.MoveToDown();
+                }
+
+                if (Tools.KeySpace)
+                {
+                    if (witch.IsFlying)
+                    {
+                        if (keyFireRelease)
+                        {
+                            // génération d'un tir de la sorcière
+                            OneObject temp = new OneObject();
+                            temp.ID = idBullet++;
+                            temp.TimeToLive = 60;
+                            temp.Start = DateTime.UtcNow;
+                            temp.Step = 0;
+                            temp.Y = witch.BulletY - bulletDecalY;
+                            temp.Moving = witch.Direction;
+                            if (temp.Moving == MovingDirection.ToLeft)
+                                temp.X = witch.BulletX - bulletDecalXLeft;
+                            else
+                                temp.X = witch.BulletX - bulletDecalXRight;
+                            if (temp.Moving != MovingDirection.None)
+                                bullets.Add(temp.ID, temp);
+                            keyFireRelease = false;
+                        }
+                    }
+                }
+                else
+                {
+                    keyFireRelease = true;
                 }
 
                 theCanvas.InvalidateSurface();
@@ -444,15 +511,15 @@ namespace Cauldron
                                     switch (t.Content)
                                     {
                                         case "bat_1":
-                                            monsters.Generator(MonsterType.Bat_1, currentX, x, y);
+                                            monsters.Generator(MonsterType.Bat_1, currentX, x - DECAL_MAP_X, y - DECAL_MAP_Y);
                                             //spritesBat[batIndex++].Draw(canvas, x, y, tilesScale);
                                             break;
                                         case "bat_2":
-                                            monsters.Generator(MonsterType.Bat_2, currentX, x, y);
+                                            monsters.Generator(MonsterType.Bat_2, currentX, x - DECAL_MAP_X, y - DECAL_MAP_Y);
                                             //spritesBat[batIndex++].Draw(canvas, x, y, tilesScale);
                                             break;
                                         case "ghost":
-                                            monsters.Generator(MonsterType.Ghost, currentX, x, y);
+                                            monsters.Generator(MonsterType.Ghost, currentX, x - DECAL_MAP_X, y - DECAL_MAP_Y);
                                             //spritesGhost[ghostIndex++].Draw(canvas, x, y, tilesScale);
                                             break;
                                     }
@@ -472,8 +539,17 @@ namespace Cauldron
             monsters.Draw(canvas, tilesScale, scrollX);
 
 
+            foreach (var kvp in bullets)
+            {
+                spriteBullet.StepAnim = kvp.Value.Step;
+                spriteBullet.Draw(canvas, kvp.Value.X + DECAL_MAP_X, kvp.Value.Y + DECAL_MAP_Y, tilesScale);
+            }
+
 
             witch.Draw(canvas, tilesScale);
+
+            canvas.DrawPoint(witch.X + DECAL_MAP_X, witch.Y + DECAL_MAP_Y, colorPink);
+            canvas.DrawPoint(witch.BulletX + DECAL_MAP_X, witch.BulletY + DECAL_MAP_Y, colorRed);
 
             /*bmpPixels.Pixels = pixels;
             bmpToShow = bmpPixels.Resize(scaleInfo, SKBitmapResizeMethod.Box);
@@ -488,6 +564,10 @@ namespace Cauldron
             }*/
 
         }
+
+        SKColor colorPink = SKColor.Parse("#FF69B4");
+        SKColor colorRed = SKColor.Parse("#FF0000");
+        SKColor coloCyan = SKColor.Parse("#00FFFF");
 
         /*private void CopyPixels(int tileNumber, int toX, int toY)
         {

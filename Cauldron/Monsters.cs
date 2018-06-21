@@ -10,69 +10,16 @@ using System.Linq;
 
 namespace Cauldron
 {
-    public enum MonsterType
-    {
-        Bat_1,
-        Bat_2,
-        Ghost
-    }
-
-    public enum MonsterDirection : short
-    {
-        DiagUpLeft,
-        DiagUpLeftSpeed,
-        DiagDownLeft,
-        DiagDownLeftSpeed,
-        DiagUpRight,
-        DiagUpRightSpeed,
-        DiagDownRight,
-        DiagDownRightSpeed,
-        ToLeft,
-        ToRight,
-        ToTop,
-        ToDown,
-        ToUp,
-        ToWitch,
-    }
-
-    public class OneMonster
-    {
-        public MonsterType Category { get; set; }
-        public int ID { get; set; }
-        public int AnimationStep { get; set; }
-        public int X { get; set; }
-        public int Y { get; set; }
-        public float[] Pattern { get; set; }
-        public int PatternStep { get; set; }
-        public int PatternDelay { get; set; }
-    }
-
-    public class OneExplode
-    {
-        public int ID { get; set; }
-        public int X { get; set; }
-        public int Y { get; set; }
-        public DateTime Start { get; set; }
-        public int Step { get; set; }
-    }
 
     public class Monsters
     {
         float DELAY_COEFF;
 
         // Bat 1
-        List<float[]> patternBat1 = new List<float[]>(); /*{
-            { (short) MonsterDirection.DiagUpLeftSpeed, 6, (short) MonsterDirection.DiagDownLeftSpeed, 6, (short) MonsterDirection.ToLeft, 0 },
-            { (short) MonsterDirection.DiagUpLeftSpeed, 6, (short) MonsterDirection.DiagDownLeftSpeed, 6, (short) MonsterDirection.ToRight, 0 },
-            { (short)MonsterDirection.DiagUpRight, 3, (short)MonsterDirection.DiagDownRight, 3, (short)MonsterDirection.ToLeft, 0 },
-            { (short)MonsterDirection.DiagUpRight, 3, (short)MonsterDirection.DiagDownRight, 3, (short)MonsterDirection.ToRight, 0 },
-        };*/
+        List<float[]> patternBat1 = new List<float[]>();
         // Bat 2
         List<float[]> patternBat2 = new List<float[]>();
-        /*short[,] patternBat2 = {
-            { (short)MonsterDirection.ToTop, 0, (short)MonsterDirection.ToLeft, 6, (short)MonsterDirection.ToDown, 4, (short)MonsterDirection.ToRight, 4, (short)MonsterDirection.ToUp, 3, (short)MonsterDirection.ToWitch, 0 },
-            { (short)MonsterDirection.ToTop, 0, (short)MonsterDirection.ToRight, 6, (short)MonsterDirection.ToDown, 4, (short)MonsterDirection.ToLeft, 4, (short)MonsterDirection.ToUp, 3, (short)MonsterDirection.ToWitch, 0 }
-        };*/
+
 
         int tileWidthScale;
         List<OneMonster> monsters;
@@ -92,7 +39,7 @@ namespace Cauldron
         int stepY;
 
         OneSprite spriteExplode;
-        Dictionary<int, OneExplode> explodes = new Dictionary<int, OneExplode>();
+        Dictionary<int, OneObject> explodes = new Dictionary<int, OneObject>();
         TimeSpan explodeElaps = TimeSpan.FromMilliseconds(80);
         int idExplode = 0;
 
@@ -125,18 +72,18 @@ namespace Cauldron
                 spritesGhost[i] = new OneSprite(11 * 100 + 100 - 32, tileWidth, tileHeight, 3 * 8, 3 * 8, 8, 120, scale, decalX, decalY);
                 spritesGhost[i].StepAnim = i % 8;
             }
-            float[] pattern = { (short)MonsterDirection.DiagUpLeftSpeed, 3, (short)MonsterDirection.DiagDownLeftSpeed, 3, (short)MonsterDirection.ToLeft, 0 };
+            float[] pattern = { (short)MovingDirection.DiagUpLeftSpeed, 3, (short)MovingDirection.DiagDownLeftSpeed, 3, (short)MovingDirection.ToLeft, 0 };
             patternBat1.Add(pattern);
-            pattern = new float[] { (short)MonsterDirection.DiagUpLeftSpeed, 3, (short)MonsterDirection.DiagDownLeftSpeed, 3, (short)MonsterDirection.ToRight, 0 };
+            pattern = new float[] { (short)MovingDirection.DiagUpLeftSpeed, 3, (short)MovingDirection.DiagDownLeftSpeed, 3, (short)MovingDirection.ToRight, 0 };
             patternBat1.Add(pattern);
-            pattern = new float[] { (short)MonsterDirection.DiagUpRight, 2, (short)MonsterDirection.DiagDownRight, 2, (short)MonsterDirection.ToLeft, 0 };
+            pattern = new float[] { (short)MovingDirection.DiagUpRight, 2, (short)MovingDirection.DiagDownRight, 2, (short)MovingDirection.ToLeft, 0 };
             patternBat1.Add(pattern);
-            pattern = new float[] { (short)MonsterDirection.DiagUpRight, 2, (short)MonsterDirection.DiagDownRight, 2, (short)MonsterDirection.ToRight, 0 };
+            pattern = new float[] { (short)MovingDirection.DiagUpRight, 2, (short)MovingDirection.DiagDownRight, 2, (short)MovingDirection.ToRight, 0 };
             patternBat1.Add(pattern);
 
-            pattern = new float[] { (short)MonsterDirection.ToTop, 0, (short)MonsterDirection.ToLeft, 2, (short)MonsterDirection.ToDown, 1.5f, (short)MonsterDirection.ToRight, 1.5f, (short)MonsterDirection.ToUp, 1.3f, (short)MonsterDirection.ToWitch, 0 };
+            pattern = new float[] { (short)MovingDirection.ToTop, 0, (short)MovingDirection.ToLeft, 2, (short)MovingDirection.ToDown, 1.5f, (short)MovingDirection.ToRight, 1.5f, (short)MovingDirection.ToUp, 1.3f, (short)MovingDirection.ToWitch, 0 };
             patternBat2.Add(pattern);
-            pattern = new float[] { (short)MonsterDirection.ToTop, 0, (short)MonsterDirection.ToRight, 2, (short)MonsterDirection.ToDown, 1.5f, (short)MonsterDirection.ToLeft, 1.5f, (short)MonsterDirection.ToUp, 1.3f, (short)MonsterDirection.ToWitch, 0 };
+            pattern = new float[] { (short)MovingDirection.ToTop, 0, (short)MovingDirection.ToRight, 2, (short)MovingDirection.ToDown, 1.5f, (short)MovingDirection.ToLeft, 1.5f, (short)MovingDirection.ToUp, 1.3f, (short)MovingDirection.ToWitch, 0 };
             patternBat2.Add(pattern);
         }
 
@@ -196,7 +143,7 @@ namespace Cauldron
             foreach (OneMonster m in toDelete)
                 monsters.Remove(m);
 
-            foreach (var kvp in explodes.ToList<KeyValuePair<int, OneExplode>>())
+            foreach (var kvp in explodes.ToList<KeyValuePair<int, OneObject>>())
             {
                 explodes[kvp.Key].X += tileWidthScale;
             }
@@ -217,7 +164,7 @@ namespace Cauldron
             foreach (OneMonster m in toDelete)
                 monsters.Remove(m);
 
-            foreach (var kvp in explodes.ToList<KeyValuePair<int, OneExplode>>())
+            foreach (var kvp in explodes.ToList<KeyValuePair<int, OneObject>>())
             {
                 explodes[kvp.Key].X -= tileWidthScale;
             }
@@ -247,18 +194,22 @@ namespace Cauldron
 
             foreach (OneMonster monster in monsters)
             {
-                switch ((MonsterDirection)monster.Pattern[monster.PatternStep])
+                switch ((MovingDirection)monster.Pattern[monster.PatternStep])
                 {
-                    case MonsterDirection.ToWitch:
+                    case MovingDirection.ToWitch:
                         if (targetX > monster.X)
                         {
-                            monster.X += stepX * 2;
+                            monster.X += stepX * 3;
+                            if (targetX < monster.X)
+                                monster.X = targetX;
                         }
                         else
                         {
                             if (targetX < monster.X)
                             {
-                                monster.X -= stepX * 2;
+                                monster.X -= stepX * 3;
+                                if (targetX > monster.X)
+                                    monster.X = targetX;
                             }
                         }
                         if (targetY > monster.Y)
@@ -277,7 +228,7 @@ namespace Cauldron
                             }
                         }
                         break;
-                    case MonsterDirection.ToTop:
+                    case MovingDirection.ToTop:
                         monster.Y -= stepY * 2;
                         if (monster.Y <= 0)
                         {
@@ -287,52 +238,64 @@ namespace Cauldron
                             //monster.PatternStep += 2;
                         }
                         break;
-                    case MonsterDirection.ToLeft:
+                    case MovingDirection.ToLeft:
+                        monster.X -= stepX;
+                        break;
+                    case MovingDirection.ToRight:
+                        monster.X += stepX;
+                        break;
+                    case MovingDirection.ToLeftSpeed:
                         monster.X -= stepX * 2;
                         break;
-                    case MonsterDirection.ToRight:
+                    case MovingDirection.ToRightSpeed:
                         monster.X += stepX * 2;
                         break;
-                    case MonsterDirection.ToDown:
+                    case MovingDirection.ToDown:
+                        monster.Y += stepY;
+                        break;
+                    case MovingDirection.ToUp:
+                        monster.Y -= stepY;
+                        break;
+                    case MovingDirection.ToDownSpeed:
                         monster.Y += stepY * 2;
                         break;
-                    case MonsterDirection.ToUp:
+                    case MovingDirection.ToUpSpeed:
                         monster.Y -= stepY * 2;
                         break;
-                    case MonsterDirection.DiagUpRight:
+                    case MovingDirection.DiagUpRight:
                         monster.Y -= stepY;
                         monster.X += stepX;
                         break;
-                    case MonsterDirection.DiagUpLeft:
+                    case MovingDirection.DiagUpLeft:
                         monster.Y -= stepY;
                         monster.X -= stepX;
                         break;
-                    case MonsterDirection.DiagUpRightSpeed:
+                    case MovingDirection.DiagUpRightSpeed:
                         monster.Y -= stepY * 2;
                         monster.X += stepX * 2;
                         break;
-                    case MonsterDirection.DiagUpLeftSpeed:
+                    case MovingDirection.DiagUpLeftSpeed:
                         monster.Y -= stepY * 2;
                         monster.X -= stepX * 2;
                         break;
-                    case MonsterDirection.DiagDownRight:
+                    case MovingDirection.DiagDownRight:
                         monster.Y += stepY;
                         monster.X += stepX;
                         break;
-                    case MonsterDirection.DiagDownLeft:
+                    case MovingDirection.DiagDownLeft:
                         monster.Y += stepY;
                         monster.X -= stepX;
                         break;
-                    case MonsterDirection.DiagDownRightSpeed:
+                    case MovingDirection.DiagDownRightSpeed:
                         monster.Y += stepY * 2;
                         monster.X += stepX * 2;
                         break;
-                    case MonsterDirection.DiagDownLeftSpeed:
+                    case MovingDirection.DiagDownLeftSpeed:
                         monster.Y += stepY * 2;
                         monster.X -= stepX * 2;
                         break;
                     default:
-                        System.Diagnostics.Debug.WriteLine(String.Format("Pattern: {0}", (MonsterDirection)monster.Pattern[monster.PatternStep]));
+                        System.Diagnostics.Debug.WriteLine(String.Format("Pattern: {0}", (MovingDirection)monster.Pattern[monster.PatternStep]));
                         break;
                 }
                 bool isDelete = false;
@@ -403,14 +366,16 @@ namespace Cauldron
                     }
                     if (isDelete)
                     {
-                        // TODO: générer une explosion
+                        // le monstre disparaît
                         toDelete.Add(monster);
-                        OneExplode temp = new OneExplode();
+                        // et on génère une explosion
+                        OneObject temp = new OneObject();
                         temp.ID = idExplode++;
                         temp.Start = DateTime.UtcNow;
                         temp.Step = 0;
                         temp.X = monster.X;
                         temp.Y = monster.Y;
+                        temp.Moving = MovingDirection.None;
                         explodes.Add(temp.ID, temp);
                     }
                 } // !isDelete
@@ -422,7 +387,7 @@ namespace Cauldron
 
             List<int> deleteList = new List<int>();
 
-            foreach (var kvp in explodes.ToList<KeyValuePair<int, OneExplode>>())
+            foreach (var kvp in explodes.ToList<KeyValuePair<int, OneObject>>())
             {
                 if ((time - kvp.Value.Start) < explodeElaps)
                     continue;

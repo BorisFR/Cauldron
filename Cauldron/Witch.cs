@@ -9,22 +9,6 @@ using SkiaSharp;
 namespace Cauldron
 {
 
-    enum WitchState
-    {
-        LeftWalk, // 0 1 2 3
-        LeftMount, // 4 5 6 7
-        LeftDescend,
-        LeftFlySlow, // 8 9
-        LeftFly, // 10 11 12 13 14 15
-        RightWalk,
-        RightMount,
-        RightDescend,
-        RightFlySlow,
-        RightFly,
-        EnteringDoor,
-        ExitingDoor
-    }
-
     public class Witch
     {
         OneSprite toLeft;
@@ -35,12 +19,16 @@ namespace Cauldron
         TimeSpan animElaps;
         bool moving;
 
+        //int decalX;
+        //int decalY;
         public int X { get; set; }
         public int Y { get; set; }
         public int MinY { get; set; }
         public int MaxY { get; set; }
         int stepX;
         int stepY;
+        int middleY;
+        int rightX;
 
         const int ANIM_DELAY_WALK = 70;
         const int ANIM_DELAY_MOUNT = 80;
@@ -48,20 +36,83 @@ namespace Cauldron
 
         public Witch(int tileWidth, int tileHeight, float scale, int decalX, int decalY, int stepX, int stepY)
         {
+            //this.decalX = decalX;
+            //this.decalY = decalY;
             toLeft = new OneSprite(20 * 100, tileWidth, tileHeight, 16, 21, 18, 100, scale, decalX, decalY, true);
             toRight = new OneSprite(24 * 100, tileWidth, tileHeight, 16, 21, 18, 100, scale, decalX, decalY, true);
             currentStep = 0;
             toRight.SetAnimSteps(currentStep, currentStep, 0);
             ChangeToState(WitchState.RightWalk);
             moving = false;
-            //stepY = Convert.ToInt32((17 / 6) * scale); // on monte/descend d'1/6 de la taille du sprite qui vaut 17 (mode vole)
             this.stepX = stepX;
             this.stepY = stepY;
+            middleY = Convert.ToInt32((21 / 2 - 1) * scale); // au niveau du balai quand on vole
+            rightX = Convert.ToInt32(12 * 2 * scale);
         }
 
         private void PrintState()
         {
             //System.Diagnostics.Debug.WriteLine(String.Format("State: {0}, moving: {1}, current: {2}", state, moving, currentStep));
+        }
+
+        public bool IsFlying
+        {
+            get
+            {
+                switch (state)
+                {
+                    case WitchState.LeftFly:
+                    case WitchState.LeftFlySlow:
+                    case WitchState.RightFly:
+                    case WitchState.RightFlySlow:
+                        return true;
+                }
+                return false;
+            }
+        }
+
+        public MovingDirection Direction
+        {
+            get
+            {
+                switch (state)
+                {
+                    case WitchState.LeftDescend:
+                    case WitchState.LeftFly:
+                    case WitchState.LeftWalk:
+                    case WitchState.LeftMount:
+                    case WitchState.LeftFlySlow:
+                        return MovingDirection.ToLeft;
+                    case WitchState.RightDescend:
+                    case WitchState.RightFly:
+                    case WitchState.RightFlySlow:
+                    case WitchState.RightMount:
+                    case WitchState.RightWalk:
+                        return MovingDirection.ToRight;
+                    default:
+                        return MovingDirection.None;
+                }
+            }
+        }
+
+        public int BulletX
+        {
+            get
+            {
+                if (Direction == MovingDirection.ToLeft)
+                {
+                    return X;
+                }
+                return X + rightX;
+            }
+        }
+
+        public int BulletY
+        {
+            get
+            {
+                return Y + middleY;
+            }
         }
 
         private void ChangeToState(WitchState newState)
