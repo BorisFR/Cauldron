@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using SkiaSharp;
 using SkiaSharp.Views.Forms;
@@ -58,6 +59,11 @@ namespace Cauldron
         Monsters monsters;
         DateTime tempo;
 
+        OneSprite spriteBullet;
+        Dictionary<int, OneExplode> bullets = new Dictionary<int, OneExplode>();
+        TimeSpan bulletElaps = TimeSpan.FromMilliseconds(40);
+        int idBullet = 0;
+
 
         public MainPage()
         {
@@ -91,6 +97,8 @@ namespace Cauldron
             witch.Y = Convert.ToInt32((19 * 8 + 3) * SCALE);
             witch.MinY = 0;
             witch.MaxY = witch.Y;
+
+            spriteBullet = new OneSprite(0 * 100 + 100 - 16, tiled.TileWidth, tiled.TileHeight, 3 * 8, 3 * 8, 4, 40, SCALE, DECAL_SCREEN_X, DECAL_SCREEN_Y);
 
             spriteMoon = new OneSprite(15 * 100 + 30, tiled.TileWidth, tiled.TileHeight, 6 * 8, 5 * 8, 1, 0, SCALE, DECAL_SCREEN_X, DECAL_SCREEN_Y);
             spriteSheepSkin = new OneSprite(15 * 100 + 21, tiled.TileWidth, tiled.TileHeight, 7 * 8, 4 * 8, 1, 0, SCALE, DECAL_SCREEN_X, DECAL_SCREEN_Y);
@@ -135,6 +143,14 @@ namespace Cauldron
                     case 126: // UP
                         break;
                     case 49: // SPACE
+                        OneExplode temp = new OneExplode();
+                        temp.ID = idBullet++;
+                        temp.Start = DateTime.UtcNow;
+                        temp.Step = 0;
+                        temp.X = witch.X;
+                        temp.Y = witch.Y;
+                        bullets.Add(temp.ID, temp);
+
                         break;
                     default:
                         break;
