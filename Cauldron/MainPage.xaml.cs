@@ -43,7 +43,7 @@ namespace Cauldron
         //SKBitmap bmpToShow;
 
         //int destSize = 8;
-        const float SCALE = 5.0f;
+        const float SCALE = 4.0f;
         SKImageInfo scaleInfo;
         int tileWidth;
         int tileHeight;
@@ -82,7 +82,11 @@ namespace Cauldron
             //pixels = new SKColor[MAX_WIDTH * MAX_HEIGHT];
             //bmpPixels = new SKBitmap(MAX_WIDTH, MAX_HEIGHT);
 
-            witch = new Witch(tiled.TileWidth, tiled.TileHeight, SCALE, DECAL_MAP_X, DECAL_MAP_Y);
+            int stepX = Convert.ToInt32((24 / 12) * SCALE / 3); // on monte/descend d'1/6 de la taille du sprite qui vaut 17 (mode vole)
+            int stepY = Convert.ToInt32((17 / 6) * SCALE / 2); // on monte/descend d'1/6 de la taille du sprite qui vaut 17 (mode vole)
+
+
+            witch = new Witch(tiled.TileWidth, tiled.TileHeight, SCALE, DECAL_MAP_X, DECAL_MAP_Y, stepX, stepY * 2);
             witch.X = Convert.ToInt32(17 * 8 * SCALE);
             witch.Y = Convert.ToInt32((19 * 8 + 3) * SCALE);
             witch.MinY = 0;
@@ -95,7 +99,7 @@ namespace Cauldron
             {
                 spritesSmoke[i] = new OneSprite(3 * 100 + 100 - 32, tiled.TileWidth, tiled.TileHeight, 3 * 8, 3 * 8, 7, 110, SCALE, DECAL_SCREEN_X, DECAL_SCREEN_Y);
             }
-            monsters = new Monsters(tiled.TileWidth, tiled.TileHeight, SCALE, DECAL_MAP_X, DECAL_MAP_Y);
+            monsters = new Monsters(tiled.TileWidth, tiled.TileHeight, SCALE, DECAL_MAP_X, DECAL_MAP_Y, stepX, stepY);
 
             scrollStep = Convert.ToInt32(tiled.TileWidth * SCALE / SCROLL_MAP_DELAY);
             scrollX = 0;
@@ -117,60 +121,80 @@ namespace Cauldron
                 spriteEnergy.DoAnim(tempo);
                 for (int i = 0; i < SMOKE_SPRITES_MAX; i++)
                     spritesSmoke[i].DoAnim(tempo);
-                monsters.DoAnim(tempo);
+                monsters.DoAnim(tempo, witch.X, witch.Y);
                 witch.DoAnim(tempo);
 
                 switch (Tools.GetKeyCode)
                 {
                     case 123: // LEFT
-                        scrollSpeed = witch.MoveToLeft();
-                        if (scrollSpeed > 0)
-                        {
-                            scrollMapCount++;
-                            scrollX += scrollStep;
-                            if (scrollMapCount > SCROLL_MAP_DELAY)
-                            {
-                                scrollMapCount = 0;
-                                startMapX--;
-                                scrollX = 0;
-                                if (startMapX < 0)
-                                {
-                                    startMapX = tiled.MapWidth - 1;
-                                }
-                                monsters.MapScrollToRight();
-                            }
-                        }
                         break;
                     case 124: // RIGHT
-                        scrollSpeed = witch.MoveToRight();
-                        if (scrollSpeed > 0)
-                        {
-                            scrollMapCount++;
-                            scrollX -= scrollStep;
-                            if (scrollMapCount > SCROLL_MAP_DELAY)
-                            {
-                                scrollMapCount = 0;
-                                startMapX++;
-                                scrollX = 0;
-                                if (startMapX >= tiled.MapWidth)
-                                {
-                                    startMapX = 0;
-                                }
-                                monsters.MapScrollToLeft();
-                            }
-                        }
                         break;
                     case 125: // DOWN
-                        witch.MoveToDown();
                         break;
                     case 126: // UP
-                        witch.MoveToUp();
                         break;
                     case 49: // SPACE
                         break;
                     default:
-                        witch.MoveStop();
                         break;
+                }
+
+                if (Tools.KeyLeft && !Tools.KeyRight)
+                {
+                    scrollSpeed = witch.MoveToLeft();
+                    if (scrollSpeed > 0)
+                    {
+                        scrollMapCount++;
+                        scrollX += scrollStep;
+                        if (scrollMapCount > SCROLL_MAP_DELAY)
+                        {
+                            scrollMapCount = 0;
+                            startMapX--;
+                            scrollX = 0;
+                            if (startMapX < 0)
+                            {
+                                startMapX = tiled.MapWidth - 1;
+                            }
+                            monsters.MapScrollToRight();
+                        }
+                    }
+                }
+
+                if (Tools.KeyRight && !Tools.KeyLeft)
+                {
+                    scrollSpeed = witch.MoveToRight();
+                    if (scrollSpeed > 0)
+                    {
+                        scrollMapCount++;
+                        scrollX -= scrollStep;
+                        if (scrollMapCount > SCROLL_MAP_DELAY)
+                        {
+                            scrollMapCount = 0;
+                            startMapX++;
+                            scrollX = 0;
+                            if (startMapX >= tiled.MapWidth)
+                            {
+                                startMapX = 0;
+                            }
+                            monsters.MapScrollToLeft();
+                        }
+                    }
+                }
+
+                if (!Tools.KeyLeft && !Tools.KeyRight)
+                {
+                    witch.MoveStop();
+                }
+
+                if (Tools.KeyUp && !Tools.KeyDown)
+                {
+                    witch.MoveToUp();
+                }
+
+                if (Tools.KeyDown && !Tools.KeyUp)
+                {
+                    witch.MoveToDown();
                 }
 
                 theCanvas.InvalidateSurface();

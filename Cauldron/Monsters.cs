@@ -42,24 +42,33 @@ namespace Cauldron
         public int AnimationStep { get; set; }
         public int X { get; set; }
         public int Y { get; set; }
-        public short[] Pattern { get; set; }
+        public float[] Pattern { get; set; }
         public int PatternStep { get; set; }
         public int PatternDelay { get; set; }
     }
 
+    public class OneExplode
+    {
+        public int ID { get; set; }
+        public int X { get; set; }
+        public int Y { get; set; }
+        public DateTime Start { get; set; }
+        public int Step { get; set; }
+    }
+
     public class Monsters
     {
-        int DELAY_COEFF = 2;
+        float DELAY_COEFF;
 
         // Bat 1
-        List<short[]> patternBat1 = new List<short[]>(); /*{
+        List<float[]> patternBat1 = new List<float[]>(); /*{
             { (short) MonsterDirection.DiagUpLeftSpeed, 6, (short) MonsterDirection.DiagDownLeftSpeed, 6, (short) MonsterDirection.ToLeft, 0 },
             { (short) MonsterDirection.DiagUpLeftSpeed, 6, (short) MonsterDirection.DiagDownLeftSpeed, 6, (short) MonsterDirection.ToRight, 0 },
             { (short)MonsterDirection.DiagUpRight, 3, (short)MonsterDirection.DiagDownRight, 3, (short)MonsterDirection.ToLeft, 0 },
             { (short)MonsterDirection.DiagUpRight, 3, (short)MonsterDirection.DiagDownRight, 3, (short)MonsterDirection.ToRight, 0 },
         };*/
         // Bat 2
-        List<short[]> patternBat2 = new List<short[]>();
+        List<float[]> patternBat2 = new List<float[]>();
         /*short[,] patternBat2 = {
             { (short)MonsterDirection.ToTop, 0, (short)MonsterDirection.ToLeft, 6, (short)MonsterDirection.ToDown, 4, (short)MonsterDirection.ToRight, 4, (short)MonsterDirection.ToUp, 3, (short)MonsterDirection.ToWitch, 0 },
             { (short)MonsterDirection.ToTop, 0, (short)MonsterDirection.ToRight, 6, (short)MonsterDirection.ToDown, 4, (short)MonsterDirection.ToLeft, 4, (short)MonsterDirection.ToUp, 3, (short)MonsterDirection.ToWitch, 0 }
@@ -69,6 +78,8 @@ namespace Cauldron
         List<OneMonster> monsters;
         Dictionary<int, int> inhibeID;
         int INHIBE_DELAY;
+        int widthSprite;
+        int heightSprite;
 
         const int BAT_SPRITES_MAX = 4;
         OneSprite[] spritesBat1 = new OneSprite[BAT_SPRITES_MAX];
@@ -77,15 +88,30 @@ namespace Cauldron
         const int GHOST_SPRITES_MAX = 8;
         OneSprite[] spritesGhost = new OneSprite[GHOST_SPRITES_MAX];
         //int ghostIndex;
+        int stepX;
+        int stepY;
+
+        OneSprite spriteExplode;
+        Dictionary<int, OneExplode> explodes = new Dictionary<int, OneExplode>();
+        TimeSpan explodeElaps = TimeSpan.FromMilliseconds(80);
+        int idExplode = 0;
 
 
-        public Monsters(int tileWidth, int tileHeight, float scale, int decalX, int decalY)
+
+        public Monsters(int tileWidth, int tileHeight, float scale, int decalX, int decalY, int stepX, int stepY)
         {
-            DELAY_COEFF = Convert.ToInt32(tileWidth * scale);
+            DELAY_COEFF = tileWidth * scale / 1.8f;
             tileWidthScale = Convert.ToInt32(tileWidth * scale);
+            widthSprite = Convert.ToInt32(tileWidth * 3 * scale);
+            heightSprite = Convert.ToInt32(tileHeight * 3 * scale);
             monsters = new List<OneMonster>();
             inhibeID = new Dictionary<int, int>();
             INHIBE_DELAY = tileWidthScale * 2;
+            this.stepX = stepX;
+            this.stepY = stepY;
+
+            spriteExplode = new OneSprite(15 * 100 + 100 - 32, tileWidth, tileHeight, 3 * 8, 3 * 8, 8, 1000, scale, decalX, decalY);
+
 
             for (int i = 0; i < BAT_SPRITES_MAX; i++)
             {
@@ -99,18 +125,18 @@ namespace Cauldron
                 spritesGhost[i] = new OneSprite(11 * 100 + 100 - 32, tileWidth, tileHeight, 3 * 8, 3 * 8, 8, 120, scale, decalX, decalY);
                 spritesGhost[i].StepAnim = i % 8;
             }
-            short[] pattern = { (short)MonsterDirection.DiagUpLeftSpeed, 4, (short)MonsterDirection.DiagDownLeftSpeed, 4, (short)MonsterDirection.ToLeft, 0 };
+            float[] pattern = { (short)MonsterDirection.DiagUpLeftSpeed, 3, (short)MonsterDirection.DiagDownLeftSpeed, 3, (short)MonsterDirection.ToLeft, 0 };
             patternBat1.Add(pattern);
-            pattern = new short[] { (short)MonsterDirection.DiagUpLeftSpeed, 4, (short)MonsterDirection.DiagDownLeftSpeed, 4, (short)MonsterDirection.ToRight, 0 };
+            pattern = new float[] { (short)MonsterDirection.DiagUpLeftSpeed, 3, (short)MonsterDirection.DiagDownLeftSpeed, 3, (short)MonsterDirection.ToRight, 0 };
             patternBat1.Add(pattern);
-            pattern = new short[] { (short)MonsterDirection.DiagUpRight, 4, (short)MonsterDirection.DiagDownRight, 4, (short)MonsterDirection.ToLeft, 0 };
+            pattern = new float[] { (short)MonsterDirection.DiagUpRight, 2, (short)MonsterDirection.DiagDownRight, 2, (short)MonsterDirection.ToLeft, 0 };
             patternBat1.Add(pattern);
-            pattern = new short[] { (short)MonsterDirection.DiagUpRight, 4, (short)MonsterDirection.DiagDownRight, 4, (short)MonsterDirection.ToRight, 0 };
+            pattern = new float[] { (short)MonsterDirection.DiagUpRight, 2, (short)MonsterDirection.DiagDownRight, 2, (short)MonsterDirection.ToRight, 0 };
             patternBat1.Add(pattern);
 
-            pattern = new short[] { (short)MonsterDirection.ToTop, 0, (short)MonsterDirection.ToLeft, 4, (short)MonsterDirection.ToDown, 3, (short)MonsterDirection.ToRight, 3, (short)MonsterDirection.ToUp, 2, (short)MonsterDirection.ToWitch, 0 };
+            pattern = new float[] { (short)MonsterDirection.ToTop, 0, (short)MonsterDirection.ToLeft, 2, (short)MonsterDirection.ToDown, 1.5f, (short)MonsterDirection.ToRight, 1.5f, (short)MonsterDirection.ToUp, 1.3f, (short)MonsterDirection.ToWitch, 0 };
             patternBat2.Add(pattern);
-            pattern = new short[] { (short)MonsterDirection.ToTop, 0, (short)MonsterDirection.ToRight, 4, (short)MonsterDirection.ToDown, 3, (short)MonsterDirection.ToLeft, 3, (short)MonsterDirection.ToUp, 2, (short)MonsterDirection.ToWitch, 0 };
+            pattern = new float[] { (short)MonsterDirection.ToTop, 0, (short)MonsterDirection.ToRight, 2, (short)MonsterDirection.ToDown, 1.5f, (short)MonsterDirection.ToLeft, 1.5f, (short)MonsterDirection.ToUp, 1.3f, (short)MonsterDirection.ToWitch, 0 };
             patternBat2.Add(pattern);
         }
 
@@ -127,7 +153,7 @@ namespace Cauldron
                 //  return;
             }*/
             // x% de chance de générer un monstre
-            if (Tools.RND(10000) > (90 - monsters.Count * 10))
+            if (Tools.RND(10000) > (110 - monsters.Count * 10))
                 return;
             OneMonster monster = new OneMonster();
             monster.Category = category;
@@ -148,7 +174,7 @@ namespace Cauldron
                     break;
             }
             monster.PatternStep = 0;
-            monster.PatternDelay = monster.Pattern[1] * DELAY_COEFF;
+            monster.PatternDelay = Convert.ToInt32(monster.Pattern[1] * DELAY_COEFF);
             monsters.Add(monster);
             System.Diagnostics.Debug.WriteLine(String.Format("Monster #{3}: {0} at {1}/{2}", category, x, y, monsters.Count));
             // on rend inactif ce générateur
@@ -169,6 +195,11 @@ namespace Cauldron
             }
             foreach (OneMonster m in toDelete)
                 monsters.Remove(m);
+
+            foreach (var kvp in explodes.ToList<KeyValuePair<int, OneExplode>>())
+            {
+                explodes[kvp.Key].X += tileWidthScale;
+            }
         }
 
         public void MapScrollToLeft()
@@ -185,19 +216,24 @@ namespace Cauldron
             }
             foreach (OneMonster m in toDelete)
                 monsters.Remove(m);
+
+            foreach (var kvp in explodes.ToList<KeyValuePair<int, OneExplode>>())
+            {
+                explodes[kvp.Key].X -= tileWidthScale;
+            }
         }
 
         public void MapScrollToUp()
         {
-
+            // TODO:
         }
 
         public void MapScrollToDown()
         {
-
+            // TODO:
         }
 
-        public void DoAnim(DateTime time)
+        public void DoAnim(DateTime time, int targetX, int targetY)
         {
             for (int i = 0; i < BAT_SPRITES_MAX; i++)
             {
@@ -206,19 +242,43 @@ namespace Cauldron
             }
             for (int i = 0; i < GHOST_SPRITES_MAX; i++)
                 spritesGhost[i].DoAnim(time);
+
             List<OneMonster> toDelete = new List<OneMonster>();
+
             foreach (OneMonster monster in monsters)
             {
                 switch ((MonsterDirection)monster.Pattern[monster.PatternStep])
                 {
                     case MonsterDirection.ToWitch:
-                        if (Tools.RND(3) == 1)
-                            monster.Pattern[monster.PatternStep] = (short)MonsterDirection.DiagDownRightSpeed;
+                        if (targetX > monster.X)
+                        {
+                            monster.X += stepX * 2;
+                        }
                         else
-                            monster.Pattern[monster.PatternStep] = (short)MonsterDirection.DiagDownLeftSpeed;
+                        {
+                            if (targetX < monster.X)
+                            {
+                                monster.X -= stepX * 2;
+                            }
+                        }
+                        if (targetY > monster.Y)
+                        {
+                            monster.Y += stepY * 2;
+                            if (targetY < monster.Y)
+                                monster.Y = targetY;
+                        }
+                        else
+                        {
+                            if (targetY < monster.Y)
+                            {
+                                monster.Y -= stepY * 2;
+                                if (targetY > monster.Y)
+                                    monster.Y = targetY;
+                            }
+                        }
                         break;
                     case MonsterDirection.ToTop:
-                        monster.Y -= 4;
+                        monster.Y -= stepY * 2;
                         if (monster.Y <= 0)
                         {
                             // pas top
@@ -228,110 +288,162 @@ namespace Cauldron
                         }
                         break;
                     case MonsterDirection.ToLeft:
-                        monster.X -= 4;
+                        monster.X -= stepX * 2;
                         break;
                     case MonsterDirection.ToRight:
-                        monster.X += 4;
+                        monster.X += stepX * 2;
                         break;
                     case MonsterDirection.ToDown:
-                        monster.Y += 4;
+                        monster.Y += stepY * 2;
                         break;
                     case MonsterDirection.ToUp:
-                        monster.Y -= 4;
+                        monster.Y -= stepY * 2;
                         break;
                     case MonsterDirection.DiagUpRight:
-                        monster.Y -= 2;
-                        monster.X += 2;
+                        monster.Y -= stepY;
+                        monster.X += stepX;
                         break;
                     case MonsterDirection.DiagUpLeft:
-                        monster.Y -= 2;
-                        monster.X -= 2;
+                        monster.Y -= stepY;
+                        monster.X -= stepX;
                         break;
                     case MonsterDirection.DiagUpRightSpeed:
-                        monster.Y -= 4;
-                        monster.X += 4;
+                        monster.Y -= stepY * 2;
+                        monster.X += stepX * 2;
                         break;
                     case MonsterDirection.DiagUpLeftSpeed:
-                        monster.Y -= 4;
-                        monster.X -= 4;
+                        monster.Y -= stepY * 2;
+                        monster.X -= stepX * 2;
                         break;
                     case MonsterDirection.DiagDownRight:
-                        monster.Y += 2;
-                        monster.X += 2;
+                        monster.Y += stepY;
+                        monster.X += stepX;
                         break;
                     case MonsterDirection.DiagDownLeft:
-                        monster.Y += 2;
-                        monster.X -= 2;
+                        monster.Y += stepY;
+                        monster.X -= stepX;
                         break;
                     case MonsterDirection.DiagDownRightSpeed:
-                        monster.Y += 4;
-                        monster.X += 4;
+                        monster.Y += stepY * 2;
+                        monster.X += stepX * 2;
                         break;
                     case MonsterDirection.DiagDownLeftSpeed:
-                        monster.Y += 4;
-                        monster.X -= 4;
+                        monster.Y += stepY * 2;
+                        monster.X -= stepX * 2;
                         break;
                     default:
                         System.Diagnostics.Debug.WriteLine(String.Format("Pattern: {0}", (MonsterDirection)monster.Pattern[monster.PatternStep]));
                         break;
                 }
+                bool isDelete = false;
                 monster.PatternDelay--;
                 if (monster.PatternDelay == 0)
                 {
                     monster.PatternStep += 2;
                     if (monster.PatternStep > monster.Pattern.Length)
                     {
+                        // normallement pas possible, sauf si erreur dans la définition du pattern
                         toDelete.Add(monster);
+                        isDelete = true;
                     }
                     else
                     {
-                        monster.PatternDelay = monster.Pattern[monster.PatternStep + 1] * DELAY_COEFF;
+                        monster.PatternDelay = Convert.ToInt32(monster.Pattern[monster.PatternStep + 1] * DELAY_COEFF);
                     }
                 }
                 else
                 {
+                    // pour le pattern sans fin
                     if (monster.PatternDelay == -1)
                     {
                         monster.PatternDelay = 0;
                     }
-
-                    /*switch (monster.Category)
-                    {
-                        case MonsterType.Bat_1:
-                            monster.Y--;
-                            break;
-                        case MonsterType.Bat_2:
-                            monster.Y--;
-                            break;
-                        case MonsterType.Ghost:
-                            monster.Y--;
-                            break;
-                    }*/
-                    if (monster.Y < 0 || monster.Y > 940)//3 * tileWidthScale)
+                    // sortie de l'écran
+                    // TODO: changer les valeurs en dur
+                    if (monster.Y < 0 || monster.Y > 940)
                     {
                         toDelete.Add(monster);
+                        isDelete = true;
                     }
                     else
                     {
                         if (monster.X < 0 || monster.X > 1640)
                         {
                             toDelete.Add(monster);
+                            isDelete = true;
                         }
                     }
                 }
-            }
+
+                if (!isDelete)
+                {
+                    // tests collision
+                    // avec la sorcière
+                    if (targetX >= monster.X && targetX <= (monster.X + widthSprite))
+                    {
+                        if (targetY >= monster.Y && targetY <= (monster.Y + heightSprite))
+                        {
+                            isDelete = true;
+                        }
+                        else if (targetY <= monster.Y && (targetY + heightSprite) >= monster.Y)
+                        {
+                            isDelete = true;
+                        }
+                    }
+                    else if (targetX <= monster.X && (targetX + widthSprite) >= monster.X)
+                    {
+                        if (targetY >= monster.Y && targetY <= (monster.Y + heightSprite))
+                        {
+                            isDelete = true;
+                        }
+                        else if (targetY <= monster.Y && (targetY + heightSprite) >= monster.Y)
+                        {
+                            isDelete = true;
+                        }
+                    }
+                    if (isDelete)
+                    {
+                        // TODO: générer une explosion
+                        toDelete.Add(monster);
+                        OneExplode temp = new OneExplode();
+                        temp.ID = idExplode++;
+                        temp.Start = DateTime.UtcNow;
+                        temp.Step = 0;
+                        temp.X = monster.X;
+                        temp.Y = monster.Y;
+                        explodes.Add(temp.ID, temp);
+                    }
+                } // !isDelete
+
+            } // foreach monster
+
             foreach (OneMonster m in toDelete)
                 monsters.Remove(m);
 
+            List<int> deleteList = new List<int>();
+
+            foreach (var kvp in explodes.ToList<KeyValuePair<int, OneExplode>>())
+            {
+                if ((time - kvp.Value.Start) < explodeElaps)
+                    continue;
+                explodes[kvp.Key].Start = DateTime.UtcNow;
+                explodes[kvp.Key].Step++;
+                if (explodes[kvp.Key].Step >= 8)
+                    deleteList.Add(kvp.Key);
+            }
+            foreach (int k in deleteList)
+                explodes.Remove(k);
+
+            deleteList = new List<int>();
+
             // traitement de l'inhibition des générateurs
-            List<int> deleteInhibe = new List<int>();
             foreach (var kvp in inhibeID.ToList<KeyValuePair<int, int>>())
             {
                 inhibeID[kvp.Key]--;
                 if (inhibeID[kvp.Key] < 0)
-                    deleteInhibe.Add(kvp.Key); // on peut rendre actif ce générateur
+                    deleteList.Add(kvp.Key); // on peut rendre actif ce générateur
             }
-            foreach (int k in deleteInhibe)
+            foreach (int k in deleteList)
                 inhibeID.Remove(k);
         }
 
@@ -352,6 +464,12 @@ namespace Cauldron
                         break;
                 }
             }
-        }
+            foreach (var kvp in explodes)
+            {
+                spriteExplode.StepAnim = kvp.Value.Step;
+                spriteExplode.Draw(canvas, kvp.Value.X, kvp.Value.Y, tiles, scrollX);
+            }
+        } // Draw
+
     }
 }

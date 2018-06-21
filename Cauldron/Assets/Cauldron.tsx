@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <tileset name="Cauldron" tilewidth="8" tileheight="8" tilecount="10000" columns="100" backgroundcolor="#000000">
  <image source="../../PNG/tiles.png" width="800" height="800"/>
+ <tile id="19">
+  <properties>
+   <property name="generator" value="bat_2"/>
+  </properties>
+ </tile>
  <tile id="64">
   <properties>
    <property name="item" value="key_purple"/>
@@ -33,9 +38,9 @@
    <frame tileid="82" duration="100"/>
   </animation>
  </tile>
- <tile id="119">
+ <tile id="141">
   <properties>
-   <property name="generator" value="bat_2"/>
+   <property name="generator" value="bat_1"/>
   </properties>
  </tile>
  <tile id="164">
@@ -66,11 +71,6 @@
    <frame tileid="178" duration="100"/>
    <frame tileid="182" duration="100"/>
   </animation>
- </tile>
- <tile id="241">
-  <properties>
-   <property name="generator" value="bat_1"/>
-  </properties>
  </tile>
  <tile id="264">
   <properties>
@@ -206,6 +206,11 @@
    <frame tileid="782" duration="80"/>
   </animation>
  </tile>
+ <tile id="854">
+  <properties>
+   <property name="generator" value="ghost"/>
+  </properties>
+ </tile>
  <tile id="864">
   <properties>
    <property name="item" value="chest"/>
@@ -234,11 +239,6 @@
    <frame tileid="878" duration="80"/>
    <frame tileid="882" duration="80"/>
   </animation>
- </tile>
- <tile id="954">
-  <properties>
-   <property name="generator" value="ghost"/>
-  </properties>
  </tile>
  <tile id="968">
   <animation>

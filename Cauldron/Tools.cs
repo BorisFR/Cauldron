@@ -15,6 +15,13 @@ namespace Cauldron
         private static readonly Assembly assembly;
         private static readonly string[] resources;
 
+
+        public static bool KeyUp { get; private set; }
+        public static bool KeyDown { get; private set; }
+        public static bool KeyLeft { get; private set; }
+        public static bool KeyRight { get; private set; }
+        public static bool KeySpace { get; private set; }
+
         private static int lastKey;
         private static Random rnd;
 
@@ -60,12 +67,52 @@ namespace Cauldron
         {
             //System.Diagnostics.Debug.WriteLine(string.Format("KeyDown: {0}", keyCode));
             lastKey = keyCode;
+            switch (keyCode)
+            {
+                case 123: // LEFT
+                    KeyLeft = true;
+                    //KeyRight = false;
+                    break;
+                case 124: // RIGHT
+                    KeyRight = true;
+                    //KeyLeft = false;
+                    break;
+                case 125: // DOWN
+                    KeyDown = true;
+                    //KeyUp = false;
+                    break;
+                case 126: // UP
+                    KeyUp = true;
+                    //KeyDown = false;
+                    break;
+                case 49: // SPACE
+                    KeySpace = true;
+                    break;
+            }
         }
 
         public static void Keyup(int keyCode)
         {
             //System.Diagnostics.Debug.WriteLine(string.Format("KeyUp: {0}", keyCode));
             lastKey = 0;
+            switch (keyCode)
+            {
+                case 123: // LEFT
+                    KeyLeft = false;
+                    break;
+                case 124: // RIGHT
+                    KeyRight = false;
+                    break;
+                case 125: // DOWN
+                    KeyDown = false;
+                    break;
+                case 126: // UP
+                    KeyUp = false;
+                    break;
+                case 49: // SPACE
+                    KeySpace = false;
+                    break;
+            }
         }
 
         public static int GetKeyCode
@@ -73,13 +120,6 @@ namespace Cauldron
             get
             {
                 return lastKey;
-                /*if (lastKey > 0)
-                {
-                    int temp = lastKey;
-                    lastKey = 0;
-                    return temp;
-                }
-                return 0;*/
             }
         }
 

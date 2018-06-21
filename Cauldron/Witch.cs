@@ -39,13 +39,14 @@ namespace Cauldron
         public int Y { get; set; }
         public int MinY { get; set; }
         public int MaxY { get; set; }
-        int stepY = 3;
+        int stepX;
+        int stepY;
 
         const int ANIM_DELAY_WALK = 70;
         const int ANIM_DELAY_MOUNT = 80;
         const int ANIM_DELAY_FLY_SLOW = 350;
 
-        public Witch(int tileWidth, int tileHeight, float scale, int decalX, int decalY)
+        public Witch(int tileWidth, int tileHeight, float scale, int decalX, int decalY, int stepX, int stepY)
         {
             toLeft = new OneSprite(20 * 100, tileWidth, tileHeight, 16, 21, 18, 100, scale, decalX, decalY, true);
             toRight = new OneSprite(24 * 100, tileWidth, tileHeight, 16, 21, 18, 100, scale, decalX, decalY, true);
@@ -53,7 +54,9 @@ namespace Cauldron
             toRight.SetAnimSteps(currentStep, currentStep, 0);
             ChangeToState(WitchState.RightWalk);
             moving = false;
-            stepY = Convert.ToInt32((17 / 6) * scale); // on monte/descend d'1/6 de la taille du sprite qui vaut 17 (mode vole)
+            //stepY = Convert.ToInt32((17 / 6) * scale); // on monte/descend d'1/6 de la taille du sprite qui vaut 17 (mode vole)
+            this.stepX = stepX;
+            this.stepY = stepY;
         }
 
         private void PrintState()
