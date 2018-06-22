@@ -8,6 +8,7 @@ using System;
 namespace Cauldron
 {
 
+
     public class Tile
     {
         public string Name { get; set; }
@@ -67,6 +68,8 @@ namespace Cauldron
         public int AnimationStep { get; set; }
         public int X { get; set; }
         public int Y { get; set; }
+        //public int ScaleX { get; set; }
+        //public int ScaleY { get; set; }
         public float[] Pattern { get; set; }
         public int PatternStep { get; set; }
         public int PatternDelay { get; set; }

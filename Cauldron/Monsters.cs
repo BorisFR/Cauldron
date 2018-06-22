@@ -5,8 +5,8 @@
 
 using System;
 using System.Collections.Generic;
-using SkiaSharp;
 using System.Linq;
+using SkiaSharp;
 
 namespace Cauldron
 {
@@ -23,20 +23,18 @@ namespace Cauldron
         List<float[]> patternGhost = new List<float[]>();
 
 
-        int tileWidthScale;
         List<OneMonster> monsters;
         Dictionary<int, int> inhibeID;
         int INHIBE_DELAY;
-        int widthSprite;
-        int heightSprite;
+
+        const int SPRITE_WIDTH = 3 * 8;
+        const int SPRITE_HEIGHT = 3 * 8;
 
         const int BAT_SPRITES_MAX = 4;
         OneSprite[] spritesBat1 = new OneSprite[BAT_SPRITES_MAX];
         OneSprite[] spritesBat2 = new OneSprite[BAT_SPRITES_MAX];
-        //int batIndex;
         const int GHOST_SPRITES_MAX = 8;
         OneSprite[] spritesGhost = new OneSprite[GHOST_SPRITES_MAX];
-        //int ghostIndex;
         int stepX;
         int stepY;
 
@@ -47,31 +45,28 @@ namespace Cauldron
 
 
 
-        public Monsters(int tileWidth, int tileHeight, float scale, int decalX, int decalY, int stepX, int stepY)
+        public Monsters(int stepX, int stepY)
         {
-            DELAY_COEFF = tileWidth * scale / 1.8f;
-            tileWidthScale = Convert.ToInt32(tileWidth * scale);
-            widthSprite = Convert.ToInt32(tileWidth * 3 * scale);
-            heightSprite = Convert.ToInt32(tileHeight * 3 * scale);
+            DELAY_COEFF = All.TileWidth; // * All.GAME_SCALE / 1.8f;
             monsters = new List<OneMonster>();
             inhibeID = new Dictionary<int, int>();
-            INHIBE_DELAY = tileWidthScale * 2;
+            INHIBE_DELAY = All.TileWidth; // tileWidthScale * 2;
             this.stepX = stepX;
             this.stepY = stepY;
 
-            spriteExplode = new OneSprite(15 * 100 + 100 - 32, tileWidth, tileHeight, 3 * 8, 3 * 8, 8, 1000, scale, decalX, decalY);
+            spriteExplode = new OneSprite(15 * 100 + 100 - 32, SPRITE_WIDTH, SPRITE_HEIGHT, 8, 1000);
 
 
             for (int i = 0; i < BAT_SPRITES_MAX; i++)
             {
-                spritesBat1[i] = new OneSprite(7 * 100 + 100 - 32, tileWidth, tileHeight, 3 * 8, 3 * 8, 4, 120, scale, decalX, decalY, animBack: true);
+                spritesBat1[i] = new OneSprite(7 * 100 + 100 - 32, SPRITE_WIDTH, SPRITE_HEIGHT, 4, 120, animBack: true);
                 spritesBat1[i].StepAnim = i % 4;
-                spritesBat2[i] = new OneSprite(7 * 100 + 100 - 16, tileWidth, tileHeight, 3 * 8, 3 * 8, 4, 120, scale, decalX, decalY, animBack: true);
+                spritesBat2[i] = new OneSprite(7 * 100 + 100 - 16, SPRITE_WIDTH, SPRITE_HEIGHT, 4, 120, animBack: true);
                 spritesBat2[i].StepAnim = i % 4;
             }
             for (int i = 0; i < GHOST_SPRITES_MAX; i++)
             {
-                spritesGhost[i] = new OneSprite(11 * 100 + 100 - 32, tileWidth, tileHeight, 3 * 8, 3 * 8, 8, 120, scale, decalX, decalY);
+                spritesGhost[i] = new OneSprite(11 * 100 + 100 - 32, SPRITE_WIDTH, SPRITE_HEIGHT, 8, 120);
                 spritesGhost[i].StepAnim = i % 8;
             }
             float[] pattern = { (short)MovingDirection.DiagUpLeftSpeed, 3, (short)MovingDirection.DiagDownLeftSpeed, 3.0f, (short)MovingDirection.ToLeft, 0 };
@@ -100,33 +95,25 @@ namespace Cauldron
         {
             if (inhibeID.ContainsKey(idGenerator))
                 return;
-            /*foreach (OneMonster m in monsters)
-            {
-                if (m.ID == idGenerator)
-                    if (Tools.RND(100) > 10)
-                        return;
-                //if (m.X == x && m.Y == y)
-                //  return;
-            }*/
-            // x% de chance de générer un monstre
-            if (Tools.RND(10000) > (160 - monsters.Count * 10))
+            // x% de chance de générer un monstre ... qui diminue en fonction des monstres en vie
+            if (All.RND(1000) > (16 - monsters.Count))
                 return;
             OneMonster monster = new OneMonster();
             monster.Category = category;
             monster.ID = idGenerator;
             monster.X = x;
             monster.Y = y;
-            monster.AnimationStep = Tools.RND(4);
+            monster.AnimationStep = All.RND(4);
             switch (category)
             {
                 case MonsterType.Bat_1:
-                    monster.Pattern = patternBat1[Tools.RND(patternBat1.Count)];
+                    monster.Pattern = patternBat1[All.RND(patternBat1.Count)];
                     break;
                 case MonsterType.Bat_2:
-                    monster.Pattern = patternBat2[Tools.RND(patternBat2.Count)];
+                    monster.Pattern = patternBat2[All.RND(patternBat2.Count)];
                     break;
                 case MonsterType.Ghost:
-                    monster.Pattern = patternGhost[Tools.RND(patternGhost.Count)];
+                    monster.Pattern = patternGhost[All.RND(patternGhost.Count)];
                     break;
             }
             monster.PatternStep = 0;
@@ -142,8 +129,8 @@ namespace Cauldron
             List<OneMonster> toDelete = new List<OneMonster>();
             foreach (OneMonster m in monsters)
             {
-                m.X += tileWidthScale;
-                if (m.X > 40 * tileWidthScale)
+                m.X += All.TileWidth;
+                if (m.X > (All.MAP_SHOW * All.TileWidth))
                 {
                     toDelete.Add(m);
                     System.Diagnostics.Debug.WriteLine(String.Format("Delete {0} at {1}/{2}", m.Category, m.X, m.Y));
@@ -154,7 +141,7 @@ namespace Cauldron
 
             foreach (var kvp in explodes.ToList<KeyValuePair<int, OneObject>>())
             {
-                explodes[kvp.Key].X += tileWidthScale;
+                explodes[kvp.Key].X += All.TileWidth;
             }
         }
 
@@ -163,7 +150,7 @@ namespace Cauldron
             List<OneMonster> toDelete = new List<OneMonster>();
             foreach (OneMonster m in monsters)
             {
-                m.X -= tileWidthScale;
+                m.X -= All.TileWidth;
                 if (m.X < 0)
                 {
                     toDelete.Add(m);
@@ -175,7 +162,7 @@ namespace Cauldron
 
             foreach (var kvp in explodes.ToList<KeyValuePair<int, OneObject>>())
             {
-                explodes[kvp.Key].X -= tileWidthScale;
+                explodes[kvp.Key].X -= All.TileWidth;
             }
         }
 
@@ -239,10 +226,10 @@ namespace Cauldron
                         break;
                     case MovingDirection.ToTop:
                         monster.Y -= stepY * 2;
-                        if (monster.Y <= 0)
+                        if (monster.Y <= 1)
                         {
                             // pas top
-                            monster.Y = 0;
+                            monster.Y = 1;
                             monster.PatternDelay = 1;
                             //monster.PatternStep += 2;
                         }
@@ -331,14 +318,14 @@ namespace Cauldron
                     }
                     // sortie de l'écran
                     // TODO: changer les valeurs en dur
-                    if (monster.Y < 0 || monster.Y > 940)
+                    if (monster.Y < 1 || monster.Y > 940) // TODO: 
                     {
                         toDelete.Add(monster);
                         isDelete = true;
                     }
                     else
                     {
-                        if (monster.X < 0 || monster.X > 1640)
+                        if (monster.X < 0 || monster.X > 1640) // TODO: 
                         {
                             toDelete.Add(monster);
                             isDelete = true;
@@ -350,22 +337,22 @@ namespace Cauldron
                 {
                     // tests collision
                     // avec la sorcière
-                    if (!Tools.ShowPixel)
+                    if (!All.ShowPixel)
                         switch (monster.Category)
                         {
                             case MonsterType.Bat_1:
-                                if (Tools.IsCollision(spritesBat1[monster.AnimationStep].Source, monster.X, monster.Y, 3 * 8, 3 * 8,
-                                                      Tools.Witch.Source, Tools.Witch.X, Tools.Witch.Y, 3 * 8, 3 * 8))
+                                if (All.IsCollision(monster.X, monster.Y, spritesBat1[monster.AnimationStep].Source,
+                                                          All.Witch.X, All.Witch.Y, All.Witch.Source))
                                     isDelete = true;
                                 break;
                             case MonsterType.Bat_2:
-                                if (Tools.IsCollision(spritesBat2[monster.AnimationStep].Source, monster.X, monster.Y, 3 * 8, 3 * 8,
-                                                      Tools.Witch.Source, Tools.Witch.X, Tools.Witch.Y, 3 * 8, 3 * 8))
+                                if (All.IsCollision(monster.X, monster.Y, spritesBat2[monster.AnimationStep].Source,
+                                                          All.Witch.X, All.Witch.Y, All.Witch.Source))
                                     isDelete = true;
                                 break;
                             case MonsterType.Ghost:
-                                if (Tools.IsCollision(spritesGhost[monster.AnimationStep].Source, monster.X, monster.Y, 3 * 8, 3 * 8,
-                                                      Tools.Witch.Source, Tools.Witch.X, Tools.Witch.Y, 3 * 8, 3 * 8))
+                                if (All.IsCollision(monster.X, monster.Y, spritesGhost[monster.AnimationStep].Source,
+                                                              All.Witch.X, All.Witch.Y, All.Witch.Source))
                                     isDelete = true;
                                 break;
                         }
@@ -439,27 +426,27 @@ namespace Cauldron
                 inhibeID.Remove(k);
         }
 
-        public void Draw(SKCanvas canvas, SKBitmap tiles, int scrollX)
+        public void Draw(SKCanvas canvas, int scrollX)
         {
             foreach (OneMonster monster in monsters)
             {
                 switch (monster.Category)
                 {
                     case MonsterType.Bat_1:
-                        spritesBat1[monster.AnimationStep].Draw(canvas, monster.X, monster.Y, tiles, scrollX);
+                        spritesBat1[monster.AnimationStep].Draw(canvas, monster.X, monster.Y, scrollX);
                         break;
                     case MonsterType.Bat_2:
-                        spritesBat2[monster.AnimationStep].Draw(canvas, monster.X, monster.Y, tiles, scrollX);
+                        spritesBat2[monster.AnimationStep].Draw(canvas, monster.X, monster.Y, scrollX);
                         break;
                     case MonsterType.Ghost:
-                        spritesGhost[monster.AnimationStep].Draw(canvas, monster.X, monster.Y, tiles, scrollX);
+                        spritesGhost[monster.AnimationStep].Draw(canvas, monster.X, monster.Y, scrollX);
                         break;
                 }
             }
             foreach (var kvp in explodes)
             {
                 spriteExplode.StepAnim = kvp.Value.Step;
-                spriteExplode.Draw(canvas, kvp.Value.X, kvp.Value.Y, tiles, scrollX);
+                spriteExplode.Draw(canvas, kvp.Value.X, kvp.Value.Y, scrollX);
             }
         } // Draw
 

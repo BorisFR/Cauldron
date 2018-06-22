@@ -1,12 +1,11 @@
 ﻿<Properties StartupConfiguration="{7A6F53FB-0BC4-4B13-A50E-C9813BBD2812}|Default">
-  <MonoDevelop.Ide.Workbench ActiveDocument="Cauldron/OneSprite.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Cauldron/All.cs">
     <Files>
-      <File FileName="Cauldron/MainPage.xaml.cs" Line="267" Column="21" />
-      <File FileName="Cauldron/Witch.cs" Line="62" Column="14" />
-      <File FileName="Cauldron/Monsters.cs" Line="353" Column="26" />
-      <File FileName="Cauldron/Global.cs" Line="23" Column="39" />
-      <File FileName="Cauldron/Tools.cs" Line="136" Column="38" />
-      <File FileName="Cauldron/OneSprite.cs" Line="140" Column="203" />
+      <File FileName="Cauldron/MainPage.xaml.cs" Line="497" Column="52" />
+      <File FileName="Cauldron/Witch.cs" Line="51" Column="29" />
+      <File FileName="Cauldron/Monsters.cs" Line="359" Column="1" />
+      <File FileName="Cauldron/Global.cs" Line="72" Column="11" />
+      <File FileName="Cauldron/All.cs" Line="193" Column="23" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />

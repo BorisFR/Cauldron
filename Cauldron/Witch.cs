@@ -20,10 +20,10 @@ namespace Cauldron
         TimeSpan animElaps;
         bool moving;
 
-        //int decalX;
-        //int decalY;
         public int X { get; set; }
         public int Y { get; set; }
+        public int Width { get; set; }
+        public int Height { get; set; }
         public int MinY { get; set; }
         public int MaxY { get; set; }
         int stepX;
@@ -35,20 +35,20 @@ namespace Cauldron
         const int ANIM_DELAY_MOUNT = 80;
         const int ANIM_DELAY_FLY_SLOW = 350;
 
-        public Witch(int tileWidth, int tileHeight, float scale, int decalX, int decalY, int stepX, int stepY)
+        public Witch(int stepX, int stepY)
         {
-            //this.decalX = decalX;
-            //this.decalY = decalY;
-            toLeft = new OneSprite(20 * 100, tileWidth, tileHeight, 16, 21, 18, 100, scale, decalX, decalY, true);
-            toRight = new OneSprite(24 * 100, tileWidth, tileHeight, 16, 21, 18, 100, scale, decalX, decalY, true);
+            Width = 2 * All.TileWidth;
+            Height = 21;
+            toLeft = new OneSprite(20 * 100, 16, 21, 18, 100, true);
+            toRight = new OneSprite(24 * 100, 16, 21, 18, 100, true);
             currentStep = 0;
             toRight.SetAnimSteps(currentStep, currentStep, 0);
             ChangeToState(WitchState.RightWalk);
             moving = false;
             this.stepX = stepX;
             this.stepY = stepY;
-            middleY = Convert.ToInt32((21 / 2 - 1) * scale); // au niveau du balai quand on vole
-            rightX = Convert.ToInt32(12 * 2 * scale);
+            middleY = 21 / 2 - 1;// au niveau du balai quand on vole
+            rightX = 12 * 2;
         }
 
         private void PrintState()
@@ -257,7 +257,7 @@ namespace Cauldron
             }
         }
 
-        public void Draw(SKCanvas canvas, SKBitmap tiles)
+        public void Draw(SKCanvas canvas)
         {
             switch (state)
             {
@@ -266,14 +266,14 @@ namespace Cauldron
                 case WitchState.LeftDescend:
                 case WitchState.LeftFlySlow:
                 case WitchState.LeftFly:
-                    toLeft.Draw(canvas, X, Y, tiles);
+                    toLeft.Draw(canvas, X, Y);
                     break;
                 case WitchState.RightWalk:
                 case WitchState.RightMount:
                 case WitchState.RightDescend:
                 case WitchState.RightFlySlow:
                 case WitchState.RightFly:
-                    toRight.Draw(canvas, X, Y, tiles);
+                    toRight.Draw(canvas, X, Y);
                     break;
             }
         }

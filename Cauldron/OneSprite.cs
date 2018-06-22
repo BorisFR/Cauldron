@@ -11,25 +11,71 @@ namespace Cauldron
 {
     public class OneSprite
     {
-        int decalX;
-        int decalY;
-        int width;
-        int height;
-        int widthScale;
-        int heightScale;
-        bool doubleX;
-        int animCount;
-        int animDelay;
+        // original
+        public int Width { get; private set; }
+        public int Height { get; private set; }
+        Rectangle[] sources;
+        // scale
+        public int WidthScale { get; private set; }
+        public int HeightScale { get; private set; }
+        bool spriteDoubleWidth;
+        SKRect[] sourcesScale;
+
+
+        DateTime startAnim;
+        public int StepAnim { get; set; }
         int animFrom;
         int animTo;
+        int animCount;
+        int animDelay;
         TimeSpan animElaps;
         bool animIncrease;
         bool animBack;
 
-        DateTime startAnim;
-        int animStep;
-        SKRect[] sources;
-        SKRect dest;
+
+        public OneSprite(int tileNumber, int width, int height, int animCount, int animDelay, bool spriteDoubleWidth = false, bool animBack = false)
+        {
+            this.Width = width;
+            this.Height = height;
+            this.spriteDoubleWidth = spriteDoubleWidth;
+            this.animBack = animBack;
+
+            WidthScale = Convert.ToInt32(width * All.GAME_SCALE);
+            HeightScale = Convert.ToInt32(height * All.GAME_SCALE);
+
+            this.animCount = animCount;
+            this.animDelay = animDelay;
+            animElaps = TimeSpan.FromMilliseconds(animDelay);
+            StepAnim = 0;
+            animFrom = 0;
+            animTo = animCount - 1;
+            if (animFrom < animTo)
+                animIncrease = true;
+            else
+                animIncrease = false;
+            startAnim = DateTime.UtcNow;
+
+            // calcul des divers sources
+            sources = new Rectangle[animCount];
+            int sourceX = Convert.ToInt32((tileNumber % 100) * All.TileWidth);
+            int sourceY = Convert.ToInt32((tileNumber / 100) * All.TileHeight);
+            sourcesScale = new SKRect[animCount];
+            int sourceScaleX = Convert.ToInt32((tileNumber % 100) * All.TileWidth * All.GAME_SCALE);
+            int sourceScaleY = Convert.ToInt32((tileNumber / 100) * All.TileHeight * All.GAME_SCALE);
+            for (int i = 0; i < animCount; i++)
+            {
+                sources[i] = new Rectangle(sourceX, sourceY, sourceX + Width, sourceY + Height);
+                sourceX += Convert.ToInt32(((width + All.TileWidth * 2 - 1) / All.TileWidth) * All.TileWidth);
+                sourcesScale[i] = new SKRect(sourceScaleX, sourceScaleY, sourceScaleX + WidthScale, sourceScaleY + HeightScale);
+                // on se positionne sur l'animation suivante
+                // qui est sur la même ligne, séparée par une colonne de la taille d'une tile
+                sourceScaleX += Convert.ToInt32(((width + All.TileWidth * 2 - 1) / All.TileWidth) * All.TileWidth * All.GAME_SCALE);
+            }
+            if (spriteDoubleWidth)
+                WidthScale *= 2;
+        }
+
+        public Rectangle Source { get { return sources[StepAnim]; } }
 
         public void SetAnimSteps(int from, int to, int delay)
         {
@@ -40,105 +86,57 @@ namespace Cauldron
             else
                 animIncrease = false;
             animDelay = delay;
-            animStep = from;
-        }
-
-        public int StepAnim { get { return animStep; } set { animStep = value; } }
-
-
-        public OneSprite()
-        {
-
-        }
-
-        public OneSprite(int tileNumber, int tileWidth, int tileHeight, int width, int height, int animCount, int animDelay, float scale, int decalX, int decalY, bool doubleX = false, bool animBack = false)
-        {
-            this.decalX = decalX;
-            this.decalY = decalY;
-            this.width = width;
-            this.height = height;
-            this.doubleX = doubleX;
-            this.animBack = animBack;
-            widthScale = Convert.ToInt32(width * scale);
-            heightScale = Convert.ToInt32(height * scale);
-            this.animCount = animCount;
-            this.animDelay = animDelay;
-            animElaps = TimeSpan.FromMilliseconds(animDelay);
-            animStep = 0;
-            animFrom = 0;
-            animTo = animCount - 1;
-            if (animFrom < animTo)
-                animIncrease = true;
-            else
-                animIncrease = false;
-            startAnim = DateTime.UtcNow;
-            // calcul des divers sources
-            sources = new SKRect[animCount];
-            int x = Convert.ToInt32((tileNumber % 100) * tileWidth * scale);
-            int y = Convert.ToInt32((tileNumber / 100) * tileHeight * scale);
-            for (int i = 0; i < animCount; i++)
-            {
-                sources[i] = new SKRect(x, y, x + widthScale, y + heightScale);
-                // on se positionne sur l'animation suivante
-                // qui est sur la même ligne, séparée par une colonne de la taille d'une tile
-                x += Convert.ToInt32(((width + tileWidth * 2 - 1) / tileWidth) * tileWidth * scale);
-            }
-            if (doubleX)
-                widthScale *= 2;
+            StepAnim = from;
         }
 
         public void DoAnim(DateTime time)
         {
             if ((time - startAnim) < animElaps)
                 return;
-            startAnim = time;//.AddMilliseconds(-animDelay);
+            startAnim = time;
             if (animIncrease)
             {
-                animStep++;
-                if (animStep > animTo)
+                StepAnim++;
+                if (StepAnim > animTo)
                 {
                     if (animBack)
                     {
-                        animStep = animTo - 1;
+                        StepAnim = animTo - 1;
                         animIncrease = false;
                     }
                     else
                     {
-                        animStep = animFrom;
+                        StepAnim = animFrom;
                     }
                 }
             }
             else
             {
-                animStep--;
-                if (animStep < animTo)
+                StepAnim--;
+                if (StepAnim < animTo)
                 {
                     if (animBack)
                     {
-                        animStep = animFrom + 1;
+                        StepAnim = animFrom + 1;
                         animIncrease = true;
                     }
                     else
                     {
-                        animStep = animFrom;
+                        StepAnim = animFrom;
                     }
                 }
             }
         }
 
-        public void Draw(SKCanvas canvas, int x, int y, SKBitmap tiles, int scrollX = 0)
-        {
-            dest = new SKRect(decalX + x + scrollX, decalY + y, decalX + x + widthScale + scrollX, decalY + y + heightScale);
-            canvas.DrawBitmap(tiles, sources[animStep], dest);
-        }
+        SKRect tempSKRect;
+        float scaleX, scaleY;
 
-
-        public Rectangle Source
+        public void Draw(SKCanvas canvas, int x, int y, int scrollX = 0)
         {
-            get
-            {
-                return new Rectangle(Convert.ToInt32(sources[animStep].Left), Convert.ToInt32(sources[animStep].Top), Convert.ToInt32(sources[animStep].Width), Convert.ToInt32(sources[animStep].Height));
-            }
+            scaleX = x * All.GAME_SCALE;
+            scaleY = y * All.GAME_SCALE;
+            tempSKRect = new SKRect(All.DECAL_MAP_X + scaleX + scrollX, All.DECAL_MAP_Y + scaleY, All.DECAL_MAP_X + scaleX + WidthScale + scrollX, All.DECAL_MAP_Y + scaleY + HeightScale);
+            canvas.DrawBitmap(All.TilesScale, sourcesScale[StepAnim], tempSKRect);
         }
 
     }

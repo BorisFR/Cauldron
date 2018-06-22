@@ -12,12 +12,25 @@ using SkiaSharp;
 
 namespace Cauldron
 {
-    public static class Tools
+    public static class All
     {
         private static readonly Assembly assembly;
         private static readonly string[] resources;
 
+        // combien on affiche de colonne à l'écran
+        public static int MAP_SHOW = 38;
+
+        public const int DECAL_MAP_X = 200;
+        public const int DECAL_MAP_Y = 5 * 8 * 3; // ce dernier doit être égal à GAME_SCALE...
+        public const float GAME_SCALE = 3.0f;
+
         public static SKBitmap Tiles;
+        public static SKBitmap TilesScale;
+        public static int TileWidth;
+        public static int TileHeight;
+        public static int TileWidthScale;
+        public static int TileHeightScale;
+
         public static Witch Witch;
 
 
@@ -35,9 +48,9 @@ namespace Cauldron
             return rnd.Next(max);
         }
 
-        static Tools()
+        static All()
         {
-            assembly = typeof(Tools).GetTypeInfo().Assembly;
+            assembly = typeof(All).GetTypeInfo().Assembly;
             resources = assembly.GetManifestResourceNames();
             rnd = new Random(DateTime.UtcNow.Millisecond);
         }
@@ -130,39 +143,39 @@ namespace Cauldron
             }
         }
 
-        public static bool IsCollision(Rectangle object1, int x1, int y1, int width1, int height1, Rectangle object2, int x2, int y2, int width2, int height2)
+        public static bool IsCollision(int x1, int y1, Rectangle object1, int x2, int y2, Rectangle object2)
         {
             // on checke les 4 coins pour voir si il y a recouvrement
             // taille écran donc avec SCALE
-            if ((x1 + width1) < x2)
+            if ((x1 + object1.Width) < x2)
                 return false;
-            if (x1 > (x2 + width2))
+            if (x1 > (x2 + object2.Width))
                 return false;
-            if ((y1 + height1) < y2)
+            if ((y1 + object1.Height) < y2)
                 return false;
-            if (y1 > (y2 + width2))
+            if (y1 > (y2 + object2.Width))
                 return false;
             // on check plus précisement
             int x, y, w, h; // la surface de recouvrement
             if (x1 < x2)
             {
                 x = x2; // ????? pas bon je pense
-                w = x1 + width1 - x2;
+                w = x1 + object1.Width - x2;
             }
             else
             {
                 x = x1; // ????? pas bon je pense
-                w = x2 + width2 - x1;
+                w = x2 + object2.Width - x1;
             }
             if (y1 < y2)
             {
                 y = y2; // ????? pas bon je pense
-                h = y1 + height1 - y2;
+                h = y1 + object1.Height - y2;
             }
             else
             {
                 y = y1; // ????? pas bon je pense
-                h = y2 + height2 - y1;
+                h = y2 + object2.Height - y1;
             }
             SKColor color;
             for (int i = x; i < (x + w); i++) // ????? pas bon je pense
@@ -177,7 +190,7 @@ namespace Cauldron
                         continue;
                     ShowPixelX = x1; // ????? pas bon je pense
                     ShowPixelY = y1;
-                    ShowPixel = true;
+                    //ShowPixel = true;
                     return true;
                 }
             }

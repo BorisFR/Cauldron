@@ -27,14 +27,14 @@ namespace Cauldron.MacOS
 
         private static NSEvent KeyboardDownEventHandler(NSEvent keyEvent)
         {
-            Tools.Keydown(keyEvent.KeyCode);
+            All.Keydown(keyEvent.KeyCode);
             return null;
             //return (keyEvent);
         }
 
         private static NSEvent KeyboardUpEventHandler(NSEvent keyEvent)
         {
-            Tools.Keyup(keyEvent.KeyCode);
+            All.Keyup(keyEvent.KeyCode);
             return (keyEvent);
         }
 
@@ -42,9 +42,9 @@ namespace Cauldron.MacOS
         {
             //System.Diagnostics.Debug.WriteLine(string.Format("Flags: {0}", keyEvent.ModifierFlags));
             if (keyEvent.ModifierFlags.HasFlag(NSEventModifierMask.ShiftKeyMask))
-                Tools.Keydown(keyEvent.KeyCode);
+                All.Keydown(keyEvent.KeyCode);
             else
-                Tools.Keyup(keyEvent.KeyCode);
+                All.Keyup(keyEvent.KeyCode);
             return (keyEvent);
         }
 
