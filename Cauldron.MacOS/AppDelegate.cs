@@ -40,7 +40,11 @@ namespace Cauldron.MacOS
 
         private static NSEvent KeyboardFlagsEventHandler(NSEvent keyEvent)
         {
-            Tools.Keyup(keyEvent.KeyCode);
+            //System.Diagnostics.Debug.WriteLine(string.Format("Flags: {0}", keyEvent.ModifierFlags));
+            if (keyEvent.ModifierFlags.HasFlag(NSEventModifierMask.ShiftKeyMask))
+                Tools.Keydown(keyEvent.KeyCode);
+            else
+                Tools.Keyup(keyEvent.KeyCode);
             return (keyEvent);
         }
 

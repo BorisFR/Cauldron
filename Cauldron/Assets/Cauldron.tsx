@@ -38,11 +38,6 @@
    <frame tileid="82" duration="100"/>
   </animation>
  </tile>
- <tile id="141">
-  <properties>
-   <property name="generator" value="bat_1"/>
-  </properties>
- </tile>
  <tile id="164">
   <properties>
    <property name="item" value="key_blue"/>
@@ -71,6 +66,11 @@
    <frame tileid="178" duration="100"/>
    <frame tileid="182" duration="100"/>
   </animation>
+ </tile>
+ <tile id="241">
+  <properties>
+   <property name="generator" value="bat_1"/>
+  </properties>
  </tile>
  <tile id="264">
   <properties>

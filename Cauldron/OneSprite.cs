@@ -4,6 +4,7 @@
 // */
 
 using System;
+using System.Drawing;
 using SkiaSharp;
 
 namespace Cauldron
@@ -129,6 +130,15 @@ namespace Cauldron
         {
             dest = new SKRect(decalX + x + scrollX, decalY + y, decalX + x + widthScale + scrollX, decalY + y + heightScale);
             canvas.DrawBitmap(tiles, sources[animStep], dest);
+        }
+
+
+        public Rectangle Source
+        {
+            get
+            {
+                return new Rectangle(Convert.ToInt32(sources[animStep].Left), Convert.ToInt32(sources[animStep].Top), Convert.ToInt32(sources[animStep].Width), Convert.ToInt32(sources[animStep].Height));
+            }
         }
 
     }

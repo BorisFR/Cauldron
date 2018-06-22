@@ -4,6 +4,7 @@
 // */
 
 using System;
+using System.Drawing;
 using SkiaSharp;
 
 namespace Cauldron
@@ -53,6 +54,29 @@ namespace Cauldron
         private void PrintState()
         {
             //System.Diagnostics.Debug.WriteLine(String.Format("State: {0}, moving: {1}, current: {2}", state, moving, currentStep));
+        }
+
+        public Rectangle Source
+        {
+            get
+            {
+                switch (state)
+                {
+                    case WitchState.LeftWalk:
+                    case WitchState.LeftMount:
+                    case WitchState.LeftDescend:
+                    case WitchState.LeftFlySlow:
+                    case WitchState.LeftFly:
+                        return toLeft.Source;
+                    case WitchState.RightWalk:
+                    case WitchState.RightMount:
+                    case WitchState.RightDescend:
+                    case WitchState.RightFlySlow:
+                    case WitchState.RightFly:
+                        return toRight.Source;
+                }
+                return toLeft.Source; // TODO: entering / Exit door
+            }
         }
 
         public bool IsFlying
@@ -241,12 +265,14 @@ namespace Cauldron
                 case WitchState.LeftMount:
                 case WitchState.LeftDescend:
                 case WitchState.LeftFlySlow:
+                case WitchState.LeftFly:
                     toLeft.Draw(canvas, X, Y, tiles);
                     break;
                 case WitchState.RightWalk:
                 case WitchState.RightMount:
                 case WitchState.RightDescend:
                 case WitchState.RightFlySlow:
+                case WitchState.RightFly:
                     toRight.Draw(canvas, X, Y, tiles);
                     break;
             }

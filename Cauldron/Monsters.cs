@@ -19,6 +19,8 @@ namespace Cauldron
         List<float[]> patternBat1 = new List<float[]>();
         // Bat 2
         List<float[]> patternBat2 = new List<float[]>();
+        // Ghost
+        List<float[]> patternGhost = new List<float[]>();
 
 
         int tileWidthScale;
@@ -72,19 +74,26 @@ namespace Cauldron
                 spritesGhost[i] = new OneSprite(11 * 100 + 100 - 32, tileWidth, tileHeight, 3 * 8, 3 * 8, 8, 120, scale, decalX, decalY);
                 spritesGhost[i].StepAnim = i % 8;
             }
-            float[] pattern = { (short)MovingDirection.DiagUpLeftSpeed, 3, (short)MovingDirection.DiagDownLeftSpeed, 3, (short)MovingDirection.ToLeft, 0 };
+            float[] pattern = { (short)MovingDirection.DiagUpLeftSpeed, 3, (short)MovingDirection.DiagDownLeftSpeed, 3.0f, (short)MovingDirection.ToLeft, 0 };
             patternBat1.Add(pattern);
-            pattern = new float[] { (short)MovingDirection.DiagUpLeftSpeed, 3, (short)MovingDirection.DiagDownLeftSpeed, 3, (short)MovingDirection.ToRight, 0 };
+            pattern = new float[] { (short)MovingDirection.DiagUpLeftSpeed, 3, (short)MovingDirection.DiagDownLeftSpeed, 3.1f, (short)MovingDirection.ToRight, 0 };
             patternBat1.Add(pattern);
-            pattern = new float[] { (short)MovingDirection.DiagUpRight, 2, (short)MovingDirection.DiagDownRight, 2, (short)MovingDirection.ToLeft, 0 };
+            pattern = new float[] { (short)MovingDirection.DiagUpRight, 2, (short)MovingDirection.DiagDownRight, 2.5f, (short)MovingDirection.ToLeft, 0 };
             patternBat1.Add(pattern);
-            pattern = new float[] { (short)MovingDirection.DiagUpRight, 2, (short)MovingDirection.DiagDownRight, 2, (short)MovingDirection.ToRight, 0 };
+            pattern = new float[] { (short)MovingDirection.DiagUpRight, 2, (short)MovingDirection.DiagDownRight, 2.5f, (short)MovingDirection.ToRight, 0 };
             patternBat1.Add(pattern);
 
             pattern = new float[] { (short)MovingDirection.ToTop, 0, (short)MovingDirection.ToLeft, 2, (short)MovingDirection.ToDown, 1.5f, (short)MovingDirection.ToRight, 1.5f, (short)MovingDirection.ToUp, 1.3f, (short)MovingDirection.ToWitch, 0 };
             patternBat2.Add(pattern);
             pattern = new float[] { (short)MovingDirection.ToTop, 0, (short)MovingDirection.ToRight, 2, (short)MovingDirection.ToDown, 1.5f, (short)MovingDirection.ToLeft, 1.5f, (short)MovingDirection.ToUp, 1.3f, (short)MovingDirection.ToWitch, 0 };
             patternBat2.Add(pattern);
+
+            pattern = new float[] { (short)MovingDirection.ToUpSpeed, 1.8f, (short)MovingDirection.DiagUpLeft, 2.7f, (short)MovingDirection.DiagUpRight, 2.7f, (short)MovingDirection.ToWitch, 0 };
+            patternGhost.Add(pattern);
+            pattern = new float[] { (short)MovingDirection.ToUp, 3.5f, (short)MovingDirection.DiagUpRight, 2.7f, (short)MovingDirection.DiagUpLeft, 2.7f, (short)MovingDirection.ToWitch, 0 };
+            patternGhost.Add(pattern);
+            pattern = new float[] { (short)MovingDirection.ToUp, 3.5f, (short)MovingDirection.DiagUpLeft, 3, (short)MovingDirection.DiagDownRightSpeed, 1.5f, (short)MovingDirection.ToLeft, 2.0f, (short)MovingDirection.ToDownSpeed, 1.8f };
+            patternGhost.Add(pattern);
         }
 
         public void Generator(MonsterType category, int idGenerator, int x, int y)
@@ -100,7 +109,7 @@ namespace Cauldron
                 //  return;
             }*/
             // x% de chance de générer un monstre
-            if (Tools.RND(10000) > (110 - monsters.Count * 10))
+            if (Tools.RND(10000) > (160 - monsters.Count * 10))
                 return;
             OneMonster monster = new OneMonster();
             monster.Category = category;
@@ -117,7 +126,7 @@ namespace Cauldron
                     monster.Pattern = patternBat2[Tools.RND(patternBat2.Count)];
                     break;
                 case MonsterType.Ghost:
-                    monster.Pattern = patternBat1[Tools.RND(patternBat1.Count)];
+                    monster.Pattern = patternGhost[Tools.RND(patternGhost.Count)];
                     break;
             }
             monster.PatternStep = 0;
@@ -303,9 +312,8 @@ namespace Cauldron
                 if (monster.PatternDelay == 0)
                 {
                     monster.PatternStep += 2;
-                    if (monster.PatternStep > monster.Pattern.Length)
+                    if (monster.PatternStep >= monster.Pattern.Length)
                     {
-                        // normallement pas possible, sauf si erreur dans la définition du pattern
                         toDelete.Add(monster);
                         isDelete = true;
                     }
@@ -342,7 +350,26 @@ namespace Cauldron
                 {
                     // tests collision
                     // avec la sorcière
-                    if (targetX >= monster.X && targetX <= (monster.X + widthSprite))
+                    if (!Tools.ShowPixel)
+                        switch (monster.Category)
+                        {
+                            case MonsterType.Bat_1:
+                                if (Tools.IsCollision(spritesBat1[monster.AnimationStep].Source, monster.X, monster.Y, 3 * 8, 3 * 8,
+                                                      Tools.Witch.Source, Tools.Witch.X, Tools.Witch.Y, 3 * 8, 3 * 8))
+                                    isDelete = true;
+                                break;
+                            case MonsterType.Bat_2:
+                                if (Tools.IsCollision(spritesBat2[monster.AnimationStep].Source, monster.X, monster.Y, 3 * 8, 3 * 8,
+                                                      Tools.Witch.Source, Tools.Witch.X, Tools.Witch.Y, 3 * 8, 3 * 8))
+                                    isDelete = true;
+                                break;
+                            case MonsterType.Ghost:
+                                if (Tools.IsCollision(spritesGhost[monster.AnimationStep].Source, monster.X, monster.Y, 3 * 8, 3 * 8,
+                                                      Tools.Witch.Source, Tools.Witch.X, Tools.Witch.Y, 3 * 8, 3 * 8))
+                                    isDelete = true;
+                                break;
+                        }
+                    /*if (targetX >= monster.X && targetX <= (monster.X + widthSprite))
                     {
                         if (targetY >= monster.Y && targetY <= (monster.Y + heightSprite))
                         {
@@ -363,7 +390,7 @@ namespace Cauldron
                         {
                             isDelete = true;
                         }
-                    }
+                    }*/
                     if (isDelete)
                     {
                         // le monstre disparaît

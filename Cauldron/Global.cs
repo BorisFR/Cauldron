@@ -20,7 +20,7 @@ namespace Cauldron
         LeftMount, // 4 5 6 7
         LeftDescend,
         LeftFlySlow, // 8 9
-        LeftFly, // 10 11 12 13 14 15
+        LeftFly, // 10 11 12 13 14 15 
         RightWalk,
         RightMount,
         RightDescend,
