@@ -35,6 +35,8 @@ namespace Cauldron
         TimeSpan ts;
         int missedAnim;
 
+        // *********************************************************************
+
         public OneSprite(int tileNumber, int width, int height, int animCount, int animDelay, bool spriteDoubleWidth = false, bool animBack = false, bool animStop = false)
         {
             this.Width = width;
@@ -78,7 +80,11 @@ namespace Cauldron
                 WidthScale *= 2;
         }
 
+        // *********************************************************************
+
         public Rectangle Source { get { return sources[StepAnim]; } }
+
+        // *********************************************************************
 
         public void SetAnimSteps(int from, int to, int delay, bool animStop = false)
         {
@@ -93,6 +99,8 @@ namespace Cauldron
             StepAnim = from;
             this.animStop = animStop;
         }
+
+        // *********************************************************************
 
         public void DoAnim(DateTime time)
         {
@@ -154,6 +162,8 @@ namespace Cauldron
                 }
             }
         }
+
+        // *********************************************************************
 
         SKRect tempSKRect;
         float scaleX, scaleY;

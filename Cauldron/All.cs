@@ -17,8 +17,20 @@ namespace Cauldron
         private static readonly Assembly assembly;
         private static readonly string[] resources;
 
+        public static TimeSpan FREQUENCY = TimeSpan.FromSeconds(1.0 / 30.0);// 60x par seconde = 17ms, 30x = 33ms
+        public static TimeSpan ONE_SECOND = TimeSpan.FromSeconds(1);
+
         // combien on affiche de colonne à l'écran
         public static int MAP_SHOW = 38;
+        public static int MIDDLE_MAP;
+        public static int SPEED_LEFT_1;
+        public static int SPEED_LEFT_2;
+        public static int SPEED_LEFT_3;
+        public static int SPEED_LEFT_MAX;
+        public static int SPEED_RIGHT_1;
+        public static int SPEED_RIGHT_2;
+        public static int SPEED_RIGHT_3;
+        public static int SPEED_RIGHT_MAX;
 
         public const int DECAL_MAP_X = 200;
         public const int DECAL_MAP_Y = 5 * 8 * 3; // ce dernier doit être égal à GAME_SCALE...
@@ -43,17 +55,31 @@ namespace Cauldron
         private static int lastKey;
         private static Random rnd;
 
-        public static int RND(int max)
-        {
-            return rnd.Next(max);
-        }
+        // *********************************************************************
 
         static All()
         {
             assembly = typeof(All).GetTypeInfo().Assembly;
             resources = assembly.GetManifestResourceNames();
             rnd = new Random(DateTime.UtcNow.Millisecond);
+            TileWidth = 8;
+            double part = MAP_SHOW * TileWidth / 10;
+            SPEED_LEFT_MAX = Convert.ToInt32(part - 16);
+            SPEED_LEFT_3 = Convert.ToInt32(part * 2 - 16);
+            SPEED_LEFT_2 = Convert.ToInt32(part * 3 - 16);
+            SPEED_LEFT_1 = Convert.ToInt32(part * 4 - 16);
+            MIDDLE_MAP = Convert.ToInt32(part * 5 - 16);
+            SPEED_RIGHT_1 = Convert.ToInt32(part * 6);
+            SPEED_RIGHT_2 = Convert.ToInt32(part * 7);
+            SPEED_RIGHT_3 = Convert.ToInt32(part * 8);
+            SPEED_RIGHT_MAX = Convert.ToInt32(part * 9);
         }
+
+        // *********************************************************************
+
+        public static int RND(int max) { return rnd.Next(max); }
+
+        // *********************************************************************
 
         public static Stream GetStreamImage(string name)
         {
@@ -68,6 +94,7 @@ namespace Cauldron
             return stream;
         }
 
+        // *********************************************************************
 
         public static Stream GetStream(string name)
         {
@@ -80,6 +107,8 @@ namespace Cauldron
             }
             return stream;
         }
+
+        // *********************************************************************
 
         public static void Keydown(int keyCode)
         {
@@ -110,6 +139,8 @@ namespace Cauldron
             }
         }
 
+        // *********************************************************************
+
         public static void Keyup(int keyCode)
         {
             //System.Diagnostics.Debug.WriteLine(string.Format("KeyUp: {0}", keyCode));
@@ -135,6 +166,8 @@ namespace Cauldron
             }
         }
 
+        // *********************************************************************
+
         public static int GetKeyCode
         {
             get
@@ -142,6 +175,11 @@ namespace Cauldron
                 return lastKey;
             }
         }
+
+        // *********************************************************************
+
+        public static SKColor colorTransparent = SKColor.Parse("#00000000");
+        public static int cas;
 
         public static bool IsCollision(int x1, int y1, Rectangle object1, int x2, int y2, Rectangle object2)
         {
@@ -157,13 +195,11 @@ namespace Cauldron
                 return false;
             // on check plus précisement
             int xx1, yy1, w, h, xx2, yy2; // la surface de recouvrement
-            int cas;
             if (x1 < x2)
             {
                 w = x1 + object1.Width - x2;
                 xx1 = object1.Width - w;
                 xx2 = 0;
-                //System.Diagnostics.Debug.Write(String.Format("Contact X: {0} ({1}) < {2} ({3}) : {4} et {5} => {6}", x1, object1.Width, x2, object2.Width, xx1, xx2, w));
                 cas = 0;
             }
             else
@@ -171,7 +207,6 @@ namespace Cauldron
                 w = x2 + object2.Width - x1;
                 xx1 = 0;
                 xx2 = object2.Width - w;
-                //System.Diagnostics.Debug.Write(String.Format("Contact X: {0} ({1}) > {2} ({3}) : {4} et {5} => {6}", x1, object1.Width, x2, object2.Width, xx1, xx2, w));
                 cas = 1;
             }
             if (y1 < y2)
@@ -179,15 +214,12 @@ namespace Cauldron
                 h = y1 + object1.Height - y2;
                 yy1 = object1.Height - h;
                 yy2 = 0;
-                //System.Diagnostics.Debug.WriteLine(String.Format(" - Y: {0} ({1}) < {2} ({3}) : {4} et {5} => {6}", y1, object1.Height, y2, object2.Height, yy1, yy2, h));
-
             }
             else
             {
                 h = y2 + object2.Height - y1;
                 yy1 = 0;
                 yy2 = object2.Height - h;
-                //System.Diagnostics.Debug.WriteLine(String.Format(" - Y: {0} ({1}) > {2} ({3}) : {4} et {5} => {6}", y1, object1.Height, y2, object2.Height, yy1, yy2, h));
                 cas += 2;
             }
             SKColor color;
@@ -204,10 +236,6 @@ namespace Cauldron
                             color = Tiles.GetPixel(object2.X + xx2 + i, object2.Y + yy2 + j);
                             if (color == colorTransparent)
                                 continue;
-                            //System.Diagnostics.Debug.WriteLine(String.Format(" Touch: {0} / {1} : {2}", x1 + xx1 + i, y1 + yy1 + j, color));
-                            /*ShowPixelX = x1 + xx1 + i;
-                            ShowPixelY = y1 + yy1 + j;
-                            ShowPixel = true;*/
                             return true;
                         }
                     }
@@ -223,10 +251,6 @@ namespace Cauldron
                             color = Tiles.GetPixel(object2.X + xx2 + i, object2.Y + yy2 + j);
                             if (color == colorTransparent)
                                 continue;
-                            //System.Diagnostics.Debug.WriteLine(String.Format(" Touch: {0} / {1} : {2}", x1 + xx1 + i, y1 + yy1 + j, color));
-                            /*ShowPixelX = x1 + xx1 + i;
-                            ShowPixelY = y1 + yy1 + j;
-                            ShowPixel = true;*/
                             return true;
                         }
                     }
@@ -242,10 +266,6 @@ namespace Cauldron
                             color = Tiles.GetPixel(object2.X + xx2 + i, object2.Y + yy2 + j);
                             if (color == colorTransparent)
                                 continue;
-                            //System.Diagnostics.Debug.WriteLine(String.Format(" Touch: {0} / {1} : {2}", x1 + xx1 + i, y1 + yy1 + j, color));
-                            /*ShowPixelX = x1 + xx1 + i;
-                            ShowPixelY = y1 + yy1 + j;
-                            ShowPixel = true;*/
                             return true;
                         }
                     }
@@ -261,10 +281,6 @@ namespace Cauldron
                             color = Tiles.GetPixel(object2.X + xx2 + i, object2.Y + yy2 + j);
                             if (color == colorTransparent)
                                 continue;
-                            //System.Diagnostics.Debug.WriteLine(String.Format(" Touch: {0} / {1} : {2}", x1 + xx1 + i, y1 + yy1 + j, color));
-                            /*ShowPixelX = x1 + xx1 + i;
-                            ShowPixelY = y1 + yy1 + j;
-                            ShowPixel = true;*/
                             return true;
                         }
                     }
@@ -274,10 +290,8 @@ namespace Cauldron
             return false;
         }
 
-        public static SKColor colorTransparent = SKColor.Parse("#00000000");
-        /*public static bool ShowPixel;
-        public static int ShowPixelX;
-        public static int ShowPixelY;*/
+        // *********************************************************************
+
 
     }
 }

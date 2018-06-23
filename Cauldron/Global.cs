@@ -21,12 +21,18 @@ namespace Cauldron
         LeftMount, // 4 5 6 7
         LeftDescend,
         LeftFlySlow, // 8 9
-        LeftFly, // 10 11 12 13 14 15 
+        LeftFly1, // 16 17
+        LeftFly2, // 14 15
+        LeftFly3, // 12 12 
+        LeftFlyMax, // 10 11 
         RightWalk,
         RightMount,
         RightDescend,
         RightFlySlow,
-        RightFly,
+        RightFly1,
+        RightFly2,
+        RightFly3,
+        RightFlyMax,
         EnteringDoor,
         ExitingDoor
     }

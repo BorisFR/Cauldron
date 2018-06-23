@@ -13,7 +13,6 @@ namespace Cauldron
 
     public class Monsters
     {
-        float DELAY_COEFF;
 
         // Bat 1
         List<float[]> patternBat1 = new List<float[]>();
@@ -24,38 +23,37 @@ namespace Cauldron
 
 
         List<OneMonster> monsters;
-        Dictionary<int, int> inhibeID;
-        int INHIBE_DELAY;
+        Dictionary<int, int> inhibeGeneratorID;
+        int generatorInhibeDelay;
 
         const int SPRITE_WIDTH = 3 * 8;
         const int SPRITE_HEIGHT = 3 * 8;
 
-        const int BAT_SPRITES_MAX = 4;
+        const int BAT_SPRITES_MAX = 4; // nombre d'animations d'une chauve souris
         OneSprite[] spritesBat1 = new OneSprite[BAT_SPRITES_MAX];
         OneSprite[] spritesBat2 = new OneSprite[BAT_SPRITES_MAX];
-        const int GHOST_SPRITES_MAX = 8;
+        const int GHOST_SPRITES_MAX = 8; // nombre d'animations d'un fantôme
         OneSprite[] spritesGhost = new OneSprite[GHOST_SPRITES_MAX];
-        int stepX;
-        int stepY;
 
         OneSprite spriteExplode;
         Dictionary<int, OneObject> explodes = new Dictionary<int, OneObject>();
         TimeSpan explodeElaps = TimeSpan.FromMilliseconds(60);
         int idExplode = 0;
 
+        int stepX;
+        int stepY;
 
+        // *********************************************************************
 
         public Monsters(int stepX, int stepY)
         {
-            DELAY_COEFF = All.TileWidth; // * All.GAME_SCALE / 1.8f;
             monsters = new List<OneMonster>();
-            inhibeID = new Dictionary<int, int>();
-            INHIBE_DELAY = All.TileWidth; // tileWidthScale * 2;
+            inhibeGeneratorID = new Dictionary<int, int>();
+            generatorInhibeDelay = All.TileWidth; // tileWidthScale * 2;
             this.stepX = stepX;
             this.stepY = stepY;
 
             spriteExplode = new OneSprite(15 * 100 + 100 - 32, SPRITE_WIDTH, SPRITE_HEIGHT, 8, 1000);
-
 
             for (int i = 0; i < BAT_SPRITES_MAX; i++)
             {
@@ -69,6 +67,9 @@ namespace Cauldron
                 spritesGhost[i] = new OneSprite(11 * 100 + 100 - 32, SPRITE_WIDTH, SPRITE_HEIGHT, 8, 120);
                 spritesGhost[i].StepAnim = i % 8;
             }
+
+            // un pattern est constitué d'une suite de couple "mouvement/combien de case(0=infini)"
+            // Chauve souris type 1
             float[] pattern = { (short)MovingDirection.DiagUpLeftSpeed, 3, (short)MovingDirection.DiagDownLeftSpeed, 3.0f, (short)MovingDirection.ToLeft, 0 };
             patternBat1.Add(pattern);
             pattern = new float[] { (short)MovingDirection.DiagUpLeftSpeed, 3, (short)MovingDirection.DiagDownLeftSpeed, 3.1f, (short)MovingDirection.ToRight, 0 };
@@ -78,11 +79,13 @@ namespace Cauldron
             pattern = new float[] { (short)MovingDirection.DiagUpRight, 2, (short)MovingDirection.DiagDownRight, 2.5f, (short)MovingDirection.ToRight, 0 };
             patternBat1.Add(pattern);
 
+            // Chauve souris type 2
             pattern = new float[] { (short)MovingDirection.ToTop, 0, (short)MovingDirection.ToLeft, 2, (short)MovingDirection.ToDown, 1.5f, (short)MovingDirection.ToRight, 1.5f, (short)MovingDirection.ToUp, 1.3f, (short)MovingDirection.ToWitch, 0 };
             patternBat2.Add(pattern);
             pattern = new float[] { (short)MovingDirection.ToTop, 0, (short)MovingDirection.ToRight, 2, (short)MovingDirection.ToDown, 1.5f, (short)MovingDirection.ToLeft, 1.5f, (short)MovingDirection.ToUp, 1.3f, (short)MovingDirection.ToWitch, 0 };
             patternBat2.Add(pattern);
 
+            // Fantôme
             pattern = new float[] { (short)MovingDirection.ToUpSpeed, 1.8f, (short)MovingDirection.DiagUpLeft, 2.7f, (short)MovingDirection.DiagUpRight, 2.7f, (short)MovingDirection.ToWitch, 0 };
             patternGhost.Add(pattern);
             pattern = new float[] { (short)MovingDirection.ToUp, 3.5f, (short)MovingDirection.DiagUpRight, 2.7f, (short)MovingDirection.DiagUpLeft, 2.7f, (short)MovingDirection.ToWitch, 0 };
@@ -91,9 +94,18 @@ namespace Cauldron
             patternGhost.Add(pattern);
         }
 
+        // *********************************************************************
+
+        /// <summary>
+        /// Générateur de monstres
+        /// </summary>
+        /// <param name="category">Category monster</param>
+        /// <param name="idGenerator">Identifier generator.</param>
+        /// <param name="x">The x coordinate.</param>
+        /// <param name="y">The y coordinate.</param>
         public void Generator(MonsterType category, int idGenerator, int x, int y)
         {
-            if (inhibeID.ContainsKey(idGenerator))
+            if (inhibeGeneratorID.ContainsKey(idGenerator))
                 return;
             // x% de chance de générer un monstre ... qui diminue en fonction des monstres en vie
             if (All.RND(1000) > (16 - monsters.Count))
@@ -117,20 +129,25 @@ namespace Cauldron
                     break;
             }
             monster.PatternStep = 0;
-            monster.PatternDelay = Convert.ToInt32(monster.Pattern[1] * DELAY_COEFF);
+            monster.PatternDelay = Convert.ToInt32(monster.Pattern[1] * All.TileWidth);
             monsters.Add(monster);
             System.Diagnostics.Debug.WriteLine(String.Format("Monster #{3}: {0} at {1}/{2}", category, x, y, monsters.Count));
             // on rend inactif ce générateur
-            inhibeID.Add(idGenerator, INHIBE_DELAY);
+            inhibeGeneratorID.Add(idGenerator, generatorInhibeDelay);
         }
 
+        // *********************************************************************
+
+        /// <summary>
+        /// Le joueur se déplace à gauche, tout scroll vers la droite
+        /// </summary>
         public void MapScrollToRight()
         {
             List<OneMonster> toDelete = new List<OneMonster>();
             foreach (OneMonster m in monsters)
             {
                 m.X += All.TileWidth;
-                if (m.X > (All.MAP_SHOW * All.TileWidth))
+                if (m.X > (All.MAP_SHOW * All.TileWidth)) // sortie d'écran
                 {
                     toDelete.Add(m);
                     System.Diagnostics.Debug.WriteLine(String.Format("Delete {0} at {1}/{2}", m.Category, m.X, m.Y));
@@ -145,13 +162,18 @@ namespace Cauldron
             }
         }
 
+        // *********************************************************************
+
+        /// <summary>
+        /// Le joueur se déplace vers la droite, tout scroll à gauche
+        /// </summary>
         public void MapScrollToLeft()
         {
             List<OneMonster> toDelete = new List<OneMonster>();
             foreach (OneMonster m in monsters)
             {
                 m.X -= All.TileWidth;
-                if (m.X < 0)
+                if ((m.X + SPRITE_WIDTH) < 0) // sortie d'écran
                 {
                     toDelete.Add(m);
                     System.Diagnostics.Debug.WriteLine(String.Format("Delete {0} at {1}/{2}", m.Category, m.X, m.Y));
@@ -166,16 +188,28 @@ namespace Cauldron
             }
         }
 
+        // *********************************************************************
+
         public void MapScrollToUp()
         {
             // TODO:
         }
+
+        // *********************************************************************
 
         public void MapScrollToDown()
         {
             // TODO:
         }
 
+        // *********************************************************************
+
+        /// <summary>
+        /// Dos the animation.
+        /// </summary>
+        /// <param name="time">Time.</param>
+        /// <param name="targetX">Target x.</param>
+        /// <param name="targetY">Target y.</param>
         public void DoAnim(DateTime time, int targetX, int targetY)
         {
             for (int i = 0; i < BAT_SPRITES_MAX; i++)
@@ -306,7 +340,7 @@ namespace Cauldron
                     }
                     else
                     {
-                        monster.PatternDelay = Convert.ToInt32(monster.Pattern[monster.PatternStep + 1] * DELAY_COEFF);
+                        monster.PatternDelay = Convert.ToInt32(monster.Pattern[monster.PatternStep + 1] * All.TileWidth);
                     }
                 }
                 else
@@ -318,14 +352,14 @@ namespace Cauldron
                     }
                     // sortie de l'écran
                     // TODO: changer les valeurs en dur
-                    if (monster.Y < 1 || monster.Y > 940) // TODO: 
+                    if (monster.Y < 1 || monster.Y > 21 * All.TileHeight) // TODO: 
                     {
                         toDelete.Add(monster);
                         isDelete = true;
                     }
                     else
                     {
-                        if (monster.X < 0 || monster.X > 1640) // TODO: 
+                        if ((monster.X + SPRITE_WIDTH) < 0 || monster.X > All.MAP_SHOW * All.TileWidth)
                         {
                             toDelete.Add(monster);
                             isDelete = true;
@@ -356,28 +390,7 @@ namespace Cauldron
                                 isDelete = true;
                             break;
                     }
-                    /*if (targetX >= monster.X && targetX <= (monster.X + widthSprite))
-                    {
-                        if (targetY >= monster.Y && targetY <= (monster.Y + heightSprite))
-                        {
-                            isDelete = true;
-                        }
-                        else if (targetY <= monster.Y && (targetY + heightSprite) >= monster.Y)
-                        {
-                            isDelete = true;
-                        }
-                    }
-                    else if (targetX <= monster.X && (targetX + widthSprite) >= monster.X)
-                    {
-                        if (targetY >= monster.Y && targetY <= (monster.Y + heightSprite))
-                        {
-                            isDelete = true;
-                        }
-                        else if (targetY <= monster.Y && (targetY + heightSprite) >= monster.Y)
-                        {
-                            isDelete = true;
-                        }
-                    }*/
+
                     if (isDelete)
                     {
                         // le monstre disparaît
@@ -416,16 +429,23 @@ namespace Cauldron
             deleteList = new List<int>();
 
             // traitement de l'inhibition des générateurs
-            foreach (var kvp in inhibeID.ToList<KeyValuePair<int, int>>())
+            foreach (var kvp in inhibeGeneratorID.ToList<KeyValuePair<int, int>>())
             {
-                inhibeID[kvp.Key]--;
-                if (inhibeID[kvp.Key] < 0)
+                inhibeGeneratorID[kvp.Key]--;
+                if (inhibeGeneratorID[kvp.Key] < 0)
                     deleteList.Add(kvp.Key); // on peut rendre actif ce générateur
             }
             foreach (int k in deleteList)
-                inhibeID.Remove(k);
+                inhibeGeneratorID.Remove(k);
         }
 
+        // *********************************************************************
+
+        /// <summary>
+        /// Draw the specified canvas and scrollX.
+        /// </summary>
+        /// <param name="canvas">Canvas.</param>
+        /// <param name="scrollX">Scroll x.</param>
         public void Draw(SKCanvas canvas, int scrollX)
         {
             foreach (OneMonster monster in monsters)
