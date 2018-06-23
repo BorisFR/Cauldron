@@ -147,60 +147,137 @@ namespace Cauldron
         {
             // on checke les 4 coins pour voir si il y a recouvrement
             // taille écran donc avec SCALE
-            if ((x1 + object1.Width) < x2)
+            if ((x1 + object1.Width) <= x2)
                 return false;
-            if (x1 > (x2 + object2.Width))
+            if (x1 >= (x2 + object2.Width))
                 return false;
-            if ((y1 + object1.Height) < y2)
+            if ((y1 + object1.Height) <= y2)
                 return false;
-            if (y1 > (y2 + object2.Width))
+            if (y1 >= (y2 + object2.Width))
                 return false;
             // on check plus précisement
-            int x, y, w, h; // la surface de recouvrement
+            int xx1, yy1, w, h, xx2, yy2; // la surface de recouvrement
+            int cas;
             if (x1 < x2)
             {
-                x = x2; // ????? pas bon je pense
                 w = x1 + object1.Width - x2;
+                xx1 = object1.Width - w;
+                xx2 = 0;
+                //System.Diagnostics.Debug.Write(String.Format("Contact X: {0} ({1}) < {2} ({3}) : {4} et {5} => {6}", x1, object1.Width, x2, object2.Width, xx1, xx2, w));
+                cas = 0;
             }
             else
             {
-                x = x1; // ????? pas bon je pense
                 w = x2 + object2.Width - x1;
+                xx1 = 0;
+                xx2 = object2.Width - w;
+                //System.Diagnostics.Debug.Write(String.Format("Contact X: {0} ({1}) > {2} ({3}) : {4} et {5} => {6}", x1, object1.Width, x2, object2.Width, xx1, xx2, w));
+                cas = 1;
             }
             if (y1 < y2)
             {
-                y = y2; // ????? pas bon je pense
                 h = y1 + object1.Height - y2;
+                yy1 = object1.Height - h;
+                yy2 = 0;
+                //System.Diagnostics.Debug.WriteLine(String.Format(" - Y: {0} ({1}) < {2} ({3}) : {4} et {5} => {6}", y1, object1.Height, y2, object2.Height, yy1, yy2, h));
+
             }
             else
             {
-                y = y1; // ????? pas bon je pense
                 h = y2 + object2.Height - y1;
+                yy1 = 0;
+                yy2 = object2.Height - h;
+                //System.Diagnostics.Debug.WriteLine(String.Format(" - Y: {0} ({1}) > {2} ({3}) : {4} et {5} => {6}", y1, object1.Height, y2, object2.Height, yy1, yy2, h));
+                cas += 2;
             }
             SKColor color;
-            for (int i = x; i < (x + w); i++) // ????? pas bon je pense
+            switch (cas)
             {
-                for (int j = y; j < (y + h); j++) // ????? pas bon je pense
-                {
-                    color = Tiles.GetPixel(object1.X + i, object1.Y + j);
-                    if (color == SKColors.Transparent)
-                        continue;
-                    color = Tiles.GetPixel(object2.X + i, object2.Y + j);
-                    if (color == SKColors.Transparent)
-                        continue;
-                    ShowPixelX = x1; // ????? pas bon je pense
-                    ShowPixelY = y1;
-                    //ShowPixel = true;
-                    return true;
-                }
+                case 0:
+                    for (int i = 0; i < w; i++)
+                    {
+                        for (int j = 0; j < h; j++)
+                        {
+                            color = Tiles.GetPixel(object1.X + xx1 + i, object1.Y + yy1 + j);
+                            if (color == colorTransparent)
+                                continue;
+                            color = Tiles.GetPixel(object2.X + xx2 + i, object2.Y + yy2 + j);
+                            if (color == colorTransparent)
+                                continue;
+                            //System.Diagnostics.Debug.WriteLine(String.Format(" Touch: {0} / {1} : {2}", x1 + xx1 + i, y1 + yy1 + j, color));
+                            /*ShowPixelX = x1 + xx1 + i;
+                            ShowPixelY = y1 + yy1 + j;
+                            ShowPixel = true;*/
+                            return true;
+                        }
+                    }
+                    break;
+                case 1:
+                    for (int i = (w - 1); i >= 0; i--)
+                    {
+                        for (int j = 0; j < h; j++)
+                        {
+                            color = Tiles.GetPixel(object1.X + xx1 + i, object1.Y + yy1 + j);
+                            if (color == colorTransparent)
+                                continue;
+                            color = Tiles.GetPixel(object2.X + xx2 + i, object2.Y + yy2 + j);
+                            if (color == colorTransparent)
+                                continue;
+                            //System.Diagnostics.Debug.WriteLine(String.Format(" Touch: {0} / {1} : {2}", x1 + xx1 + i, y1 + yy1 + j, color));
+                            /*ShowPixelX = x1 + xx1 + i;
+                            ShowPixelY = y1 + yy1 + j;
+                            ShowPixel = true;*/
+                            return true;
+                        }
+                    }
+                    break;
+                case 2:
+                    for (int i = 0; i < w; i++)
+                    {
+                        for (int j = (h - 1); j >= 0; j--)
+                        {
+                            color = Tiles.GetPixel(object1.X + xx1 + i, object1.Y + yy1 + j);
+                            if (color == colorTransparent)
+                                continue;
+                            color = Tiles.GetPixel(object2.X + xx2 + i, object2.Y + yy2 + j);
+                            if (color == colorTransparent)
+                                continue;
+                            //System.Diagnostics.Debug.WriteLine(String.Format(" Touch: {0} / {1} : {2}", x1 + xx1 + i, y1 + yy1 + j, color));
+                            /*ShowPixelX = x1 + xx1 + i;
+                            ShowPixelY = y1 + yy1 + j;
+                            ShowPixel = true;*/
+                            return true;
+                        }
+                    }
+                    break;
+                case 3:
+                    for (int i = (w - 1); i >= 0; i--)
+                    {
+                        for (int j = (h - 1); j >= 0; j--)
+                        {
+                            color = Tiles.GetPixel(object1.X + xx1 + i, object1.Y + yy1 + j);
+                            if (color == colorTransparent)
+                                continue;
+                            color = Tiles.GetPixel(object2.X + xx2 + i, object2.Y + yy2 + j);
+                            if (color == colorTransparent)
+                                continue;
+                            //System.Diagnostics.Debug.WriteLine(String.Format(" Touch: {0} / {1} : {2}", x1 + xx1 + i, y1 + yy1 + j, color));
+                            /*ShowPixelX = x1 + xx1 + i;
+                            ShowPixelY = y1 + yy1 + j;
+                            ShowPixel = true;*/
+                            return true;
+                        }
+                    }
+                    break;
             }
 
             return false;
         }
 
-        public static bool ShowPixel;
+        public static SKColor colorTransparent = SKColor.Parse("#00000000");
+        /*public static bool ShowPixel;
         public static int ShowPixelX;
-        public static int ShowPixelY;
+        public static int ShowPixelY;*/
 
     }
 }

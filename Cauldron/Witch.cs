@@ -33,7 +33,7 @@ namespace Cauldron
 
         const int ANIM_DELAY_WALK = 70;
         const int ANIM_DELAY_MOUNT = 80;
-        const int ANIM_DELAY_FLY_SLOW = 350;
+        const int ANIM_DELAY_FLY_SLOW = 285;
 
         public Witch(int stepX, int stepY)
         {
@@ -147,11 +147,11 @@ namespace Cauldron
                     animElaps = TimeSpan.FromMilliseconds(ANIM_DELAY_WALK);
                     break;
                 case WitchState.LeftMount:
-                    toLeft.SetAnimSteps(3, 8, ANIM_DELAY_MOUNT);
+                    toLeft.SetAnimSteps(3, 8, ANIM_DELAY_MOUNT, true);
                     animElaps = TimeSpan.FromMilliseconds(ANIM_DELAY_MOUNT);
                     break;
                 case WitchState.LeftDescend:
-                    toLeft.SetAnimSteps(8, 3, ANIM_DELAY_MOUNT);
+                    toLeft.SetAnimSteps(8, 3, ANIM_DELAY_MOUNT, true);
                     animElaps = TimeSpan.FromMilliseconds(ANIM_DELAY_MOUNT);
                     break;
                 case WitchState.LeftFlySlow:
@@ -164,11 +164,11 @@ namespace Cauldron
                     animElaps = TimeSpan.FromMilliseconds(ANIM_DELAY_WALK);
                     break;
                 case WitchState.RightMount:
-                    toRight.SetAnimSteps(3, 8, ANIM_DELAY_MOUNT);
+                    toRight.SetAnimSteps(3, 8, ANIM_DELAY_MOUNT, true);
                     animElaps = TimeSpan.FromMilliseconds(ANIM_DELAY_MOUNT);
                     break;
                 case WitchState.RightDescend:
-                    toRight.SetAnimSteps(8, 3, ANIM_DELAY_MOUNT);
+                    toRight.SetAnimSteps(8, 3, ANIM_DELAY_MOUNT, true);
                     animElaps = TimeSpan.FromMilliseconds(ANIM_DELAY_MOUNT);
                     break;
                 case WitchState.RightFlySlow:
@@ -313,7 +313,7 @@ namespace Cauldron
             }
         } // MoveStop
 
-        public int MoveToRight()
+        public float MoveToRight()
         {
             moving = true;
             switch (state)
@@ -333,13 +333,13 @@ namespace Cauldron
                 case WitchState.LeftFly:
                     return 0;
                 case WitchState.RightWalk:
-                    return 1;
+                    return 1.6f;
                 case WitchState.RightMount:
                     return 0;
                 case WitchState.RightDescend:
                     return 0;
                 case WitchState.RightFlySlow:
-                    return 1;
+                    return 1.6f;
                 case WitchState.RightFly:
                     return 2;
                 case WitchState.EnteringDoor:
@@ -350,19 +350,19 @@ namespace Cauldron
             return 0;
         } // MoveToRight
 
-        public int MoveToLeft()
+        public float MoveToLeft()
         {
             moving = true;
             switch (state)
             {
                 case WitchState.LeftWalk:
-                    return 1;
+                    return 1.6f;
                 case WitchState.LeftMount:
                     return 0;
                 case WitchState.LeftDescend:
                     return 0;
                 case WitchState.LeftFlySlow:
-                    return 1;
+                    return 1.6f;
                 case WitchState.LeftFly:
                     return 2;
                 case WitchState.RightWalk:

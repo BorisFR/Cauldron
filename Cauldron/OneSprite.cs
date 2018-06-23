@@ -31,14 +31,17 @@ namespace Cauldron
         TimeSpan animElaps;
         bool animIncrease;
         bool animBack;
+        bool animStop;
+        TimeSpan ts;
+        int missedAnim;
 
-
-        public OneSprite(int tileNumber, int width, int height, int animCount, int animDelay, bool spriteDoubleWidth = false, bool animBack = false)
+        public OneSprite(int tileNumber, int width, int height, int animCount, int animDelay, bool spriteDoubleWidth = false, bool animBack = false, bool animStop = false)
         {
             this.Width = width;
             this.Height = height;
             this.spriteDoubleWidth = spriteDoubleWidth;
             this.animBack = animBack;
+            this.animStop = animStop;
 
             WidthScale = Convert.ToInt32(width * All.GAME_SCALE);
             HeightScale = Convert.ToInt32(height * All.GAME_SCALE);
@@ -64,7 +67,7 @@ namespace Cauldron
             int sourceScaleY = Convert.ToInt32((tileNumber / 100) * All.TileHeight * All.GAME_SCALE);
             for (int i = 0; i < animCount; i++)
             {
-                sources[i] = new Rectangle(sourceX, sourceY, sourceX + Width, sourceY + Height);
+                sources[i] = new Rectangle(sourceX, sourceY, Width, Height);
                 sourceX += Convert.ToInt32(((width + All.TileWidth * 2 - 1) / All.TileWidth) * All.TileWidth);
                 sourcesScale[i] = new SKRect(sourceScaleX, sourceScaleY, sourceScaleX + WidthScale, sourceScaleY + HeightScale);
                 // on se positionne sur l'animation suivante
@@ -77,7 +80,7 @@ namespace Cauldron
 
         public Rectangle Source { get { return sources[StepAnim]; } }
 
-        public void SetAnimSteps(int from, int to, int delay)
+        public void SetAnimSteps(int from, int to, int delay, bool animStop = false)
         {
             animFrom = from;
             animTo = to;
@@ -86,43 +89,67 @@ namespace Cauldron
             else
                 animIncrease = false;
             animDelay = delay;
+            animElaps = TimeSpan.FromMilliseconds(animDelay);
             StepAnim = from;
+            this.animStop = animStop;
         }
 
         public void DoAnim(DateTime time)
         {
-            if ((time - startAnim) < animElaps)
+            ts = time - startAnim;
+            if (ts < animElaps)
                 return;
             startAnim = time;
+            missedAnim = (int)(ts.TotalMilliseconds / animElaps.TotalMilliseconds);
             if (animIncrease)
             {
-                StepAnim++;
-                if (StepAnim > animTo)
+                for (int i = 0; i < missedAnim; i++)
                 {
-                    if (animBack)
+                    StepAnim++;
+                    if (StepAnim > animTo)
                     {
-                        StepAnim = animTo - 1;
-                        animIncrease = false;
-                    }
-                    else
-                    {
-                        StepAnim = animFrom;
+                        if (animBack)
+                        {
+                            StepAnim = animTo - 1;
+                            animIncrease = false;
+                        }
+                        else
+                        {
+                            if (animStop)
+                            {
+                                StepAnim--;
+                            }
+                            else
+                            {
+                                StepAnim = animFrom;
+                            }
+                        }
                     }
                 }
             }
             else
             {
-                StepAnim--;
-                if (StepAnim < animTo)
+                for (int i = 0; i < missedAnim; i++)
                 {
-                    if (animBack)
+                    StepAnim--;
+                    if (StepAnim < animTo)
                     {
-                        StepAnim = animFrom + 1;
-                        animIncrease = true;
-                    }
-                    else
-                    {
-                        StepAnim = animFrom;
+                        if (animBack)
+                        {
+                            StepAnim = animFrom + 1;
+                            animIncrease = true;
+                        }
+                        else
+                        {
+                            if (animStop)
+                            {
+                                StepAnim++;
+                            }
+                            else
+                            {
+                                StepAnim = animFrom;
+                            }
+                        }
                     }
                 }
             }

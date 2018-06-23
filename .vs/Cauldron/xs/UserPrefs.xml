@@ -1,16 +1,19 @@
 ﻿<Properties StartupConfiguration="{7A6F53FB-0BC4-4B13-A50E-C9813BBD2812}|Default">
-  <MonoDevelop.Ide.Workbench ActiveDocument="Cauldron/All.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Cauldron/MainPage.xaml.cs">
     <Files>
-      <File FileName="Cauldron/MainPage.xaml.cs" Line="497" Column="52" />
-      <File FileName="Cauldron/Witch.cs" Line="51" Column="29" />
-      <File FileName="Cauldron/Monsters.cs" Line="359" Column="1" />
+      <File FileName="Cauldron/MainPage.xaml.cs" Line="556" Column="1" />
+      <File FileName="Cauldron/Witch.cs" Line="78" Column="61" />
+      <File FileName="Cauldron/Monsters.cs" Line="393" Column="53" />
       <File FileName="Cauldron/Global.cs" Line="72" Column="11" />
-      <File FileName="Cauldron/All.cs" Line="193" Column="23" />
+      <File FileName="Cauldron/All.cs" Line="192" Column="77" />
+      <File FileName="Cauldron/OneSprite.cs" Line="67" Column="69" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore />
+    <BreakpointStore>
+      <Breakpoint file="/Users/sfardoux/Documents/GitHub/Cauldron/Cauldron/MainPage.xaml.cs" relfile="Cauldron/MainPage.xaml.cs" line="556" column="1" />
+    </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.ItemProperties.Cauldron.Android PreferredExecutionTarget="Android.Mon4.4nexus" FirstBuild="True" />
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />

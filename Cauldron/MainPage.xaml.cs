@@ -22,12 +22,12 @@ namespace Cauldron
         int startMapX; // colonne de départ d'affichage de la map
         // pour "ralentir" le scroll horizontale
         int scrollMapCount;
-        const int SCROLL_MAP_DELAY = 3;
+        const int SCROLL_MAP_DELAY = 8;
         // mais de façon fluide avec un scroll intermédiaire
         // on ne scrolle pas de la taille d'une tile
         int scrollX;
         int scrollStep;
-        int scrollSpeed;
+        float scrollSpeed;
 
 
         //SKColor[] pixels;
@@ -57,6 +57,8 @@ namespace Cauldron
         int stepX;
         int stepY;
 
+        DateTime lastTempo;
+
         public MainPage()
         {
             InitializeComponent();
@@ -82,14 +84,14 @@ namespace Cauldron
             //pixels = new SKColor[MAX_WIDTH * MAX_HEIGHT];
             //bmpPixels = new SKBitmap(MAX_WIDTH, MAX_HEIGHT);
 
-            stepX = Convert.ToInt32((24 / 12)); // Convert.ToInt32((24 / 12) * All.GAME_SCALE / 3); // on monte/descend d'1/6 de la taille du sprite qui vaut 17 (mode vole)
+            stepX = Convert.ToInt32((24 / 12 / 2)); // Convert.ToInt32((24 / 12) * All.GAME_SCALE / 3); // on monte/descend d'1/6 de la taille du sprite qui vaut 17 (mode vole)
             stepY = Convert.ToInt32((17 / 6) / 2); // Convert.ToInt32((17 / 6) * All.GAME_SCALE / 2); // on monte/descend d'1/6 de la taille du sprite qui vaut 17 (mode vole)
 
 
             All.Witch = new Witch(stepX, stepY * 2);
-            All.Witch.X = 17 * 8;
-            All.Witch.Y = 19 * 8 + 3;
-            All.Witch.MinY = 0;
+            All.Witch.X = 17 * All.TileWidth;
+            All.Witch.Y = 19 * All.TileHeight + 3;
+            All.Witch.MinY = 1 * All.TileHeight;
             All.Witch.MaxY = All.Witch.Y; // All.Witch.ScaleY;
             keyFireRelease = true;
 
@@ -100,10 +102,10 @@ namespace Cauldron
 
             spriteMoon = new OneSprite(15 * 100 + 30, 6 * 8, 5 * 8, 1, 0);
             spriteSheepSkin = new OneSprite(15 * 100 + 21, 7 * 8, 4 * 8, 1, 0);
-            spriteEnergy = new OneSprite(0 * 100 + 100 - 32, 3 * 8, 3 * 8, 4, 40);
+            spriteEnergy = new OneSprite(0 * 100 + 100 - 32, 3 * 8, 3 * 8, 4, 20);
             for (int i = 0; i < SMOKE_SPRITES_MAX; i++)
             {
-                spritesSmoke[i] = new OneSprite(3 * 100 + 100 - 32, 3 * 8, 3 * 8, 7, 110);
+                spritesSmoke[i] = new OneSprite(3 * 100 + 100 - 32, 3 * 8, 3 * 8, 7, 105);
             }
             monsters = new Monsters(stepX, stepY);
 
@@ -113,15 +115,24 @@ namespace Cauldron
             watch = new Stopwatch();
             start = 0;
             var fps = TimeSpan.FromSeconds(1.0 / 60.0);
+            bool even = false;
+            lastTempo = DateTime.UtcNow;
             watch.Start();
 
             Device.StartTimer(fps, () =>
             {
+                if (even && (All.GetKeyCode != 3))
+                {
+                    even = false;
+                    return true;
+                }
+                even = true;
                 // get elapsed time
                 var time = (float)watch.Elapsed.TotalMinutes;
                 watch.Restart();
                 // get the elapsed rotation
                 start += (360 * time) % 360;
+
 
                 tempo = DateTime.UtcNow;
                 spriteEnergy.DoAnim(tempo);
@@ -184,12 +195,13 @@ namespace Cauldron
                     if (scrollSpeed > 0)
                     {
                         scrollMapCount++;
-                        scrollX += scrollStep;
-                        if (scrollMapCount > SCROLL_MAP_DELAY)
+                        scrollX += Convert.ToInt32(scrollStep * scrollSpeed * All.GAME_SCALE);
+                        //if (scrollMapCount > SCROLL_MAP_DELAY)
+                        if (scrollX >= All.TileWidthScale)
                         {
                             scrollMapCount = 0;
                             startMapX--;
-                            scrollX = 0;
+                            scrollX -= All.TileWidthScale; // = 0;
                             if (startMapX < 0)
                             {
                                 startMapX = tiled.MapWidth - 1;
@@ -205,12 +217,13 @@ namespace Cauldron
                     if (scrollSpeed > 0)
                     {
                         scrollMapCount++;
-                        scrollX -= scrollStep;
-                        if (scrollMapCount > SCROLL_MAP_DELAY)
+                        scrollX -= Convert.ToInt32(scrollStep * scrollSpeed * All.GAME_SCALE);
+                        //if (scrollMapCount > SCROLL_MAP_DELAY)
+                        if (scrollX <= -All.TileWidthScale)
                         {
                             scrollMapCount = 0;
                             startMapX++;
-                            scrollX = 0;
+                            scrollX += All.TileWidthScale; // = 0;
                             if (startMapX >= tiled.MapWidth)
                             {
                                 startMapX = 0;
@@ -237,8 +250,8 @@ namespace Cauldron
 
                 if (All.KeySpace)
                 {
-                    stopRedraw = false;
-                    All.ShowPixel = false;
+                    //stopRedraw = false;
+                    //All.ShowPixel = false;
                     if (All.Witch.IsFlying)
                     {
                         if (keyFireRelease)
@@ -286,13 +299,13 @@ namespace Cauldron
         }
 
         DateTime each = DateTime.UtcNow;
-        bool stopRedraw;
+        //bool stopRedraw;
         SKPaint paint = new SKPaint { Style = SKPaintStyle.Fill, Color = SKColors.DarkRed };
 
         public void OnPainting(object sender, SKPaintSurfaceEventArgs e)
         {
-            if (stopRedraw)
-                return;
+            /*if (stopRedraw)
+                return;*/
             // we get the current surface from the event args
             //var surface = e.Surface;
             // then we get the canvas that we can draw on
@@ -542,11 +555,19 @@ namespace Cauldron
             //canvas.DrawPoint(All.Witch.ScaleX + All.DECAL_MAP_X, All.Witch.ScaleY + All.DECAL_MAP_Y, colorPink);
             //canvas.DrawPoint(All.Witch.BulletX + All.DECAL_MAP_X, All.Witch.BulletY + All.DECAL_MAP_Y, colorRed);
 
-            if (All.ShowPixel)
+            /*if (All.ShowPixel)
             {
-                canvas.DrawPoint(All.ShowPixelX + All.DECAL_MAP_X, All.ShowPixelY + All.DECAL_MAP_Y, coloCyan);
+                System.Diagnostics.Debug.WriteLine(String.Format("Touch: {0}/{1}", All.ShowPixelX * All.GAME_SCALE + All.DECAL_MAP_X, All.ShowPixelY * All.GAME_SCALE + All.DECAL_MAP_Y));
+                for (int i = 0; i < 10; i++)
+                {
+                    canvas.DrawPoint((All.ShowPixelX - 5 + i) * All.GAME_SCALE + All.DECAL_MAP_X, All.ShowPixelY * All.GAME_SCALE + All.DECAL_MAP_Y, coloCyan);
+                }
+                for (int i = 0; i < 10; i++)
+                {
+                    canvas.DrawPoint(All.ShowPixelX * All.GAME_SCALE + All.DECAL_MAP_X, (All.ShowPixelY - 5 + i) * All.GAME_SCALE + All.DECAL_MAP_Y, coloCyan);
+                }
                 stopRedraw = true;
-            }
+            }*/
 
             /*bmpPixels.Pixels = pixels;
             bmpToShow = bmpPixels.Resize(scaleInfo, SKBitmapResizeMethod.Box);
@@ -562,9 +583,9 @@ namespace Cauldron
 
         }
 
-        SKColor colorPink = SKColor.Parse("#FF69B4");
+        /*SKColor colorPink = SKColor.Parse("#FF69B4");
         SKColor colorRed = SKColor.Parse("#FF0000");
-        SKColor coloCyan = SKColor.Parse("#00FFFF");
+        SKColor coloCyan = SKColor.Parse("#00FFFF");*/
 
         /*private void CopyPixels(int tileNumber, int toX, int toY)
         {

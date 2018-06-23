@@ -40,7 +40,7 @@ namespace Cauldron
 
         OneSprite spriteExplode;
         Dictionary<int, OneObject> explodes = new Dictionary<int, OneObject>();
-        TimeSpan explodeElaps = TimeSpan.FromMilliseconds(80);
+        TimeSpan explodeElaps = TimeSpan.FromMilliseconds(60);
         int idExplode = 0;
 
 
@@ -226,7 +226,7 @@ namespace Cauldron
                         break;
                     case MovingDirection.ToTop:
                         monster.Y -= stepY * 2;
-                        if (monster.Y <= 1)
+                        if (monster.Y <= All.TileHeight)
                         {
                             // pas top
                             monster.Y = 1;
@@ -337,25 +337,25 @@ namespace Cauldron
                 {
                     // tests collision
                     // avec la sorcière
-                    if (!All.ShowPixel)
-                        switch (monster.Category)
-                        {
-                            case MonsterType.Bat_1:
-                                if (All.IsCollision(monster.X, monster.Y, spritesBat1[monster.AnimationStep].Source,
+                    //if (!All.ShowPixel)
+                    switch (monster.Category)
+                    {
+                        case MonsterType.Bat_1:
+                            if (All.IsCollision(monster.X, monster.Y, spritesBat1[monster.AnimationStep].Source,
+                                                      All.Witch.X, All.Witch.Y, All.Witch.Source))
+                                isDelete = true;
+                            break;
+                        case MonsterType.Bat_2:
+                            if (All.IsCollision(monster.X, monster.Y, spritesBat2[monster.AnimationStep].Source,
+                                                      All.Witch.X, All.Witch.Y, All.Witch.Source))
+                                isDelete = true;
+                            break;
+                        case MonsterType.Ghost:
+                            if (All.IsCollision(monster.X, monster.Y, spritesGhost[monster.AnimationStep].Source,
                                                           All.Witch.X, All.Witch.Y, All.Witch.Source))
-                                    isDelete = true;
-                                break;
-                            case MonsterType.Bat_2:
-                                if (All.IsCollision(monster.X, monster.Y, spritesBat2[monster.AnimationStep].Source,
-                                                          All.Witch.X, All.Witch.Y, All.Witch.Source))
-                                    isDelete = true;
-                                break;
-                            case MonsterType.Ghost:
-                                if (All.IsCollision(monster.X, monster.Y, spritesGhost[monster.AnimationStep].Source,
-                                                              All.Witch.X, All.Witch.Y, All.Witch.Source))
-                                    isDelete = true;
-                                break;
-                        }
+                                isDelete = true;
+                            break;
+                    }
                     /*if (targetX >= monster.X && targetX <= (monster.X + widthSprite))
                     {
                         if (targetY >= monster.Y && targetY <= (monster.Y + heightSprite))
