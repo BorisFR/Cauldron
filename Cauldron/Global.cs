@@ -21,17 +21,13 @@ namespace Cauldron
         LeftMount, // 4 5 6 7
         LeftDescend,
         LeftFlySlow, // 8 9
-        LeftFly1, // 16 17
-        LeftFly2, // 14 15
-        LeftFly3, // 12 12 
-        LeftFlyMax, // 10 11 
+        LeftFlyMiddle, // 14 15 16 17
+        LeftFlyMax, // 10 11 12 13
         RightWalk,
         RightMount,
         RightDescend,
         RightFlySlow,
-        RightFly1,
-        RightFly2,
-        RightFly3,
+        RightFlyMiddle,
         RightFlyMax,
         EnteringDoor,
         ExitingDoor
@@ -74,8 +70,6 @@ namespace Cauldron
         public int AnimationStep { get; set; }
         public int X { get; set; }
         public int Y { get; set; }
-        //public int ScaleX { get; set; }
-        //public int ScaleY { get; set; }
         public float[] Pattern { get; set; }
         public int PatternStep { get; set; }
         public int PatternDelay { get; set; }

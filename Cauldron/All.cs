@@ -23,17 +23,14 @@ namespace Cauldron
         // combien on affiche de colonne à l'écran
         public static int MAP_SHOW = 38;
         public static int MIDDLE_MAP;
-        public static int SPEED_LEFT_1;
-        public static int SPEED_LEFT_2;
-        public static int SPEED_LEFT_3;
+        public static int SPEED_LEFT_MIDDLE;
         public static int SPEED_LEFT_MAX;
-        public static int SPEED_RIGHT_1;
-        public static int SPEED_RIGHT_2;
-        public static int SPEED_RIGHT_3;
+        public static int SPEED_RIGHT_MIDDLE;
         public static int SPEED_RIGHT_MAX;
+        public static int SPEED_DELTA_X;
 
         public const int DECAL_MAP_X = 200;
-        public const int DECAL_MAP_Y = 5 * 8 * 3; // ce dernier doit être égal à GAME_SCALE...
+        public const int DECAL_MAP_Y = 5 * 8 * 3; // ** /!\ ** ce dernier doit être égal à GAME_SCALE...
         public const float GAME_SCALE = 3.0f;
 
         public static SKBitmap Tiles;
@@ -51,6 +48,8 @@ namespace Cauldron
         public static bool KeyLeft { get; private set; }
         public static bool KeyRight { get; private set; }
         public static bool KeySpace { get; private set; }
+        public static bool KeyPause { get; private set; }
+        public static void ClearKeyPause() { KeyPause = false; }
 
         private static int lastKey;
         private static Random rnd;
@@ -62,17 +61,15 @@ namespace Cauldron
             assembly = typeof(All).GetTypeInfo().Assembly;
             resources = assembly.GetManifestResourceNames();
             rnd = new Random(DateTime.UtcNow.Millisecond);
-            TileWidth = 8;
+            TileWidth = 8; // Bouh...
             double part = MAP_SHOW * TileWidth / 10;
             SPEED_LEFT_MAX = Convert.ToInt32(part - 16);
-            SPEED_LEFT_3 = Convert.ToInt32(part * 2 - 16);
-            SPEED_LEFT_2 = Convert.ToInt32(part * 3 - 16);
-            SPEED_LEFT_1 = Convert.ToInt32(part * 4 - 16);
+            SPEED_LEFT_MIDDLE = Convert.ToInt32(part * 4 - 16);
             MIDDLE_MAP = Convert.ToInt32(part * 5 - 16);
-            SPEED_RIGHT_1 = Convert.ToInt32(part * 6);
-            SPEED_RIGHT_2 = Convert.ToInt32(part * 7);
-            SPEED_RIGHT_3 = Convert.ToInt32(part * 8);
+            SPEED_RIGHT_MIDDLE = Convert.ToInt32(part * 6);
             SPEED_RIGHT_MAX = Convert.ToInt32(part * 9);
+
+            SPEED_DELTA_X = Convert.ToInt32(part * 3);
         }
 
         // *********************************************************************
@@ -116,6 +113,9 @@ namespace Cauldron
             lastKey = keyCode;
             switch (keyCode)
             {
+                case 35: // P
+                    KeyPause = true;
+                    break;
                 case 123: // LEFT
                     KeyLeft = true;
                     //KeyRight = false;
@@ -147,6 +147,9 @@ namespace Cauldron
             lastKey = 0;
             switch (keyCode)
             {
+                case 35: // P
+                    KeyPause = false;
+                    break;
                 case 123: // LEFT
                     KeyLeft = false;
                     break;

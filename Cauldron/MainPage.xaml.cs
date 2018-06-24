@@ -11,9 +11,6 @@ namespace Cauldron
     public partial class MainPage : ContentPage
     {
 
-        //Stopwatch watch;
-        //float start;
-
         // Gestion de la carte de jeu
         Tiled tiled = new Tiled();
         int startMapX; // colonne de départ d'affichage de la map
@@ -55,7 +52,7 @@ namespace Cauldron
         // variables génériques pour l'ensemble du programme
         int tile;
         DateTime tempo;
-        float scrollSpeed;
+        int scrollSpeed;
 
         // pour debug FPS
         int animPerSecond;
@@ -117,10 +114,7 @@ namespace Cauldron
             scrollX = 0;
             lastScroll = DateTime.UtcNow;
 
-            //watch = new Stopwatch();
-            //start = 0;
             lastFps = DateTime.UtcNow;
-            //watch.Start();
 
             GameLoop();
         }
@@ -141,11 +135,12 @@ namespace Cauldron
                 }
                 even = true;
                 animPerSecond++;
-                // get elapsed time
-                //var time = (float)watch.Elapsed.TotalMinutes;
-                //watch.Restart();
-                // get the elapsed rotation
-                //start += (360 * time) % 360;
+
+                if (All.KeyPause)
+                {
+                    All.ClearKeyPause();
+                    pausedGame = !pausedGame;
+                }
 
                 if (pausedGame)
                     return true;
@@ -205,52 +200,46 @@ namespace Cauldron
                     bullets.Remove(k);
 
 
-                if (All.KeyLeft && !All.KeyRight)
+                if ((tempo - lastScroll) >= scrollDelay)
                 {
-                    if ((tempo - lastScroll) >= scrollDelay)
+                    if (All.KeyLeft && !All.KeyRight)
                     {
                         lastScroll = tempo;
-                        scrollSpeed = All.Witch.MoveToLeft();
-                        if (scrollSpeed > 0)
-                        {
-                            scrollX += Convert.ToInt32(scrollSpeed * All.GAME_SCALE);
-                        }
-                        while (scrollX >= All.TileWidthScale)
-                        {
-                            startMapX--;
-                            scrollX -= All.TileWidthScale; // = 0;
-                            if (startMapX < 0)
-                            {
-                                startMapX = tiled.MapWidth - 1;
-                            }
-                            monsters.MapScrollToRight();
-                        }
+                        scrollSpeed = Convert.ToInt32(All.Witch.MoveToLeft() * All.GAME_SCALE);
+                    }
+
+                    if (All.KeyRight && !All.KeyLeft)
+                    {
+                        lastScroll = tempo;
+                        scrollSpeed = Convert.ToInt32(-All.Witch.MoveToRight() * All.GAME_SCALE);
                     }
                 }
 
-                if (All.KeyRight && !All.KeyLeft)
+                scrollX += scrollSpeed;
+                if (All.Witch.IsWalking)
+                    scrollSpeed = 0;
+
+                while (scrollX >= All.TileWidthScale)
                 {
-                    if ((tempo - lastScroll) >= scrollDelay)
+                    startMapX--;
+                    scrollX -= All.TileWidthScale;
+                    if (startMapX < 0)
                     {
-                        //System.Diagnostics.Debug.WriteLine(String.Format("Scroll: {0}", tempo - lastScroll));
-                        lastScroll = tempo;
-                        scrollSpeed = All.Witch.MoveToRight();
-                        if (scrollSpeed > 0)
-                        {
-                            scrollX -= Convert.ToInt32(scrollSpeed * All.GAME_SCALE);
-                        }
-                        while (scrollX <= All.TileWidthScale)
-                        {
-                            startMapX++;
-                            scrollX += All.TileWidthScale; // = 0;
-                            if (startMapX >= tiled.MapWidth)
-                            {
-                                startMapX = 0;
-                            }
-                            monsters.MapScrollToLeft();
-                        }
+                        startMapX = tiled.MapWidth - 1;
                     }
+                    monsters.MapScrollToRight();
                 }
+                while (scrollX <= -All.TileWidthScale)
+                {
+                    startMapX++;
+                    scrollX += All.TileWidthScale;
+                    if (startMapX >= tiled.MapWidth)
+                    {
+                        startMapX = 0;
+                    }
+                    monsters.MapScrollToLeft();
+                }
+
 
                 if (!All.KeyLeft && !All.KeyRight)
                 {
@@ -269,8 +258,6 @@ namespace Cauldron
 
                 if (All.KeySpace)
                 {
-                    //stopRedraw = false;
-                    //All.ShowPixel = false;
                     if (All.Witch.IsFlying)
                     {
                         if (!keyFireMustBeRelease)
@@ -573,16 +560,12 @@ namespace Cauldron
             All.Witch.Draw(canvas);
 
             canvas.DrawLine(0 * All.GAME_SCALE + All.DECAL_MAP_X, 0, 0 * All.GAME_SCALE + All.DECAL_MAP_X, 1000, paintRed);
-            canvas.DrawLine(All.SPEED_LEFT_MAX * All.GAME_SCALE + All.DECAL_MAP_X, 0, All.SPEED_LEFT_MAX * All.GAME_SCALE + All.DECAL_MAP_X, 1000, textFPS);
-            canvas.DrawLine(All.SPEED_LEFT_3 * All.GAME_SCALE + All.DECAL_MAP_X, 0, All.SPEED_LEFT_3 * All.GAME_SCALE + All.DECAL_MAP_X, 1000, textFPS);
-            canvas.DrawLine(All.SPEED_LEFT_2 * All.GAME_SCALE + All.DECAL_MAP_X, 0, All.SPEED_LEFT_2 * All.GAME_SCALE + All.DECAL_MAP_X, 1000, paintYellow);
-            canvas.DrawLine(All.SPEED_LEFT_1 * All.GAME_SCALE + All.DECAL_MAP_X, 0, All.SPEED_LEFT_1 * All.GAME_SCALE + All.DECAL_MAP_X, 1000, paintCyan);
-            canvas.DrawLine(All.MIDDLE_MAP * All.GAME_SCALE + All.DECAL_MAP_X, 0, All.MIDDLE_MAP * All.GAME_SCALE + All.DECAL_MAP_X, 1000, paintRed);
-            canvas.DrawLine(All.SPEED_RIGHT_1 * All.GAME_SCALE + All.DECAL_MAP_X, 0, All.SPEED_RIGHT_1 * All.GAME_SCALE + All.DECAL_MAP_X, 1000, paintCyan);
-            canvas.DrawLine(All.SPEED_RIGHT_2 * All.GAME_SCALE + All.DECAL_MAP_X, 0, All.SPEED_RIGHT_2 * All.GAME_SCALE + All.DECAL_MAP_X, 1000, paintYellow);
-            canvas.DrawLine(All.SPEED_RIGHT_3 * All.GAME_SCALE + All.DECAL_MAP_X, 0, All.SPEED_RIGHT_3 * All.GAME_SCALE + All.DECAL_MAP_X, 1000, textFPS);
-            canvas.DrawLine(All.SPEED_RIGHT_MAX * All.GAME_SCALE + All.DECAL_MAP_X, 0, All.SPEED_RIGHT_MAX * All.GAME_SCALE + All.DECAL_MAP_X, 1000, textFPS);
             canvas.DrawLine(All.MAP_SHOW * All.TileWidth * All.GAME_SCALE + All.DECAL_MAP_X, 0, All.MAP_SHOW * All.TileWidth * All.GAME_SCALE + All.DECAL_MAP_X, 1000, paintRed);
+            /*canvas.DrawLine(All.SPEED_LEFT_MAX * All.GAME_SCALE + All.DECAL_MAP_X, 0, All.SPEED_LEFT_MAX * All.GAME_SCALE + All.DECAL_MAP_X, 1000, textFPS);
+            canvas.DrawLine(All.SPEED_LEFT_MIDDLE * All.GAME_SCALE + All.DECAL_MAP_X, 0, All.SPEED_LEFT_MIDDLE * All.GAME_SCALE + All.DECAL_MAP_X, 1000, paintCyan);
+            canvas.DrawLine(All.MIDDLE_MAP * All.GAME_SCALE + All.DECAL_MAP_X, 0, All.MIDDLE_MAP * All.GAME_SCALE + All.DECAL_MAP_X, 1000, paintRed);
+            canvas.DrawLine(All.SPEED_RIGHT_MIDDLE * All.GAME_SCALE + All.DECAL_MAP_X, 0, All.SPEED_RIGHT_MIDDLE * All.GAME_SCALE + All.DECAL_MAP_X, 1000, paintCyan);
+            canvas.DrawLine(All.SPEED_RIGHT_MAX * All.GAME_SCALE + All.DECAL_MAP_X, 0, All.SPEED_RIGHT_MAX * All.GAME_SCALE + All.DECAL_MAP_X, 1000, textFPS);*/
 
             /*bmpPixels.Pixels = pixels;
             bmpToShow = bmpPixels.Resize(scaleInfo, SKBitmapResizeMethod.Box);
