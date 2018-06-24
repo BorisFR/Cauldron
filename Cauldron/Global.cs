@@ -8,6 +8,11 @@ using System;
 namespace Cauldron
 {
 
+    public enum Map
+    {
+        Outside,
+        InHouse
+    }
 
     public class Tile
     {
@@ -30,7 +35,8 @@ namespace Cauldron
         RightFlyMiddle,
         RightFlyMax,
         EnteringDoor,
-        ExitingDoor
+        ExitingDoor,
+        MakePotion
     }
 
     public enum MonsterType

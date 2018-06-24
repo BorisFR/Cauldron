@@ -16,11 +16,13 @@
     <None Remove="Assets\Cauldron.tmx" />
     <None Remove="Assets\tiles.png" />
     <None Remove="Assets\Cauldron.tsx" />
+    <None Remove="Assets\Cauldron_House.tmx" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Assets\Cauldron.tmx" />
     <EmbeddedResource Include="Assets\tiles.png" />
     <EmbeddedResource Include="Assets\Cauldron.tsx" />
+    <EmbeddedResource Include="Assets\Cauldron_House.tmx" />
   </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>

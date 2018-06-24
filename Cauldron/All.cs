@@ -22,6 +22,7 @@ namespace Cauldron
 
         // combien on affiche de colonne à l'écran
         public static int MAP_SHOW = 38;
+        public static int MAP_HEIGHT_AIR = 23;
         public static int MIDDLE_MAP;
         public static int SPEED_LEFT_MIDDLE;
         public static int SPEED_LEFT_MAX;
@@ -50,6 +51,9 @@ namespace Cauldron
         public static bool KeySpace { get; private set; }
         public static bool KeyPause { get; private set; }
         public static void ClearKeyPause() { KeyPause = false; }
+        public static bool KeyMap { get; private set; }
+        public static void ClearKeyMap() { KeyMap = false; }
+        public static bool KeyEsc { get; private set; }
 
         private static int lastKey;
         private static Random rnd;
@@ -116,6 +120,12 @@ namespace Cauldron
                 case 35: // P
                     KeyPause = true;
                     break;
+                case 41: // M
+                    KeyMap = true;
+                    break;
+                case 53: // ESC
+                    KeyEsc = true;
+                    break;
                 case 123: // LEFT
                     KeyLeft = true;
                     //KeyRight = false;
@@ -149,6 +159,12 @@ namespace Cauldron
             {
                 case 35: // P
                     KeyPause = false;
+                    break;
+                case 41: // M
+                    KeyMap = false;
+                    break;
+                case 53: // ESC
+                    KeyEsc = false;
                     break;
                 case 123: // LEFT
                     KeyLeft = false;

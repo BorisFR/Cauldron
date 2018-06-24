@@ -14,6 +14,7 @@ namespace Cauldron
     {
         OneSprite toLeft;
         OneSprite toRight;
+        OneSprite spriteMakePotion;
         WitchState state;
         int currentStep;
         DateTime startAnim;
@@ -33,12 +34,14 @@ namespace Cauldron
         int stepX;
         int stepY;
         int rightX;
+        public bool CouldFly { get; set; }
 
         const int ANIM_DELAY_WALK = 70;
         const int ANIM_DELAY_MOUNT = 80;
         const int ANIM_DELAY_FLY_SLOW = 285;
         const int ANIM_DELAY_FLY_MIDDLE = 135;
         const int ANIM_DELAY_FLY_MAX = 125;
+        const int ANIM_DELAY_MAKE_POTION = 150;
 
         // *********************************************************************
 
@@ -48,6 +51,7 @@ namespace Cauldron
             Height = 21;
             toLeft = new OneSprite(20 * 100, 16, 21, 18, 100, true);
             toRight = new OneSprite(24 * 100, 16, 21, 18, 100, true);
+            spriteMakePotion = new OneSprite(32 * 100, 16, 21, 3, 80, true);
             currentStep = 0;
             toRight.SetAnimSteps(currentStep, currentStep, 0);
             ChangeToState(WitchState.RightWalk);
@@ -171,6 +175,24 @@ namespace Cauldron
 
         // *********************************************************************
 
+        public void DoPotion()
+        {
+            ChangeToState(WitchState.MakePotion);
+            PrintState();
+        }
+
+        // *********************************************************************
+
+        public void DoWalk()
+        {
+            ChangeToState(WitchState.RightWalk);
+            currentStep = 0;
+            toRight.SetAnimSteps(currentStep, currentStep, 0);
+            PrintState();
+        }
+
+        // *********************************************************************
+
         private void ChangeToState(WitchState newState)
         {
             switch (newState)
@@ -224,6 +246,9 @@ namespace Cauldron
                 case WitchState.EnteringDoor:
                     break;
                 case WitchState.ExitingDoor:
+                    break;
+                case WitchState.MakePotion:
+                    animElaps = TimeSpan.FromMilliseconds(ANIM_DELAY_MAKE_POTION);
                     break;
             }
             state = newState;
@@ -304,6 +329,9 @@ namespace Cauldron
                         ChangeToState(WitchState.RightWalk);
                     }
                     break;
+                case WitchState.MakePotion:
+                    spriteMakePotion.DoAnim(time);
+                    break;
             }
         }
 
@@ -328,6 +356,9 @@ namespace Cauldron
                 case WitchState.RightFlyMiddle:
                 case WitchState.RightFlyMax:
                     toRight.Draw(canvas, X, Y);
+                    break;
+                case WitchState.MakePotion:
+                    spriteMakePotion.Draw(canvas, X, Y);
                     break;
             }
         }
@@ -367,6 +398,8 @@ namespace Cauldron
                 case WitchState.EnteringDoor:
                     break;
                 case WitchState.ExitingDoor:
+                    break;
+                case WitchState.MakePotion:
                     break;
             }
         } // MoveStop
@@ -457,6 +490,8 @@ namespace Cauldron
                     return 0;
                 case WitchState.ExitingDoor:
                     return 0;
+                case WitchState.MakePotion:
+                    return 0;
             }
             return 0;
         } // MoveToRight
@@ -533,6 +568,8 @@ namespace Cauldron
                     return 0;
                 case WitchState.ExitingDoor:
                     return 0;
+                case WitchState.MakePotion:
+                    return 0;
             }
             return 0;
         } // MoveToLeft
@@ -582,6 +619,8 @@ namespace Cauldron
                 case WitchState.EnteringDoor:
                     break;
                 case WitchState.ExitingDoor:
+                    break;
+                case WitchState.MakePotion:
                     break;
             }
             return 0;
@@ -654,6 +693,8 @@ namespace Cauldron
                 case WitchState.EnteringDoor:
                     break;
                 case WitchState.ExitingDoor:
+                    break;
+                case WitchState.MakePotion:
                     break;
             }
             return 0;

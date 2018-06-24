@@ -100,6 +100,13 @@ namespace Cauldron
 
         // *********************************************************************
 
+        public void RemoveMonsters()
+        {
+            monsters.Clear();
+        }
+
+        // *********************************************************************
+
         /// <summary>
         /// Générateur de monstres
         /// </summary>

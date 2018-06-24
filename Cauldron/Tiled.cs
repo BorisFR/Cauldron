@@ -21,6 +21,7 @@ namespace Cauldron
         public int TileHeight { get; private set; }
 
         public int StartHouse { get; private set; }
+        public int StartY { get; private set; }
 
         public Int16[,] Terrain;
         public Int16[,] Items;
@@ -64,8 +65,10 @@ namespace Cauldron
         {
             int x, y, width, height, index;
             string[] values;
+            bool chunkPresent = false;
             foreach (XElement xChunk in element.Elements("chunk"))
             {
+                chunkPresent = true;
                 x = (int)xChunk.Attribute("x");
                 y = (int)xChunk.Attribute("y");
                 //System.Diagnostics.Debug.Write(String.Format(" {0}x{1}", x, y));
@@ -81,9 +84,31 @@ namespace Cauldron
                         if (values[index].Equals("701"))
                         {
                             StartHouse = x + i;
+                            StartY = y + j;
+                            System.Diagnostics.Debug.WriteLine(String.Format("House @ {0}x{1}", StartHouse, StartY));
                         }
 
                         Terrain[x + i, y + j] = Convert.ToInt16(values[index]);
+                        index++;
+                    }
+                }
+            }
+            if (!chunkPresent)
+            {
+                values = element.Value.Replace("\n", "").Split(',');
+                index = 0;
+                for (int j = 0; j < MapHeight; j++)
+                {
+                    for (int i = 0; i < MapWidth; i++)
+                    {
+                        // position du pot dans la maison
+                        if (values[index].Equals("1165"))
+                        {
+                            StartHouse = i;
+                            StartY = j;
+                            System.Diagnostics.Debug.WriteLine(String.Format("Vial @ {0}x{1}", StartHouse, StartY));
+                        }
+                        Terrain[i, j] = Convert.ToInt16(values[index]);
                         index++;
                     }
                 }

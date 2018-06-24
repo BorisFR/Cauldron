@@ -13,10 +13,17 @@ namespace Cauldron
 
         // Gestion de la carte de jeu
         Tiled tiled = new Tiled();
+        Tiled tiledHouse = new Tiled();
+        Map map;
         int startMapX; // colonne de départ d'affichage de la map
         int scrollX; // scroll horizontale
         DateTime lastScroll;
         TimeSpan scrollDelay = All.FREQUENCY;
+        int currentMapWidth;
+        int currentMapHeight;
+        Int16[,] currentTerrain;
+        public Int16[,] currentItems;
+        bool showSky;
 
         // Jeu en pause, on bloque les animations
         bool pausedGame;
@@ -68,10 +75,16 @@ namespace Cauldron
         {
             InitializeComponent();
 
+            //pixels = new SKColor[MAX_WIDTH * MAX_HEIGHT];
+            //bmpPixels = new SKBitmap(MAX_WIDTH, MAX_HEIGHT);
+
             // on charge la définition des tiles
             tiled.ProcessTileSet(All.GetStream("Cauldron.tsx"));
             // on charge le plan TILED
             tiled.Load(All.GetStream("Cauldron.tmx"));
+            // on charge la maison
+            tiledHouse.Load(All.GetStream("Cauldron_House.tmx"));
+
             // on charge l'image de tiles
             SKImageInfo desiredInfo = new SKImageInfo(800, 800, SKImageInfo.PlatformColorType, SKAlphaType.Premul);
             SKManagedStream stream = new SKManagedStream(All.GetStream("tiles.png"));
@@ -85,13 +98,8 @@ namespace Cauldron
             All.TileWidthScale = Convert.ToInt32(All.TileWidth * All.GAME_SCALE);
             All.TileHeightScale = Convert.ToInt32(All.TileHeight * All.GAME_SCALE);
 
-            startMapX = tiled.StartHouse - 10 + 450;
-            //pixels = new SKColor[MAX_WIDTH * MAX_HEIGHT];
-            //bmpPixels = new SKBitmap(MAX_WIDTH, MAX_HEIGHT);
-
             stepX = Convert.ToInt32((24 / 12 / 2)); // Convert.ToInt32((24 / 12) * All.GAME_SCALE / 3); // on monte/descend d'1/6 de la taille du sprite qui vaut 17 (mode vole)
             stepY = Convert.ToInt32((17 / 6) / 2); // Convert.ToInt32((17 / 6) * All.GAME_SCALE / 2); // on monte/descend d'1/6 de la taille du sprite qui vaut 17 (mode vole)
-
 
             All.Witch = new Witch(stepX, stepY * 2);
             All.Witch.X = All.MIDDLE_MAP; //All.MAP_SHOW * All.TileWidth / 2;
@@ -113,12 +121,51 @@ namespace Cauldron
             }
             monsters = new Monsters(stepX, stepY);
 
+
+            //StartInHouse();
+            StartOutside();
+
+
             scrollX = 0;
             lastScroll = DateTime.UtcNow;
             lastGameAnim = DateTime.UtcNow;
             lastFps = DateTime.UtcNow;
 
             GameLoop();
+        }
+
+        public void StartOutside()
+        {
+            map = Map.Outside;
+            showSky = true;
+            currentMapWidth = tiled.MapWidth;
+            currentMapHeight = tiled.MapHeight;
+            currentTerrain = tiled.Terrain;
+            currentItems = tiled.Items;
+            startMapX = tiled.StartHouse - 6;// + 450;
+            All.Witch.X = All.MIDDLE_MAP;
+            All.Witch.Y = (tiledHouse.StartHouse + 1) * All.TileHeight + 3;
+            All.Witch.MinY = 1 * All.TileHeight;
+            All.Witch.MaxY = All.Witch.Y;
+            All.Witch.CouldFly = true;
+            All.Witch.DoWalk();
+        }
+
+        public void StartInHouse()
+        {
+            map = Map.InHouse;
+            showSky = false;
+            currentMapWidth = tiledHouse.MapWidth;
+            currentMapHeight = tiledHouse.MapHeight;
+            currentTerrain = tiledHouse.Terrain;
+            currentItems = tiledHouse.Items;
+            startMapX = 0;
+            All.Witch.X = (tiledHouse.StartHouse - 1) * All.TileWidth - 2;
+            All.Witch.Y = (tiledHouse.StartY - 2) * All.TileHeight + 3;
+            All.Witch.MinY = All.Witch.Y;
+            All.Witch.MaxY = All.Witch.Y;
+            All.Witch.CouldFly = false;
+            All.Witch.DoPotion();
         }
 
         // *********************************************************************
@@ -137,6 +184,26 @@ namespace Cauldron
                 }
                 even = true;
                 animPerSecond++;
+
+                if (All.KeyEsc)
+                    return false;
+
+                if (All.KeyMap)
+                {
+                    All.ClearKeyMap();
+                    scrollX = 0;
+                    scrollSpeed = 0;
+                    monsters.RemoveMonsters();
+                    switch (map)
+                    {
+                        case Map.InHouse:
+                            StartOutside();
+                            return true;
+                        case Map.Outside:
+                            StartInHouse();
+                            return true;
+                    }
+                }
 
                 if (All.KeyPause)
                 {
@@ -232,7 +299,7 @@ namespace Cauldron
                         scrollX -= All.TileWidthScale;
                         if (startMapX < 0)
                         {
-                            startMapX = tiled.MapWidth - 1;
+                            startMapX = currentMapWidth - 1;
                         }
                         monsters.MapScrollToRight();
                     }
@@ -240,7 +307,7 @@ namespace Cauldron
                     {
                         startMapX++;
                         scrollX += All.TileWidthScale;
-                        if (startMapX >= tiled.MapWidth)
+                        if (startMapX >= currentMapWidth)
                         {
                             startMapX = 0;
                         }
@@ -250,11 +317,13 @@ namespace Cauldron
 
                     if (All.KeyUp && !All.KeyDown && !All.KeySpace && !keyFireMustBeRelease)
                     {
+                        //if (All.Witch.CouldFly)
                         All.Witch.MoveToUp();
                     }
 
                     if (All.KeyDown && !All.KeyUp && !All.KeySpace & !keyFireMustBeRelease)
                     {
+                        //if (All.Witch.CouldFly)
                         All.Witch.MoveToDown();
                     }
 
@@ -336,11 +405,11 @@ namespace Cauldron
             canvas = e.Surface.Canvas;
             canvas.Clear(SKColors.Black);
 
-            canvas.DrawRect(All.DECAL_MAP_X,
+            /*canvas.DrawRect(All.DECAL_MAP_X,
                             All.DECAL_MAP_Y,
                             All.MAP_SHOW * All.TileWidth * All.GAME_SCALE,
                             21 * All.TileWidth * All.GAME_SCALE,
-                            background);
+                            background);*/
             /*
             var circleFill = new SKPaint
             {
@@ -381,21 +450,13 @@ namespace Cauldron
 
             tempo = DateTime.UtcNow;
             framesPerSecond++;
-            if ((tempo - lastFps) >= All.ONE_SECOND)
+
+
+            // affichage du décor
+            if (showSky)
             {
-                messageFps = String.Format("{0} fps, {1} anim", framesPerSecond, animPerSecond);
-                animPerSecond = 0;
-                framesPerSecond = 0;
-                lastFps = tempo;
+                spriteMoon.Draw(canvas, 5 * All.TileWidth, 6 * All.TileHeight);
             }
-            canvas.DrawText(messageFps, 0, 50, textFPS);
-
-
-            // affichage des infos
-            spriteSheepSkin.Draw(canvas, -1 * All.TileWidth, -2 * All.TileHeight - 0);
-            spriteSheepSkin.Draw(canvas, (All.MAP_SHOW - 7 + 1) * All.TileWidth, -2 * All.TileHeight - 0);
-            spriteMoon.Draw(canvas, 5 * All.TileWidth, 6 * All.TileHeight);
-
 
             // affichage de la carte
             //Array.Clear(pixels, 0, MAX_WIDTH * MAX_HEIGHT);
@@ -404,16 +465,16 @@ namespace Cauldron
             if (currentX < 0)
             {
                 // la carte boucle sur elle-même
-                currentX = tiled.MapWidth - 1;
+                currentX = currentMapWidth - 1;
             }
             // pour chaque colonne
             for (int i = -1; i < (All.MAP_SHOW + 1); i++) // 1 colonne avant et après
             {
                 // et chaque ligne
-                for (int j = 0; j < tiled.MapHeight; j++)
+                for (int j = 0; j < currentMapHeight; j++)
                 {
                     // le tile en cours
-                    tile = tiled.Terrain[currentX, j];
+                    tile = currentTerrain[currentX, j];
                     if (tile > 0)
                     {
                         tile--;
@@ -434,7 +495,7 @@ namespace Cauldron
                 }
                 // colonne suivante
                 currentX++;
-                if (currentX >= tiled.MapWidth)
+                if (currentX >= currentMapWidth)
                 {
                     // la carte boucle sur elle-même
                     currentX = 0;
@@ -447,16 +508,16 @@ namespace Cauldron
             if (currentX < 0)
             {
                 // la carte boucle sur elle-même
-                currentX = tiled.MapWidth - 1;
+                currentX = currentMapWidth - 1;
             }
             // pour chaque colonne
             for (int i = -1; i < (All.MAP_SHOW + 1); i++)
             {
                 // et chaque ligne
-                for (int j = 0; j < tiled.MapHeight; j++)
+                for (int j = 0; j < currentMapHeight; j++)
                 {
                     // le tile en cours
-                    tile = tiled.Items[currentX, j];
+                    tile = currentItems[currentX, j];
                     if (tile > 0)
                     {
                         tile--;
@@ -498,7 +559,7 @@ namespace Cauldron
                 }
                 // colonne suivante
                 currentX++;
-                if (currentX >= tiled.MapWidth)
+                if (currentX >= currentMapWidth)
                 {
                     // la carte boucle sur elle-même
                     currentX = 0;
@@ -510,16 +571,16 @@ namespace Cauldron
             if (currentX < 0)
             {
                 // la carte boucle sur elle-même
-                currentX = tiled.MapWidth - 1;
+                currentX = currentMapWidth - 1;
             }
             // pour chaque colonne
             for (int i = -1; i < (All.MAP_SHOW + 1); i++)
             {
                 // et chaque ligne
-                for (int j = 0; j < tiled.MapHeight; j++)
+                for (int j = 0; j < currentMapHeight; j++)
                 {
                     // le tile en cours
-                    tile = tiled.Terrain[currentX, j];
+                    tile = currentTerrain[currentX, j];
                     if (tile > 0)
                     {
                         tile--;
@@ -551,7 +612,7 @@ namespace Cauldron
                 }
                 // colonne suivante
                 currentX++;
-                if (currentX >= tiled.MapWidth)
+                if (currentX >= currentMapWidth)
                 {
                     // la carte boucle sur elle-même
                     currentX = 0;
@@ -569,13 +630,38 @@ namespace Cauldron
 
             All.Witch.Draw(canvas);
 
-            canvas.DrawLine(0 * All.GAME_SCALE + All.DECAL_MAP_X, 0, 0 * All.GAME_SCALE + All.DECAL_MAP_X, 1000, paintRed);
-            canvas.DrawLine(All.MAP_SHOW * All.TileWidth * All.GAME_SCALE + All.DECAL_MAP_X, 0, All.MAP_SHOW * All.TileWidth * All.GAME_SCALE + All.DECAL_MAP_X, 1000, paintRed);
             /*canvas.DrawLine(All.SPEED_LEFT_MAX * All.GAME_SCALE + All.DECAL_MAP_X, 0, All.SPEED_LEFT_MAX * All.GAME_SCALE + All.DECAL_MAP_X, 1000, textFPS);
             canvas.DrawLine(All.SPEED_LEFT_MIDDLE * All.GAME_SCALE + All.DECAL_MAP_X, 0, All.SPEED_LEFT_MIDDLE * All.GAME_SCALE + All.DECAL_MAP_X, 1000, paintCyan);
             canvas.DrawLine(All.MIDDLE_MAP * All.GAME_SCALE + All.DECAL_MAP_X, 0, All.MIDDLE_MAP * All.GAME_SCALE + All.DECAL_MAP_X, 1000, paintRed);
             canvas.DrawLine(All.SPEED_RIGHT_MIDDLE * All.GAME_SCALE + All.DECAL_MAP_X, 0, All.SPEED_RIGHT_MIDDLE * All.GAME_SCALE + All.DECAL_MAP_X, 1000, paintCyan);
             canvas.DrawLine(All.SPEED_RIGHT_MAX * All.GAME_SCALE + All.DECAL_MAP_X, 0, All.SPEED_RIGHT_MAX * All.GAME_SCALE + All.DECAL_MAP_X, 1000, textFPS);*/
+
+            // pour cacher le débordement du scroll
+            canvas.DrawRect(All.DECAL_MAP_X - 2 * All.TileWidthScale, All.DECAL_MAP_Y,
+                            2 * All.TileWidthScale, 23 * All.TileHeightScale,
+                            paintBlack);
+            canvas.DrawRect(All.DECAL_MAP_X + All.MAP_SHOW * All.TileWidthScale, All.DECAL_MAP_Y,
+                             2 * All.TileWidthScale, 23 * All.TileHeightScale,
+                            paintBlack);
+
+
+            // affichage des infos
+            spriteSheepSkin.Draw(canvas, -1 * All.TileWidth, -2 * All.TileHeight - 0);
+            spriteSheepSkin.Draw(canvas, (All.MAP_SHOW - 7 + 1) * All.TileWidth, -2 * All.TileHeight - 0);
+
+
+            canvas.DrawLine(0 * All.GAME_SCALE + All.DECAL_MAP_X, 0, 0 * All.GAME_SCALE + All.DECAL_MAP_X, 1000, paintRed);
+            canvas.DrawLine(All.MAP_SHOW * All.TileWidth * All.GAME_SCALE + All.DECAL_MAP_X, 0, All.MAP_SHOW * All.TileWidth * All.GAME_SCALE + All.DECAL_MAP_X, 1000, paintRed);
+
+
+            if ((tempo - lastFps) >= All.ONE_SECOND)
+            {
+                messageFps = String.Format("{0} fps, {1} anim", framesPerSecond, animPerSecond);
+                animPerSecond = 0;
+                framesPerSecond = 0;
+                lastFps = tempo;
+            }
+            canvas.DrawText(messageFps, 0, 50, textFPS);
 
             /*bmpPixels.Pixels = pixels;
             bmpToShow = bmpPixels.Resize(scaleInfo, SKBitmapResizeMethod.Box);
@@ -585,22 +671,23 @@ namespace Cauldron
         SKPaint paintYellow = new SKPaint() { Color = SKColors.Yellow };
         SKPaint paintCyan = new SKPaint() { Color = SKColors.Cyan };
         SKPaint paintRed = new SKPaint() { Color = SKColors.Red };
+        SKPaint paintBlack = new SKPaint() { Color = SKColors.Black };
 
         // *********************************************************************
 
         /*private void CopyPixels(int tileNumber, int toX, int toY)
         {
             int x, y, a, b;
-            a = toX * tiled.TileWidth;
+            a = toX * All.TileWidth;
             if (a >= MAX_WIDTH)
                 return;
 
-            b = toY * tiled.TileHeight;
+            b = toY * All.TileHeight;
             if (b >= MAX_HEIGHT)
                 return;
 
-            x = (tileNumber % 100) * tiled.TileWidth;
-            y = (tileNumber / 100) * tiled.TileHeight;
+            x = (tileNumber % 100) * All.TileWidth;
+            y = (tileNumber / 100) * All.TileHeight;
             for (int j = 0; j < 8; j++)
             {
                 if ((b + j) >= MAX_HEIGHT)

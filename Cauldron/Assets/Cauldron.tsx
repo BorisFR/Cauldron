@@ -67,7 +67,7 @@
    <frame tileid="182" duration="100"/>
   </animation>
  </tile>
- <tile id="241">
+ <tile id="242">
   <properties>
    <property name="generator" value="bat_1"/>
   </properties>
@@ -264,6 +264,11 @@
    <frame tileid="982" duration="80"/>
   </animation>
  </tile>
+ <tile id="1164">
+  <properties>
+   <property name="position" value="pot"/>
+  </properties>
+ </tile>
  <tile id="1168">
   <animation>
    <frame tileid="1168" duration="85"/>
@@ -299,6 +304,11 @@
    <frame tileid="1194" duration="85"/>
    <frame tileid="1198" duration="85"/>
   </animation>
+ </tile>
+ <tile id="1206">
+  <properties>
+   <property name="position" value="house"/>
+  </properties>
  </tile>
  <tile id="1268">
   <animation>
