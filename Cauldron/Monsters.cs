@@ -20,6 +20,8 @@ namespace Cauldron
         List<float[]> patternBat2 = new List<float[]>();
         // Ghost
         List<float[]> patternGhost = new List<float[]>();
+        TimeSpan gamePatternSpeed = All.FREQUENCY;
+        DateTime lastPatternAnim;
 
 
         List<OneMonster> monsters;
@@ -51,7 +53,7 @@ namespace Cauldron
             inhibeGeneratorID = new Dictionary<int, int>();
             generatorInhibeDelay = All.TileWidth; // tileWidthScale * 2;
             this.stepX = stepX;
-            this.stepY = stepY;
+            this.stepY = stepY * 2;
 
             spriteExplode = new OneSprite(15 * 100 + 100 - 32, SPRITE_WIDTH, SPRITE_HEIGHT, 8, 1000);
 
@@ -70,28 +72,30 @@ namespace Cauldron
 
             // un pattern est constitué d'une suite de couple "mouvement/combien de case(0=infini)"
             // Chauve souris type 1
-            float[] pattern = { (short)MovingDirection.DiagUpLeftSpeed, 3, (short)MovingDirection.DiagDownLeftSpeed, 3.0f, (short)MovingDirection.ToLeft, 0 };
+            float[] pattern = { (short)MovingDirection.DiagUpLeft, 2.3f, (short)MovingDirection.DiagDownLeft, 2.3f, (short)MovingDirection.ToLeft, 0 };
             patternBat1.Add(pattern);
-            pattern = new float[] { (short)MovingDirection.DiagUpLeftSpeed, 3, (short)MovingDirection.DiagDownLeftSpeed, 3.1f, (short)MovingDirection.ToRight, 0 };
+            pattern = new float[] { (short)MovingDirection.DiagUpLeft, 2.3f, (short)MovingDirection.DiagDownLeft, 2.3f, (short)MovingDirection.ToRight, 0 };
             patternBat1.Add(pattern);
-            pattern = new float[] { (short)MovingDirection.DiagUpRight, 2, (short)MovingDirection.DiagDownRight, 2.5f, (short)MovingDirection.ToLeft, 0 };
+            pattern = new float[] { (short)MovingDirection.DiagUpRight, 1.1f, (short)MovingDirection.DiagDownRight, 1.1f, (short)MovingDirection.ToLeft, 0 };
             patternBat1.Add(pattern);
-            pattern = new float[] { (short)MovingDirection.DiagUpRight, 2, (short)MovingDirection.DiagDownRight, 2.5f, (short)MovingDirection.ToRight, 0 };
+            pattern = new float[] { (short)MovingDirection.DiagUpRight, 1.1f, (short)MovingDirection.DiagDownRight, 1.1f, (short)MovingDirection.ToRight, 0 };
             patternBat1.Add(pattern);
 
             // Chauve souris type 2
-            pattern = new float[] { (short)MovingDirection.ToTop, 0, (short)MovingDirection.ToLeft, 2, (short)MovingDirection.ToDown, 1.5f, (short)MovingDirection.ToRight, 1.5f, (short)MovingDirection.ToUp, 1.3f, (short)MovingDirection.ToWitch, 0 };
+            pattern = new float[] { (short)MovingDirection.ToTop, 0, (short)MovingDirection.ToLeft, 2.3f, (short)MovingDirection.ToDown, 1.6f, (short)MovingDirection.ToRight, 1.9f, (short)MovingDirection.ToUp, 1.3f, (short)MovingDirection.ToWitch, 0 };
             patternBat2.Add(pattern);
-            pattern = new float[] { (short)MovingDirection.ToTop, 0, (short)MovingDirection.ToRight, 2, (short)MovingDirection.ToDown, 1.5f, (short)MovingDirection.ToLeft, 1.5f, (short)MovingDirection.ToUp, 1.3f, (short)MovingDirection.ToWitch, 0 };
+            pattern = new float[] { (short)MovingDirection.ToTop, 0, (short)MovingDirection.ToRight, 2.3f, (short)MovingDirection.ToDown, 1.6f, (short)MovingDirection.ToLeft, 1.9f, (short)MovingDirection.ToUp, 1.3f, (short)MovingDirection.ToWitch, 0 };
             patternBat2.Add(pattern);
 
             // Fantôme
-            pattern = new float[] { (short)MovingDirection.ToUpSpeed, 1.8f, (short)MovingDirection.DiagUpLeft, 2.7f, (short)MovingDirection.DiagUpRight, 2.7f, (short)MovingDirection.ToWitch, 0 };
+            pattern = new float[] { (short)MovingDirection.ToUpSpeed, 2.0f, (short)MovingDirection.DiagUpLeft, 0.7f, (short)MovingDirection.DiagUpRight, 0.7f, (short)MovingDirection.ToWitch, 0 };
             patternGhost.Add(pattern);
-            pattern = new float[] { (short)MovingDirection.ToUp, 3.5f, (short)MovingDirection.DiagUpRight, 2.7f, (short)MovingDirection.DiagUpLeft, 2.7f, (short)MovingDirection.ToWitch, 0 };
+            pattern = new float[] { (short)MovingDirection.ToUpSpeed, 2.0f, (short)MovingDirection.DiagUpRight, 0.7f, (short)MovingDirection.DiagUpLeft, 0.7f, (short)MovingDirection.ToWitch, 0 };
             patternGhost.Add(pattern);
-            pattern = new float[] { (short)MovingDirection.ToUp, 3.5f, (short)MovingDirection.DiagUpLeft, 3, (short)MovingDirection.DiagDownRightSpeed, 1.5f, (short)MovingDirection.ToLeft, 2.0f, (short)MovingDirection.ToDownSpeed, 1.8f };
+            pattern = new float[] { (short)MovingDirection.ToUp, 3.0f, (short)MovingDirection.DiagUpLeft, 1.0f, (short)MovingDirection.DiagDownRightSpeed, 0.8f, (short)MovingDirection.ToLeft, 2.0f, (short)MovingDirection.ToDownSpeed, 1.8f };
             patternGhost.Add(pattern);
+
+            lastPatternAnim = DateTime.UtcNow;
         }
 
         // *********************************************************************
@@ -129,7 +133,9 @@ namespace Cauldron
                     break;
             }
             monster.PatternStep = 0;
-            monster.PatternDelay = Convert.ToInt32(monster.Pattern[1] * All.TileWidth);
+            monster.PatternDelay = Convert.ToInt32(monster.Pattern[1] * SPRITE_WIDTH);
+            if (monster.PatternDelay == 0)
+                monster.PatternNonStop = true;
             monsters.Add(monster);
             System.Diagnostics.Debug.WriteLine(String.Format("Monster #{3}: {0} at {1}/{2}", category, x, y, monsters.Count));
             // on rend inactif ce générateur
@@ -204,6 +210,23 @@ namespace Cauldron
 
         // *********************************************************************
 
+        private void MoveX(OneMonster monster, int step)
+        {
+            monster.X += step;
+            monster.PatternDelay -= Math.Abs(step);
+        }
+        private void MoveY(OneMonster monster, int step)
+        {
+            monster.Y += step;
+            monster.PatternDelay -= Math.Abs(step);
+        }
+        private void MoveXY(OneMonster monster, int x, int y)
+        {
+            monster.X += x;
+            monster.Y += y;
+            monster.PatternDelay -= Math.Abs(x);
+        }
+
         /// <summary>
         /// Dos the animation.
         /// </summary>
@@ -220,199 +243,212 @@ namespace Cauldron
             for (int i = 0; i < GHOST_SPRITES_MAX; i++)
                 spritesGhost[i].DoAnim(time);
 
-            List<OneMonster> toDelete = new List<OneMonster>();
 
-            foreach (OneMonster monster in monsters)
+            List<int> deleteList = new List<int>();
+
+            if ((time - lastPatternAnim) >= gamePatternSpeed)
             {
-                switch ((MovingDirection)monster.Pattern[monster.PatternStep])
+                lastPatternAnim = time;
+
+                List<OneMonster> toDelete = new List<OneMonster>();
+
+                foreach (OneMonster monster in monsters)
                 {
-                    case MovingDirection.ToWitch:
-                        if (targetX > monster.X)
-                        {
-                            monster.X += stepX * 3;
-                            if (targetX < monster.X)
-                                monster.X = targetX;
-                        }
-                        else
-                        {
-                            if (targetX < monster.X)
+                    switch ((MovingDirection)monster.Pattern[monster.PatternStep])
+                    {
+                        case MovingDirection.ToWitch:
+                            if (targetX > monster.X)
                             {
-                                monster.X -= stepX * 3;
-                                if (targetX > monster.X)
+                                monster.X += stepX * 3;
+                                if (targetX < monster.X)
                                     monster.X = targetX;
                             }
-                        }
-                        if (targetY > monster.Y)
-                        {
-                            monster.Y += stepY * 2;
-                            if (targetY < monster.Y)
-                                monster.Y = targetY;
-                        }
-                        else
-                        {
-                            if (targetY < monster.Y)
+                            else
                             {
-                                monster.Y -= stepY * 2;
-                                if (targetY > monster.Y)
+                                if (targetX < monster.X)
+                                {
+                                    monster.X -= stepX * 3;
+                                    if (targetX > monster.X)
+                                        monster.X = targetX;
+                                }
+                            }
+                            if (targetY > monster.Y)
+                            {
+                                monster.Y += stepY * 2;
+                                if (targetY < monster.Y)
                                     monster.Y = targetY;
                             }
-                        }
-                        break;
-                    case MovingDirection.ToTop:
-                        monster.Y -= stepY * 2;
-                        if (monster.Y <= All.TileHeight)
-                        {
-                            // pas top
-                            monster.Y = 1;
-                            monster.PatternDelay = 1;
-                            //monster.PatternStep += 2;
-                        }
-                        break;
-                    case MovingDirection.ToLeft:
-                        monster.X -= stepX;
-                        break;
-                    case MovingDirection.ToRight:
-                        monster.X += stepX;
-                        break;
-                    case MovingDirection.ToLeftSpeed:
-                        monster.X -= stepX * 2;
-                        break;
-                    case MovingDirection.ToRightSpeed:
-                        monster.X += stepX * 2;
-                        break;
-                    case MovingDirection.ToDown:
-                        monster.Y += stepY;
-                        break;
-                    case MovingDirection.ToUp:
-                        monster.Y -= stepY;
-                        break;
-                    case MovingDirection.ToDownSpeed:
-                        monster.Y += stepY * 2;
-                        break;
-                    case MovingDirection.ToUpSpeed:
-                        monster.Y -= stepY * 2;
-                        break;
-                    case MovingDirection.DiagUpRight:
-                        monster.Y -= stepY;
-                        monster.X += stepX;
-                        break;
-                    case MovingDirection.DiagUpLeft:
-                        monster.Y -= stepY;
-                        monster.X -= stepX;
-                        break;
-                    case MovingDirection.DiagUpRightSpeed:
-                        monster.Y -= stepY * 2;
-                        monster.X += stepX * 2;
-                        break;
-                    case MovingDirection.DiagUpLeftSpeed:
-                        monster.Y -= stepY * 2;
-                        monster.X -= stepX * 2;
-                        break;
-                    case MovingDirection.DiagDownRight:
-                        monster.Y += stepY;
-                        monster.X += stepX;
-                        break;
-                    case MovingDirection.DiagDownLeft:
-                        monster.Y += stepY;
-                        monster.X -= stepX;
-                        break;
-                    case MovingDirection.DiagDownRightSpeed:
-                        monster.Y += stepY * 2;
-                        monster.X += stepX * 2;
-                        break;
-                    case MovingDirection.DiagDownLeftSpeed:
-                        monster.Y += stepY * 2;
-                        monster.X -= stepX * 2;
-                        break;
-                    default:
-                        System.Diagnostics.Debug.WriteLine(String.Format("Pattern: {0}", (MovingDirection)monster.Pattern[monster.PatternStep]));
-                        break;
-                }
-                bool isDelete = false;
-                monster.PatternDelay--;
-                if (monster.PatternDelay == 0)
-                {
-                    monster.PatternStep += 2;
-                    if (monster.PatternStep >= monster.Pattern.Length)
-                    {
-                        toDelete.Add(monster);
-                        isDelete = true;
+                            else
+                            {
+                                if (targetY < monster.Y)
+                                {
+                                    monster.Y -= stepY * 2;
+                                    if (targetY > monster.Y)
+                                        monster.Y = targetY;
+                                }
+                            }
+                            break;
+                        case MovingDirection.ToTop:
+                            monster.Y -= stepY * 2;
+                            if (monster.Y <= (1 * All.TileHeight))
+                            {
+                                // pas top
+                                monster.Y = 1 * All.TileHeight;
+                                monster.PatternNonStop = false;
+                            }
+                            break;
+                        case MovingDirection.ToLeft:
+                            MoveX(monster, -stepX * 2);
+                            break;
+                        case MovingDirection.ToRight:
+                            MoveX(monster, stepX * 2);
+                            break;
+                        case MovingDirection.ToLeftSpeed:
+                            MoveX(monster, -stepX * 3);
+                            break;
+                        case MovingDirection.ToRightSpeed:
+                            MoveX(monster, stepX * 3);
+                            break;
+                        case MovingDirection.ToDown:
+                            MoveY(monster, stepY * 2);
+                            break;
+                        case MovingDirection.ToUp:
+                            MoveY(monster, -stepY);
+                            break;
+                        case MovingDirection.ToDownSpeed:
+                            MoveY(monster, 2 * stepY * 2);
+                            break;
+                        case MovingDirection.ToUpSpeed:
+                            MoveY(monster, Convert.ToInt32(-2 * stepY * 1.5f));
+                            break;
+                        case MovingDirection.DiagUpRight:
+                            MoveXY(monster, stepX * 2, -stepY * 2);
+                            break;
+                        case MovingDirection.DiagUpLeft:
+                            MoveXY(monster, -stepX * 2, -stepY * 2);
+                            break;
+                        case MovingDirection.DiagUpRightSpeed:
+                            MoveXY(monster, 3 * stepX, -3 * stepY);
+                            break;
+                        case MovingDirection.DiagUpLeftSpeed:
+                            MoveXY(monster, -3 * stepX, -3 * stepY);
+                            break;
+                        case MovingDirection.DiagDownRight:
+                            MoveXY(monster, stepX * 2, stepY * 2);
+                            break;
+                        case MovingDirection.DiagDownLeft:
+                            MoveXY(monster, -stepX * 2, stepY * 2);
+                            break;
+                        case MovingDirection.DiagDownRightSpeed:
+                            MoveXY(monster, 3 * stepX, 3 * stepY);
+                            break;
+                        case MovingDirection.DiagDownLeftSpeed:
+                            MoveXY(monster, -3 * stepX, 3 * stepY);
+                            break;
+                        default:
+                            System.Diagnostics.Debug.WriteLine(String.Format("Pattern: {0}", (MovingDirection)monster.Pattern[monster.PatternStep]));
+                            break;
                     }
-                    else
+                    bool isDelete = false;
+                    if (!monster.PatternNonStop && monster.PatternDelay <= 0)
                     {
-                        monster.PatternDelay = Convert.ToInt32(monster.Pattern[monster.PatternStep + 1] * All.TileWidth);
-                    }
-                }
-                else
-                {
-                    // pour le pattern sans fin
-                    if (monster.PatternDelay == -1)
-                    {
-                        monster.PatternDelay = 0;
-                    }
-                    // sortie de l'écran
-                    // TODO: changer les valeurs en dur
-                    if (monster.Y < 1 || monster.Y > 21 * All.TileHeight) // TODO: 
-                    {
-                        toDelete.Add(monster);
-                        isDelete = true;
-                    }
-                    else
-                    {
-                        if ((monster.X + SPRITE_WIDTH) < 0 || monster.X > All.MAP_SHOW * All.TileWidth)
+                        monster.PatternStep += 2;
+                        if (monster.PatternStep >= monster.Pattern.Length)
                         {
                             toDelete.Add(monster);
                             isDelete = true;
                         }
+                        else
+                        {
+                            monster.PatternDelay = Convert.ToInt32(monster.Pattern[monster.PatternStep + 1] * SPRITE_WIDTH);
+                            if (monster.PatternDelay == 0)
+                                monster.PatternNonStop = true;
+                        }
                     }
-                }
-
-                if (!isDelete)
-                {
-                    // tests collision
-                    // avec la sorcière
-                    //if (!All.ShowPixel)
-                    switch (monster.Category)
+                    else
                     {
-                        case MonsterType.Bat_1:
-                            if (All.IsCollision(monster.X, monster.Y, spritesBat1[monster.AnimationStep].Source,
-                                                      All.Witch.X, All.Witch.Y, All.Witch.Source))
+                        // pour le pattern sans fin
+                        /*if (monster.PatternDelay == -1)
+                        {
+                            monster.PatternDelay = 0;
+                        }*/
+                        // sortie de l'écran
+                        // TODO: changer les valeurs en dur
+                        if (monster.Y < 1 || monster.Y > 21 * All.TileHeight) // TODO: 
+                        {
+                            toDelete.Add(monster);
+                            isDelete = true;
+                        }
+                        else
+                        {
+                            if ((monster.X + SPRITE_WIDTH) < 0 || monster.X > All.MAP_SHOW * All.TileWidth)
+                            {
+                                toDelete.Add(monster);
                                 isDelete = true;
-                            break;
-                        case MonsterType.Bat_2:
-                            if (All.IsCollision(monster.X, monster.Y, spritesBat2[monster.AnimationStep].Source,
-                                                      All.Witch.X, All.Witch.Y, All.Witch.Source))
-                                isDelete = true;
-                            break;
-                        case MonsterType.Ghost:
-                            if (All.IsCollision(monster.X, monster.Y, spritesGhost[monster.AnimationStep].Source,
+                            }
+                        }
+                    }
+
+                    if (!isDelete)
+                    {
+                        // tests collision
+                        // avec la sorcière
+                        //if (!All.ShowPixel)
+                        switch (monster.Category)
+                        {
+                            case MonsterType.Bat_1:
+                                if (All.IsCollision(monster.X, monster.Y, spritesBat1[monster.AnimationStep].Source,
                                                           All.Witch.X, All.Witch.Y, All.Witch.Source))
-                                isDelete = true;
-                            break;
-                    }
+                                    isDelete = true;
+                                break;
+                            case MonsterType.Bat_2:
+                                if (All.IsCollision(monster.X, monster.Y, spritesBat2[monster.AnimationStep].Source,
+                                                          All.Witch.X, All.Witch.Y, All.Witch.Source))
+                                    isDelete = true;
+                                break;
+                            case MonsterType.Ghost:
+                                if (All.IsCollision(monster.X, monster.Y, spritesGhost[monster.AnimationStep].Source,
+                                                              All.Witch.X, All.Witch.Y, All.Witch.Source))
+                                    isDelete = true;
+                                break;
+                        }
 
-                    if (isDelete)
-                    {
-                        // le monstre disparaît
-                        toDelete.Add(monster);
-                        // et on génère une explosion
-                        OneObject temp = new OneObject();
-                        temp.ID = idExplode++;
-                        temp.Start = DateTime.UtcNow;
-                        temp.Step = 0;
-                        temp.X = monster.X;
-                        temp.Y = monster.Y;
-                        temp.Moving = MovingDirection.None;
-                        explodes.Add(temp.ID, temp);
-                    }
-                } // !isDelete
+                        if (isDelete)
+                        {
+                            // le monstre disparaît
+                            toDelete.Add(monster);
+                            // et on génère une explosion
+                            OneObject temp = new OneObject();
+                            temp.ID = idExplode++;
+                            temp.Start = DateTime.UtcNow;
+                            temp.Step = 0;
+                            temp.X = monster.X;
+                            temp.Y = monster.Y;
+                            temp.Moving = MovingDirection.None;
+                            explodes.Add(temp.ID, temp);
+                        }
+                    } // !isDelete
 
-            } // foreach monster
+                } // foreach monster
 
-            foreach (OneMonster m in toDelete)
-                monsters.Remove(m);
+                foreach (OneMonster m in toDelete)
+                    monsters.Remove(m);
 
-            List<int> deleteList = new List<int>();
+
+                // traitement de l'inhibition des générateurs
+                foreach (var kvp in inhibeGeneratorID.ToList<KeyValuePair<int, int>>())
+                {
+                    inhibeGeneratorID[kvp.Key]--;
+                    if (inhibeGeneratorID[kvp.Key] < 0)
+                        deleteList.Add(kvp.Key); // on peut rendre actif ce générateur
+                }
+                foreach (int k in deleteList)
+                    inhibeGeneratorID.Remove(k);
+
+                deleteList = new List<int>();
+
+
+            } // tempo
 
             foreach (var kvp in explodes.ToList<KeyValuePair<int, OneObject>>())
             {
@@ -425,18 +461,6 @@ namespace Cauldron
             }
             foreach (int k in deleteList)
                 explodes.Remove(k);
-
-            deleteList = new List<int>();
-
-            // traitement de l'inhibition des générateurs
-            foreach (var kvp in inhibeGeneratorID.ToList<KeyValuePair<int, int>>())
-            {
-                inhibeGeneratorID[kvp.Key]--;
-                if (inhibeGeneratorID[kvp.Key] < 0)
-                    deleteList.Add(kvp.Key); // on peut rendre actif ce générateur
-            }
-            foreach (int k in deleteList)
-                inhibeGeneratorID.Remove(k);
         }
 
         // *********************************************************************

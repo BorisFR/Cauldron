@@ -20,6 +20,8 @@ namespace Cauldron
 
         // Jeu en pause, on bloque les animations
         bool pausedGame;
+        TimeSpan gameSpeed = All.FREQUENCY;
+        DateTime lastGameAnim;
 
 
         //SKColor[] pixels;
@@ -83,7 +85,7 @@ namespace Cauldron
             All.TileWidthScale = Convert.ToInt32(All.TileWidth * All.GAME_SCALE);
             All.TileHeightScale = Convert.ToInt32(All.TileHeight * All.GAME_SCALE);
 
-            startMapX = tiled.StartHouse - 10; // + 450;
+            startMapX = tiled.StartHouse - 10 + 450;
             //pixels = new SKColor[MAX_WIDTH * MAX_HEIGHT];
             //bmpPixels = new SKBitmap(MAX_WIDTH, MAX_HEIGHT);
 
@@ -113,7 +115,7 @@ namespace Cauldron
 
             scrollX = 0;
             lastScroll = DateTime.UtcNow;
-
+            lastGameAnim = DateTime.UtcNow;
             lastFps = DateTime.UtcNow;
 
             GameLoop();
@@ -124,7 +126,7 @@ namespace Cauldron
         // *********************************************************************
         public void GameLoop()
         {
-            var fps = TimeSpan.FromSeconds(1.0 / 60.0);
+            var fps = TimeSpan.FromSeconds(1.0 / 60.0); // mais 1 fois sur 2
             bool even = false;
             Device.StartTimer(fps, () =>
             {
@@ -145,59 +147,12 @@ namespace Cauldron
                 if (pausedGame)
                     return true;
 
-                tempo = DateTime.UtcNow;
+                tempo = DateTime.UtcNow; // pour que tout soit bien synchronisé
                 spriteEnergy.DoAnim(tempo);
                 for (int i = 0; i < SMOKE_SPRITES_MAX; i++)
                     spritesSmoke[i].DoAnim(tempo);
                 monsters.DoAnim(tempo, All.Witch.X, All.Witch.Y);
                 All.Witch.DoAnim(tempo);
-
-
-                List<int> deleteList = new List<int>();
-
-                foreach (var kvp in bullets.ToList<KeyValuePair<int, OneObject>>())
-                {
-                    bullets[kvp.Key].TimeToLive--;
-                    if (bullets[kvp.Key].TimeToLive == 0)
-                    {
-                        deleteList.Add(kvp.Key);
-                        continue;
-                    }
-                    switch (kvp.Value.Moving)
-                    {
-                        case MovingDirection.ToLeft:
-                            bullets[kvp.Key].X -= stepX * 3;
-                            break;
-                        case MovingDirection.ToRight:
-                            bullets[kvp.Key].X += stepX * 3;
-                            break;
-                        case MovingDirection.DiagUpLeft:
-                            bullets[kvp.Key].X -= stepX * 3;
-                            bullets[kvp.Key].Y -= stepX * 2;
-                            break;
-                        case MovingDirection.DiagDownLeft:
-                            bullets[kvp.Key].X -= stepX * 3;
-                            bullets[kvp.Key].Y += stepX * 2;
-                            break;
-                        case MovingDirection.DiagUpRight:
-                            bullets[kvp.Key].X += stepX * 3;
-                            bullets[kvp.Key].Y -= stepX * 2;
-                            break;
-                        case MovingDirection.DiagDownRight:
-                            bullets[kvp.Key].X += stepX * 3;
-                            bullets[kvp.Key].Y += stepX * 2;
-                            break;
-                    }
-                    if ((tempo - kvp.Value.Start) < bulletElaps)
-                        continue;
-                    bullets[kvp.Key].Start = tempo;
-                    bullets[kvp.Key].Step++;
-                    if (bullets[kvp.Key].Step >= 4)
-                        bullets[kvp.Key].Step = 0;
-                }
-
-                foreach (int k in deleteList)
-                    bullets.Remove(k);
 
 
                 if ((tempo - lastScroll) >= scrollDelay)
@@ -215,45 +170,100 @@ namespace Cauldron
                     }
                 }
 
-                scrollX += scrollSpeed;
-                if (All.Witch.IsWalking)
-                    scrollSpeed = 0;
 
-                while (scrollX >= All.TileWidthScale)
+                if ((tempo - lastGameAnim) > gameSpeed)
                 {
-                    startMapX--;
-                    scrollX -= All.TileWidthScale;
-                    if (startMapX < 0)
-                    {
-                        startMapX = tiled.MapWidth - 1;
-                    }
-                    monsters.MapScrollToRight();
-                }
-                while (scrollX <= -All.TileWidthScale)
-                {
-                    startMapX++;
-                    scrollX += All.TileWidthScale;
-                    if (startMapX >= tiled.MapWidth)
-                    {
-                        startMapX = 0;
-                    }
-                    monsters.MapScrollToLeft();
-                }
+                    lastGameAnim = tempo;
 
+                    List<int> deleteList = new List<int>();
+
+                    foreach (var kvp in bullets.ToList<KeyValuePair<int, OneObject>>())
+                    {
+                        bullets[kvp.Key].TimeToLive--;
+                        if (bullets[kvp.Key].TimeToLive == 0)
+                        {
+                            deleteList.Add(kvp.Key);
+                            continue;
+                        }
+                        switch (kvp.Value.Moving)
+                        {
+                            case MovingDirection.ToLeft:
+                                bullets[kvp.Key].X -= stepX * 3;
+                                break;
+                            case MovingDirection.ToRight:
+                                bullets[kvp.Key].X += stepX * 3;
+                                break;
+                            case MovingDirection.DiagUpLeft:
+                                bullets[kvp.Key].X -= stepX * 3;
+                                bullets[kvp.Key].Y -= stepX * 2;
+                                break;
+                            case MovingDirection.DiagDownLeft:
+                                bullets[kvp.Key].X -= stepX * 3;
+                                bullets[kvp.Key].Y += stepX * 2;
+                                break;
+                            case MovingDirection.DiagUpRight:
+                                bullets[kvp.Key].X += stepX * 3;
+                                bullets[kvp.Key].Y -= stepX * 2;
+                                break;
+                            case MovingDirection.DiagDownRight:
+                                bullets[kvp.Key].X += stepX * 3;
+                                bullets[kvp.Key].Y += stepX * 2;
+                                break;
+                        }
+                        if ((tempo - kvp.Value.Start) < bulletElaps)
+                            continue;
+                        bullets[kvp.Key].Start = tempo;
+                        bullets[kvp.Key].Step++;
+                        if (bullets[kvp.Key].Step >= 4)
+                            bullets[kvp.Key].Step = 0;
+                    }
+
+                    foreach (int k in deleteList)
+                        bullets.Remove(k);
+
+
+                    scrollX += scrollSpeed;
+                    if (All.Witch.IsWalking)
+                        scrollSpeed = 0;
+
+                    while (scrollX >= All.TileWidthScale)
+                    {
+                        startMapX--;
+                        scrollX -= All.TileWidthScale;
+                        if (startMapX < 0)
+                        {
+                            startMapX = tiled.MapWidth - 1;
+                        }
+                        monsters.MapScrollToRight();
+                    }
+                    while (scrollX <= -All.TileWidthScale)
+                    {
+                        startMapX++;
+                        scrollX += All.TileWidthScale;
+                        if (startMapX >= tiled.MapWidth)
+                        {
+                            startMapX = 0;
+                        }
+                        monsters.MapScrollToLeft();
+                    }
+
+
+                    if (All.KeyUp && !All.KeyDown && !All.KeySpace && !keyFireMustBeRelease)
+                    {
+                        All.Witch.MoveToUp();
+                    }
+
+                    if (All.KeyDown && !All.KeyUp && !All.KeySpace & !keyFireMustBeRelease)
+                    {
+                        All.Witch.MoveToDown();
+                    }
+
+
+                } // lastGameAnim
 
                 if (!All.KeyLeft && !All.KeyRight)
                 {
                     All.Witch.MoveStop();
-                }
-
-                if (All.KeyUp && !All.KeyDown && !All.KeySpace && !keyFireMustBeRelease)
-                {
-                    All.Witch.MoveToUp();
-                }
-
-                if (All.KeyDown && !All.KeyUp && !All.KeySpace & !keyFireMustBeRelease)
-                {
-                    All.Witch.MoveToDown();
                 }
 
                 if (All.KeySpace)

@@ -73,6 +73,7 @@ namespace Cauldron
         public float[] Pattern { get; set; }
         public int PatternStep { get; set; }
         public int PatternDelay { get; set; }
+        public bool PatternNonStop { get; set; }
     }
 
     public class OneObject
