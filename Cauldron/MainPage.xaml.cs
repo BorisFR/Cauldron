@@ -37,6 +37,8 @@ namespace Cauldron
         //const int MAX_HEIGHT = 300;
         //SKBitmap bmpToShow;
 
+        Typo typo;
+
         OneSprite spriteMoon;
         OneSprite spriteSheepSkin;
         OneSprite spriteEnergy;
@@ -97,6 +99,8 @@ namespace Cauldron
             All.TileHeight = tiled.TileHeight;
             All.TileWidthScale = Convert.ToInt32(All.TileWidth * All.GAME_SCALE);
             All.TileHeightScale = Convert.ToInt32(All.TileHeight * All.GAME_SCALE);
+
+            typo = new Typo();
 
             stepX = Convert.ToInt32((24 / 12 / 2)); // Convert.ToInt32((24 / 12) * All.GAME_SCALE / 3); // on monte/descend d'1/6 de la taille du sprite qui vaut 17 (mode vole)
             stepY = Convert.ToInt32((17 / 6) / 2); // Convert.ToInt32((17 / 6) * All.GAME_SCALE / 2); // on monte/descend d'1/6 de la taille du sprite qui vaut 17 (mode vole)
@@ -652,6 +656,31 @@ namespace Cauldron
 
             canvas.DrawLine(0 * All.GAME_SCALE + All.DECAL_MAP_X, 0, 0 * All.GAME_SCALE + All.DECAL_MAP_X, 1000, paintRed);
             canvas.DrawLine(All.MAP_SHOW * All.TileWidth * All.GAME_SCALE + All.DECAL_MAP_X, 0, All.MAP_SHOW * All.TileWidth * All.GAME_SCALE + All.DECAL_MAP_X, 1000, paintRed);
+
+            typo.Write(canvas, "SCORE", 8 * All.TileWidth, -2 * All.TileHeight);
+            typo.Write(canvas, "0002875", 7 * All.TileWidth, -1 * All.TileHeight + 1);
+            typo.Write(canvas, "MAGIC", 8 * All.TileWidth, -0 * All.TileHeight + 2);
+            typo.Write(canvas, "99%", 9 * All.TileWidth, 1 * All.TileHeight + 3);
+            typo.Write(canvas, "HAGS", 26 * All.TileWidth, -2 * All.TileHeight);
+
+            int xx, yy, aa, bb;
+            tile = 8; // tête de sorcière
+            // position de la source
+            xx = (tile % 100) * All.TileWidthScale;
+            yy = (tile / 100) * All.TileHeightScale;
+            drawSource = new SKRect(xx, yy, xx + All.TileWidthScale * 2, yy + All.TileHeightScale);
+            for (int ii = 0; ii < 3; ii++)
+            {
+                for (int jj = 0; jj < 3; jj++)
+                {
+                    // position de la cible
+                    aa = All.DECAL_MAP_X + (25 + ii * 2) * All.TileWidthScale + Convert.ToInt32(ii * All.GAME_SCALE);
+                    bb = All.DECAL_MAP_Y - (1 - jj) * All.TileHeightScale + Convert.ToInt32(jj * All.GAME_SCALE);
+                    drawDestination = new SKRect(aa, bb, aa + All.TileWidthScale * 2, bb + All.TileHeightScale);
+                    // on effectue l'affichage
+                    canvas.DrawBitmap(All.TilesScale, drawSource, drawDestination);
+                }
+            }
 
 
             if ((tempo - lastFps) >= All.ONE_SECOND)

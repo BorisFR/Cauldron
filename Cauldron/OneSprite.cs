@@ -37,7 +37,7 @@ namespace Cauldron
 
         // *********************************************************************
 
-        public OneSprite(int tileNumber, int width, int height, int animCount, int animDelay, bool spriteDoubleWidth = false, bool animBack = false, bool animStop = false)
+        public OneSprite(int tileNumber, int width, int height, int animCount, int animDelay, bool spriteDoubleWidth = false, bool animBack = false, bool animStop = false, bool noSeparator = true)
         {
             this.Width = width;
             this.Height = height;
@@ -70,11 +70,17 @@ namespace Cauldron
             for (int i = 0; i < animCount; i++)
             {
                 sources[i] = new Rectangle(sourceX, sourceY, Width, Height);
-                sourceX += Convert.ToInt32(((width + All.TileWidth * 2 - 1) / All.TileWidth) * All.TileWidth);
+                if (noSeparator)
+                    sourceX += Convert.ToInt32(((width + All.TileWidth * 2 - 1) / All.TileWidth) * All.TileWidth);
+                else
+                    sourceX += width;
                 sourcesScale[i] = new SKRect(sourceScaleX, sourceScaleY, sourceScaleX + WidthScale, sourceScaleY + HeightScale);
                 // on se positionne sur l'animation suivante
                 // qui est sur la même ligne, séparée par une colonne de la taille d'une tile
-                sourceScaleX += Convert.ToInt32(((width + All.TileWidth * 2 - 1) / All.TileWidth) * All.TileWidth * All.GAME_SCALE);
+                if (noSeparator)
+                    sourceScaleX += Convert.ToInt32(((width + All.TileWidth * 2 - 1) / All.TileWidth) * All.TileWidth * All.GAME_SCALE);
+                else
+                    sourceScaleX += Convert.ToInt32(width * All.GAME_SCALE);
             }
             if (spriteDoubleWidth)
                 WidthScale *= 2;
@@ -173,6 +179,14 @@ namespace Cauldron
             scaleX = x * All.GAME_SCALE;
             scaleY = y * All.GAME_SCALE;
             tempSKRect = new SKRect(All.DECAL_MAP_X + scaleX + scrollX, All.DECAL_MAP_Y + scaleY, All.DECAL_MAP_X + scaleX + WidthScale + scrollX, All.DECAL_MAP_Y + scaleY + HeightScale);
+            canvas.DrawBitmap(All.TilesScale, sourcesScale[StepAnim], tempSKRect);
+        }
+
+        public void DrawNoDecal(SKCanvas canvas, int x, int y)
+        {
+            scaleX = x * All.GAME_SCALE;
+            scaleY = y * All.GAME_SCALE;
+            tempSKRect = new SKRect(scaleX, scaleY, scaleX + WidthScale, scaleY + HeightScale);
             canvas.DrawBitmap(All.TilesScale, sourcesScale[StepAnim], tempSKRect);
         }
 
