@@ -405,18 +405,33 @@ namespace Cauldron
                         {
                             case MonsterType.Bat_1:
                                 if (All.IsCollision(monster.X, monster.Y, spritesBat1[monster.AnimationStep].Source,
-                                                          All.Witch.X, All.Witch.Y, All.Witch.Source))
+                                                    All.Witch.X, All.Witch.Y, All.Witch.Source))
+                                {
                                     isDelete = true;
+                                    All.AddPoints(PointsType.Kill_Bat_1);
+                                    All.LooseMagic(MagicLoose.Kill_Bat_1);
+                                    All.LooseLive();
+                                }
                                 break;
                             case MonsterType.Bat_2:
                                 if (All.IsCollision(monster.X, monster.Y, spritesBat2[monster.AnimationStep].Source,
-                                                          All.Witch.X, All.Witch.Y, All.Witch.Source))
+                                                    All.Witch.X, All.Witch.Y, All.Witch.Source))
+                                {
                                     isDelete = true;
+                                    All.AddPoints(PointsType.Kill_Bat_2);
+                                    All.LooseMagic(MagicLoose.Kill_Bat_2);
+                                    All.LooseLive();
+                                }
                                 break;
                             case MonsterType.Ghost:
                                 if (All.IsCollision(monster.X, monster.Y, spritesGhost[monster.AnimationStep].Source,
-                                                              All.Witch.X, All.Witch.Y, All.Witch.Source))
+                                                    All.Witch.X, All.Witch.Y, All.Witch.Source))
+                                {
                                     isDelete = true;
+                                    All.AddPoints(PointsType.Kill_Ghost);
+                                    All.LooseMagic(MagicLoose.Kill_Ghost);
+                                    All.LooseLive();
+                                }
                                 break;
                         }
 

@@ -20,6 +20,17 @@ namespace Cauldron
         public static TimeSpan FREQUENCY = TimeSpan.FromSeconds(1.0 / 30.0);// 60x par seconde = 17ms, 30x = 33ms
         public static TimeSpan ONE_SECOND = TimeSpan.FromSeconds(1);
 
+        public static int Lives;
+        public static int Score;
+        public static string ScoreText;
+        public static int Magic;
+        public static string MagicText;
+        public static bool HasKeyBlue;
+        public static bool HasKeyGreen;
+        public static bool HasKeyRed;
+        public static bool HasKeyPink;
+        public static bool HasPotion;
+
         // combien on affiche de colonne à l'écran
         public static int MAP_SHOW = 38;
         public static int MAP_HEIGHT_AIR = 23;
@@ -74,11 +85,54 @@ namespace Cauldron
             SPEED_RIGHT_MAX = Convert.ToInt32(part * 9);
 
             SPEED_DELTA_X = Convert.ToInt32(part * 3);
+
+            InitNewGame();
+        }
+
+        public static void InitNewGame()
+        {
+            Score = 0;
+            ScoreText = "0000000";
+            Magic = 99;
+            MagicText = "99%";
+            Lives = 9;
+            HasKeyRed = true;
+            HasKeyBlue = true;
+            HasKeyPink = true;
+            HasKeyGreen = true;
+            HasPotion = true;
         }
 
         // *********************************************************************
 
         public static int RND(int max) { return rnd.Next(max); }
+
+        // *********************************************************************
+
+        public static void LooseLive()
+        {
+            Lives--;
+            if (Lives < 0)
+                Lives = 9;
+        }
+
+        // *********************************************************************
+
+        public static void AddPoints(PointsType points)
+        {
+            Score += (int)points;
+            ScoreText = String.Format("{0:0000000}", Score);
+        }
+
+        // *********************************************************************
+
+        public static void LooseMagic(MagicLoose amount)
+        {
+            Magic -= (int)amount;
+            if (Magic < 0)
+                Magic = 99;
+            MagicText = String.Format("{0:00}%", Magic);
+        }
 
         // *********************************************************************
 

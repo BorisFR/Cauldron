@@ -39,6 +39,30 @@ namespace Cauldron
         MakePotion
     }
 
+    public enum PointsType
+    {
+        Kill_Bat_1 = 20,
+        Kill_Bat_2 = 40,
+        Kill_Ghost = 50,
+        Kill_Seagull = 75,
+        Kill_Shark = 25,
+        Kill_Plant = 100,
+        Kill_Firebal = 75,
+    }
+
+    public enum MagicLoose
+    {
+        Kill_Bat_1 = 10,
+        Kill_Bat_2 = 15,
+        Kill_Ghost = 15,
+        Kill_Seagull = 15,
+        Kill_Shark = 50,
+        Kill_Plant = 15,
+        Kill_Firebal = 15,
+        Flying = 1,
+        Shoot = 1,
+    }
+
     public enum MonsterType
     {
         Bat_1,

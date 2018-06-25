@@ -374,6 +374,7 @@ namespace Cauldron
                             if (temp.Moving != MovingDirection.None)
                                 bullets.Add(temp.ID, temp);
                             keyFireMustBeRelease = true;
+                            All.LooseMagic(MagicLoose.Shoot);
                         }
                     }
                 }
@@ -658,30 +659,90 @@ namespace Cauldron
             canvas.DrawLine(All.MAP_SHOW * All.TileWidth * All.GAME_SCALE + All.DECAL_MAP_X, 0, All.MAP_SHOW * All.TileWidth * All.GAME_SCALE + All.DECAL_MAP_X, 1000, paintRed);
 
             typo.Write(canvas, "SCORE", 8 * All.TileWidth, -2 * All.TileHeight);
-            typo.Write(canvas, "0002875", 7 * All.TileWidth, -1 * All.TileHeight + 1);
+            typo.Write(canvas, All.ScoreText, 7 * All.TileWidth, -1 * All.TileHeight + 1);
             typo.Write(canvas, "MAGIC", 8 * All.TileWidth, -0 * All.TileHeight + 2);
-            typo.Write(canvas, "99%", 9 * All.TileWidth, 1 * All.TileHeight + 3);
+            typo.Write(canvas, All.MagicText, 9 * All.TileWidth, 1 * All.TileHeight + 3);
             typo.Write(canvas, "HAGS", 26 * All.TileWidth, -2 * All.TileHeight);
 
-            int xx, yy, aa, bb;
+            int xx, yy; float aa, bb;
             tile = 8; // tête de sorcière
             // position de la source
             xx = (tile % 100) * All.TileWidthScale;
             yy = (tile / 100) * All.TileHeightScale;
             drawSource = new SKRect(xx, yy, xx + All.TileWidthScale * 2, yy + All.TileHeightScale);
-            for (int ii = 0; ii < 3; ii++)
+            int count = All.Lives;
+            for (int jj = 0; jj < 3; jj++)
             {
-                for (int jj = 0; jj < 3; jj++)
+                for (int ii = 0; ii < 3; ii++)
                 {
-                    // position de la cible
-                    aa = All.DECAL_MAP_X + (25 + ii * 2) * All.TileWidthScale + Convert.ToInt32(ii * All.GAME_SCALE);
-                    bb = All.DECAL_MAP_Y - (1 - jj) * All.TileHeightScale + Convert.ToInt32(jj * All.GAME_SCALE);
-                    drawDestination = new SKRect(aa, bb, aa + All.TileWidthScale * 2, bb + All.TileHeightScale);
-                    // on effectue l'affichage
-                    canvas.DrawBitmap(All.TilesScale, drawSource, drawDestination);
+                    if (count > 0)
+                    {
+                        // position de la cible
+                        aa = All.DECAL_MAP_X + (25 + ii * 2) * All.TileWidthScale + ii * All.GAME_SCALE;
+                        bb = All.DECAL_MAP_Y - (1 - jj) * All.TileHeightScale + jj * All.GAME_SCALE;
+                        drawDestination = new SKRect(aa, bb, aa + All.TileWidthScale * 2, bb + All.TileHeightScale);
+                        // on effectue l'affichage
+                        canvas.DrawBitmap(All.TilesScale, drawSource, drawDestination);
+                        count--;
+                    }
                 }
             }
+            if (All.HasKeyRed)
+            {
+                tile = 64;
+                xx = (tile % 100) * All.TileWidthScale;
+                yy = (tile / 100) * All.TileHeightScale;
+                drawSource = new SKRect(xx, yy, xx + All.TileWidthScale * 3, yy + All.TileHeightScale);
+                aa = All.DECAL_MAP_X + (15) * All.TileWidthScale;
+                bb = All.DECAL_MAP_Y - (2) * All.TileHeightScale;
+                drawDestination = new SKRect(aa, bb, aa + All.TileWidthScale * 3, bb + All.TileHeightScale);
+                canvas.DrawBitmap(All.TilesScale, drawSource, drawDestination);
+            }
+            if (All.HasKeyPink)
+            {
+                tile = 264;
+                xx = (tile % 100) * All.TileWidthScale;
+                yy = (tile / 100) * All.TileHeightScale;
+                drawSource = new SKRect(xx, yy, xx + All.TileWidthScale * 3, yy + All.TileHeightScale);
+                aa = All.DECAL_MAP_X + (15) * All.TileWidthScale;
+                bb = All.DECAL_MAP_Y - (0) * All.TileHeightScale;
+                drawDestination = new SKRect(aa, bb, aa + All.TileWidthScale * 3, bb + All.TileHeightScale);
+                canvas.DrawBitmap(All.TilesScale, drawSource, drawDestination);
+            }
+            if (All.HasKeyBlue)
+            {
+                tile = 164;
+                xx = (tile % 100) * All.TileWidthScale;
+                yy = (tile / 100) * All.TileHeightScale;
+                drawSource = new SKRect(xx, yy, xx + All.TileWidthScale * 3, yy + All.TileHeightScale);
+                aa = All.DECAL_MAP_X + (21) * All.TileWidthScale;
+                bb = All.DECAL_MAP_Y - (2) * All.TileHeightScale;
+                drawDestination = new SKRect(aa, bb, aa + All.TileWidthScale * 3, bb + All.TileHeightScale);
+                canvas.DrawBitmap(All.TilesScale, drawSource, drawDestination);
+            }
+            if (All.HasKeyGreen)
+            {
+                tile = 364;
+                xx = (tile % 100) * All.TileWidthScale;
+                yy = (tile / 100) * All.TileHeightScale;
+                drawSource = new SKRect(xx, yy, xx + All.TileWidthScale * 3, yy + All.TileHeightScale);
+                aa = All.DECAL_MAP_X + (21) * All.TileWidthScale;
+                bb = All.DECAL_MAP_Y - (0) * All.TileHeightScale;
+                drawDestination = new SKRect(aa, bb, aa + All.TileWidthScale * 3, bb + All.TileHeightScale);
+                canvas.DrawBitmap(All.TilesScale, drawSource, drawDestination);
+            }
 
+            if (All.HasPotion)
+            {
+                tile = 1164;
+                xx = (tile % 100) * All.TileWidthScale;
+                yy = (tile / 100) * All.TileHeightScale;
+                drawSource = new SKRect(xx, yy, xx + All.TileWidthScale * 2, yy + All.TileHeightScale);
+                aa = All.DECAL_MAP_X + (19) * All.TileWidthScale - 4 * All.GAME_SCALE;
+                bb = All.DECAL_MAP_Y - (1) * All.TileHeightScale;
+                drawDestination = new SKRect(aa, bb, aa + All.TileWidthScale * 2, bb + All.TileHeightScale);
+                canvas.DrawBitmap(All.TilesScale, drawSource, drawDestination);
+            }
 
             if ((tempo - lastFps) >= All.ONE_SECOND)
             {
