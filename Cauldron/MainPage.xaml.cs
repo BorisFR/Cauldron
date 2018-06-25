@@ -398,7 +398,7 @@ namespace Cauldron
         {
             IsAntialias = true,
             Style = SKPaintStyle.Fill,
-            Color = SKColors.White,
+            Color = SKColors.BlueViolet,
             TextSize = 20
         };
 
@@ -550,7 +550,7 @@ namespace Cauldron
                                             spriteEnergy.Draw(canvas, x, y, scrollX);
                                             break;
                                         case "smoke":
-                                            spritesSmoke[smokeIndex++].Draw(canvas, x, y, scrollX);
+                                            spritesSmoke[smokeIndex++].Draw(canvas, x, y - 3, scrollX);
                                             break;
                                         case "vial":
                                             break;
@@ -651,18 +651,18 @@ namespace Cauldron
 
 
             // affichage des infos
-            spriteSheepSkin.Draw(canvas, -1 * All.TileWidth, -2 * All.TileHeight - 0);
-            spriteSheepSkin.Draw(canvas, (All.MAP_SHOW - 7 + 1) * All.TileWidth, -2 * All.TileHeight - 0);
+            spriteSheepSkin.Draw(canvas, -1 * All.TileWidth, -4 * All.TileHeight - 0);
+            spriteSheepSkin.Draw(canvas, (All.MAP_SHOW - 7 + 1) * All.TileWidth, -4 * All.TileHeight - 0);
 
 
-            canvas.DrawLine(0 * All.GAME_SCALE + All.DECAL_MAP_X, 0, 0 * All.GAME_SCALE + All.DECAL_MAP_X, 1000, paintRed);
-            canvas.DrawLine(All.MAP_SHOW * All.TileWidth * All.GAME_SCALE + All.DECAL_MAP_X, 0, All.MAP_SHOW * All.TileWidth * All.GAME_SCALE + All.DECAL_MAP_X, 1000, paintRed);
+            canvas.DrawLine(0 * All.GAME_SCALE + All.DECAL_MAP_X, All.DECAL_MAP_Y, 0 * All.GAME_SCALE + All.DECAL_MAP_X, 1000, paintRed);
+            canvas.DrawLine(All.MAP_SHOW * All.TileWidth * All.GAME_SCALE + All.DECAL_MAP_X, All.DECAL_MAP_Y, All.MAP_SHOW * All.TileWidth * All.GAME_SCALE + All.DECAL_MAP_X, 1000, paintRed);
 
-            typo.Write(canvas, "SCORE", 8 * All.TileWidth, -2 * All.TileHeight);
-            typo.Write(canvas, All.ScoreText, 7 * All.TileWidth, -1 * All.TileHeight + 1);
-            typo.Write(canvas, "MAGIC", 8 * All.TileWidth, -0 * All.TileHeight + 2);
-            typo.Write(canvas, All.MagicText, 9 * All.TileWidth, 1 * All.TileHeight + 3);
-            typo.Write(canvas, "HAGS", 26 * All.TileWidth, -2 * All.TileHeight);
+            typo.Write(canvas, "SCORE", 8 * All.TileWidth, -4 * All.TileHeight);
+            typo.Write(canvas, All.ScoreText, 7 * All.TileWidth, -3 * All.TileHeight + 1);
+            typo.Write(canvas, "MAGIC", 8 * All.TileWidth, -2 * All.TileHeight + 2);
+            typo.Write(canvas, All.MagicText, 9 * All.TileWidth, -1 * All.TileHeight + 3);
+            typo.Write(canvas, "HAGS", 26 * All.TileWidth, -4 * All.TileHeight);
 
             int xx, yy; float aa, bb;
             tile = 8; // tête de sorcière
@@ -679,7 +679,7 @@ namespace Cauldron
                     {
                         // position de la cible
                         aa = All.DECAL_MAP_X + (25 + ii * 2) * All.TileWidthScale + ii * All.GAME_SCALE;
-                        bb = All.DECAL_MAP_Y - (1 - jj) * All.TileHeightScale + jj * All.GAME_SCALE;
+                        bb = All.DECAL_MAP_Y - (3 - jj) * All.TileHeightScale + jj * All.GAME_SCALE;
                         drawDestination = new SKRect(aa, bb, aa + All.TileWidthScale * 2, bb + All.TileHeightScale);
                         // on effectue l'affichage
                         canvas.DrawBitmap(All.TilesScale, drawSource, drawDestination);
@@ -694,7 +694,7 @@ namespace Cauldron
                 yy = (tile / 100) * All.TileHeightScale;
                 drawSource = new SKRect(xx, yy, xx + All.TileWidthScale * 3, yy + All.TileHeightScale);
                 aa = All.DECAL_MAP_X + (15) * All.TileWidthScale;
-                bb = All.DECAL_MAP_Y - (2) * All.TileHeightScale;
+                bb = All.DECAL_MAP_Y - (4) * All.TileHeightScale;
                 drawDestination = new SKRect(aa, bb, aa + All.TileWidthScale * 3, bb + All.TileHeightScale);
                 canvas.DrawBitmap(All.TilesScale, drawSource, drawDestination);
             }
@@ -705,7 +705,7 @@ namespace Cauldron
                 yy = (tile / 100) * All.TileHeightScale;
                 drawSource = new SKRect(xx, yy, xx + All.TileWidthScale * 3, yy + All.TileHeightScale);
                 aa = All.DECAL_MAP_X + (15) * All.TileWidthScale;
-                bb = All.DECAL_MAP_Y - (0) * All.TileHeightScale;
+                bb = All.DECAL_MAP_Y - (2) * All.TileHeightScale;
                 drawDestination = new SKRect(aa, bb, aa + All.TileWidthScale * 3, bb + All.TileHeightScale);
                 canvas.DrawBitmap(All.TilesScale, drawSource, drawDestination);
             }
@@ -716,7 +716,7 @@ namespace Cauldron
                 yy = (tile / 100) * All.TileHeightScale;
                 drawSource = new SKRect(xx, yy, xx + All.TileWidthScale * 3, yy + All.TileHeightScale);
                 aa = All.DECAL_MAP_X + (21) * All.TileWidthScale;
-                bb = All.DECAL_MAP_Y - (2) * All.TileHeightScale;
+                bb = All.DECAL_MAP_Y - (4) * All.TileHeightScale;
                 drawDestination = new SKRect(aa, bb, aa + All.TileWidthScale * 3, bb + All.TileHeightScale);
                 canvas.DrawBitmap(All.TilesScale, drawSource, drawDestination);
             }
@@ -727,20 +727,31 @@ namespace Cauldron
                 yy = (tile / 100) * All.TileHeightScale;
                 drawSource = new SKRect(xx, yy, xx + All.TileWidthScale * 3, yy + All.TileHeightScale);
                 aa = All.DECAL_MAP_X + (21) * All.TileWidthScale;
-                bb = All.DECAL_MAP_Y - (0) * All.TileHeightScale;
+                bb = All.DECAL_MAP_Y - (2) * All.TileHeightScale;
                 drawDestination = new SKRect(aa, bb, aa + All.TileWidthScale * 3, bb + All.TileHeightScale);
                 canvas.DrawBitmap(All.TilesScale, drawSource, drawDestination);
             }
 
             if (All.HasPotion)
             {
-                tile = 1164;
+                tile = 564;
                 xx = (tile % 100) * All.TileWidthScale;
                 yy = (tile / 100) * All.TileHeightScale;
-                drawSource = new SKRect(xx, yy, xx + All.TileWidthScale * 2, yy + All.TileHeightScale);
-                aa = All.DECAL_MAP_X + (19) * All.TileWidthScale - 4 * All.GAME_SCALE;
-                bb = All.DECAL_MAP_Y - (1) * All.TileHeightScale;
-                drawDestination = new SKRect(aa, bb, aa + All.TileWidthScale * 2, bb + All.TileHeightScale);
+                drawSource = new SKRect(xx, yy, xx + All.TileWidthScale * 3, yy + All.TileHeightScale * 2);
+                aa = All.DECAL_MAP_X + (19) * All.TileWidthScale - 8 * All.GAME_SCALE;
+                bb = All.DECAL_MAP_Y - (4) * All.TileHeightScale;
+                drawDestination = new SKRect(aa, bb, aa + All.TileWidthScale * 3, bb + All.TileHeightScale * 2);
+                canvas.DrawBitmap(All.TilesScale, drawSource, drawDestination);
+            }
+            if (All.HasChest)
+            {
+                tile = 864;
+                xx = (tile % 100) * All.TileWidthScale;
+                yy = (tile / 100) * All.TileHeightScale;
+                drawSource = new SKRect(xx, yy, xx + All.TileWidthScale * 3, yy + All.TileHeightScale * 2);
+                aa = All.DECAL_MAP_X + (19) * All.TileWidthScale - 8 * All.GAME_SCALE;
+                bb = All.DECAL_MAP_Y - (2) * All.TileHeightScale;
+                drawDestination = new SKRect(aa, bb, aa + All.TileWidthScale * 3, bb + All.TileHeightScale * 2);
                 canvas.DrawBitmap(All.TilesScale, drawSource, drawDestination);
             }
 

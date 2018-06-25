@@ -30,6 +30,7 @@ namespace Cauldron
         public static bool HasKeyRed;
         public static bool HasKeyPink;
         public static bool HasPotion;
+        public static bool HasChest;
 
         // combien on affiche de colonne à l'écran
         public static int MAP_SHOW = 38;
@@ -41,8 +42,8 @@ namespace Cauldron
         public static int SPEED_RIGHT_MAX;
         public static int SPEED_DELTA_X;
 
-        public const int DECAL_MAP_X = 200;
-        public const int DECAL_MAP_Y = 5 * 8 * 3; // ** /!\ ** ce dernier doit être égal à GAME_SCALE...
+        public const int DECAL_MAP_X = 48;
+        public const int DECAL_MAP_Y = 4 * 8 * 3; // ** /!\ ** ce dernier doit être égal à GAME_SCALE...
         public const float GAME_SCALE = 3.0f;
 
         public static SKBitmap Tiles;
@@ -101,6 +102,7 @@ namespace Cauldron
             HasKeyPink = true;
             HasKeyGreen = true;
             HasPotion = true;
+            HasChest = true;
         }
 
         // *********************************************************************
