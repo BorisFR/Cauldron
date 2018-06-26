@@ -139,6 +139,7 @@ namespace Cauldron
                     monster.Pattern = patternGhost[All.RND(patternGhost.Count)];
                     break;
             }
+            //monster.UsePattern = true;
             monster.PatternStep = 0;
             monster.PatternDelay = Convert.ToInt32(monster.Pattern[1] * SPRITE_WIDTH);
             if (monster.PatternDelay == 0)
@@ -249,7 +250,6 @@ namespace Cauldron
             }
             for (int i = 0; i < GHOST_SPRITES_MAX; i++)
                 spritesGhost[i].DoAnim(time);
-
 
             List<int> deleteList = new List<int>();
 

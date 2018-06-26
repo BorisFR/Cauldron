@@ -37,7 +37,7 @@ namespace Cauldron
 
         // *********************************************************************
 
-        public OneSprite(int tileNumber, int width, int height, int animCount, int animDelay, bool spriteDoubleWidth = false, bool animBack = false, bool animStop = false, bool noSeparator = true)
+        public OneSprite(int tileNumber, int width, int height, int animCount, int animDelay, bool spriteDoubleWidth = false, bool animBack = false, bool animStop = false, bool withSeparator = true)
         {
             this.Width = width;
             this.Height = height;
@@ -70,14 +70,14 @@ namespace Cauldron
             for (int i = 0; i < animCount; i++)
             {
                 sources[i] = new Rectangle(sourceX, sourceY, Width, Height);
-                if (noSeparator)
+                if (withSeparator)
                     sourceX += Convert.ToInt32(((width + All.TileWidth * 2 - 1) / All.TileWidth) * All.TileWidth);
                 else
                     sourceX += width;
                 sourcesScale[i] = new SKRect(sourceScaleX, sourceScaleY, sourceScaleX + WidthScale, sourceScaleY + HeightScale);
                 // on se positionne sur l'animation suivante
                 // qui est sur la même ligne, séparée par une colonne de la taille d'une tile
-                if (noSeparator)
+                if (withSeparator)
                     sourceScaleX += Convert.ToInt32(((width + All.TileWidth * 2 - 1) / All.TileWidth) * All.TileWidth * All.GAME_SCALE);
                 else
                     sourceScaleX += Convert.ToInt32(width * All.GAME_SCALE);

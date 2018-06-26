@@ -41,6 +41,14 @@ namespace Cauldron
 
         OneSprite spriteMoon;
         OneSprite spriteSheepSkin;
+        OneSprite spriteKeyRed;
+        OneSprite spriteKeyBlue;
+        OneSprite spriteKeyGreen;
+        OneSprite spriteKeyPink;
+
+        OneSprite spritePlant1;
+        OneSprite spritePlant2;
+
         OneSprite spriteEnergy;
         const int SMOKE_SPRITES_MAX = 1;
         OneSprite[] spritesSmoke = new OneSprite[SMOKE_SPRITES_MAX];
@@ -116,6 +124,10 @@ namespace Cauldron
             bulletDecalLeftFromWitch = Convert.ToInt32(3 * 8 / 2) + Convert.ToInt32(0.5f * 8 / 2);
             bulletDecalRightFromWitch = Convert.ToInt32(3 * 8 / 2) - Convert.ToInt32(0.5f * 8 / 2);
 
+            spriteKeyRed = new OneSprite(0 * 100 + 64, 3 * 8, 1 * 8, 1, 0);
+            spriteKeyBlue = new OneSprite(1 * 100 + 64, 3 * 8, 1 * 8, 1, 0);
+            spriteKeyPink = new OneSprite(2 * 100 + 64, 3 * 8, 1 * 8, 1, 0);
+            spriteKeyGreen = new OneSprite(3 * 100 + 64, 3 * 8, 1 * 8, 1, 0);
             spriteMoon = new OneSprite(15 * 100 + 30, 6 * 8, 5 * 8, 1, 0);
             spriteSheepSkin = new OneSprite(15 * 100 + 21, 7 * 8, 4 * 8, 1, 0);
             spriteEnergy = new OneSprite(0 * 100 + 100 - 32, 3 * 8, 3 * 8, 4, 20);
@@ -123,6 +135,8 @@ namespace Cauldron
             {
                 spritesSmoke[i] = new OneSprite(3 * 100 + 100 - 32, 3 * 8, 3 * 8, 7, 105);
             }
+            spritePlant1 = new OneSprite(44 * 100 + 100 - 32, 4 * All.TileWidth, 3 * All.TileHeight, 8, 147, withSeparator: false);
+            spritePlant2 = new OneSprite(49 * 100 + 100 - 32, 4 * All.TileWidth, 3 * All.TileHeight, 8, 135, withSeparator: false);
             monsters = new Monsters(stepX, stepY);
 
 
@@ -146,7 +160,7 @@ namespace Cauldron
             currentMapHeight = tiled.MapHeight;
             currentTerrain = tiled.Terrain;
             currentItems = tiled.Items;
-            startMapX = tiled.StartHouse - 6;// + 450;
+            startMapX = tiled.StartHouse - 6 + 800;// + 450;
             All.Witch.X = All.MIDDLE_MAP;
             All.Witch.Y = (tiledHouse.StartHouse + 1) * All.TileHeight + 3;
             All.Witch.MinY = 1 * All.TileHeight;
@@ -224,6 +238,8 @@ namespace Cauldron
                     spritesSmoke[i].DoAnim(tempo);
                 monsters.DoAnim(tempo, All.Witch.X, All.Witch.Y);
                 All.Witch.DoAnim(tempo);
+                spritePlant1.DoAnim(tempo);
+                spritePlant2.DoAnim(tempo);
 
 
                 if ((tempo - lastScroll) >= scrollDelay)
@@ -539,12 +555,16 @@ namespace Cauldron
                                     switch (t.Content)
                                     {
                                         case "key_purple":
+                                            spriteKeyPink.Draw(canvas, x, y, scrollX);
                                             break;
                                         case "key_blue":
+                                            spriteKeyBlue.Draw(canvas, x, y, scrollX);
                                             break;
                                         case "key_red":
+                                            spriteKeyRed.Draw(canvas, x, y, scrollX);
                                             break;
                                         case "key_green":
+                                            spriteKeyGreen.Draw(canvas, x, y, scrollX);
                                             break;
                                         case "energy":
                                             spriteEnergy.Draw(canvas, x, y, scrollX);
@@ -555,6 +575,12 @@ namespace Cauldron
                                         case "vial":
                                             break;
                                         case "chest":
+                                            break;
+                                        case "plant1":
+                                            spritePlant1.Draw(canvas, x, y, scrollX);
+                                            break;
+                                        case "plant2":
+                                            spritePlant2.Draw(canvas, x, y, scrollX);
                                             break;
                                     }
                                     break;
@@ -689,47 +715,51 @@ namespace Cauldron
             }
             if (All.HasKeyRed)
             {
-                tile = 64;
+                spriteKeyRed.Draw(canvas, 15 * All.TileWidth, -4 * All.TileHeight);
+                /*tile = 64;
                 xx = (tile % 100) * All.TileWidthScale;
                 yy = (tile / 100) * All.TileHeightScale;
                 drawSource = new SKRect(xx, yy, xx + All.TileWidthScale * 3, yy + All.TileHeightScale);
                 aa = All.DECAL_MAP_X + (15) * All.TileWidthScale;
                 bb = All.DECAL_MAP_Y - (4) * All.TileHeightScale;
                 drawDestination = new SKRect(aa, bb, aa + All.TileWidthScale * 3, bb + All.TileHeightScale);
-                canvas.DrawBitmap(All.TilesScale, drawSource, drawDestination);
+                canvas.DrawBitmap(All.TilesScale, drawSource, drawDestination);*/
             }
             if (All.HasKeyPink)
             {
-                tile = 264;
+                spriteKeyPink.Draw(canvas, 15 * All.TileWidth, -2 * All.TileHeight);
+                /*tile = 264;
                 xx = (tile % 100) * All.TileWidthScale;
                 yy = (tile / 100) * All.TileHeightScale;
                 drawSource = new SKRect(xx, yy, xx + All.TileWidthScale * 3, yy + All.TileHeightScale);
                 aa = All.DECAL_MAP_X + (15) * All.TileWidthScale;
                 bb = All.DECAL_MAP_Y - (2) * All.TileHeightScale;
                 drawDestination = new SKRect(aa, bb, aa + All.TileWidthScale * 3, bb + All.TileHeightScale);
-                canvas.DrawBitmap(All.TilesScale, drawSource, drawDestination);
+                canvas.DrawBitmap(All.TilesScale, drawSource, drawDestination);*/
             }
             if (All.HasKeyBlue)
             {
-                tile = 164;
+                spriteKeyBlue.Draw(canvas, 21 * All.TileWidth, -4 * All.TileHeight);
+                /*tile = 164;
                 xx = (tile % 100) * All.TileWidthScale;
                 yy = (tile / 100) * All.TileHeightScale;
                 drawSource = new SKRect(xx, yy, xx + All.TileWidthScale * 3, yy + All.TileHeightScale);
                 aa = All.DECAL_MAP_X + (21) * All.TileWidthScale;
                 bb = All.DECAL_MAP_Y - (4) * All.TileHeightScale;
                 drawDestination = new SKRect(aa, bb, aa + All.TileWidthScale * 3, bb + All.TileHeightScale);
-                canvas.DrawBitmap(All.TilesScale, drawSource, drawDestination);
+                canvas.DrawBitmap(All.TilesScale, drawSource, drawDestination);*/
             }
             if (All.HasKeyGreen)
             {
-                tile = 364;
+                spriteKeyGreen.Draw(canvas, 21 * All.TileWidth, -2 * All.TileHeight);
+                /*tile = 364;
                 xx = (tile % 100) * All.TileWidthScale;
                 yy = (tile / 100) * All.TileHeightScale;
                 drawSource = new SKRect(xx, yy, xx + All.TileWidthScale * 3, yy + All.TileHeightScale);
                 aa = All.DECAL_MAP_X + (21) * All.TileWidthScale;
                 bb = All.DECAL_MAP_Y - (2) * All.TileHeightScale;
                 drawDestination = new SKRect(aa, bb, aa + All.TileWidthScale * 3, bb + All.TileHeightScale);
-                canvas.DrawBitmap(All.TilesScale, drawSource, drawDestination);
+                canvas.DrawBitmap(All.TilesScale, drawSource, drawDestination);*/
             }
 
             if (All.HasPotion)

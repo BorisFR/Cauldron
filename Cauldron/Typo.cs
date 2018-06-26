@@ -15,7 +15,7 @@ namespace Cauldron
 
         public Typo()
         {
-            characters = new OneSprite(36 * 100, 8, 8, 37, 0, noSeparator: false);
+            characters = new OneSprite(36 * 100, 8, 8, 37, 0, withSeparator: false);
         }
 
         public void Write(SKCanvas canvas, string text, int x, int y)

@@ -575,6 +575,9 @@
   </animation>
  </tile>
  <tile id="4468">
+  <properties>
+   <property name="item" value="plant1"/>
+  </properties>
   <animation>
    <frame tileid="4468" duration="100"/>
    <frame tileid="4472" duration="100"/>
@@ -695,6 +698,9 @@
   </animation>
  </tile>
  <tile id="4968">
+  <properties>
+   <property name="item" value="plant2"/>
+  </properties>
   <animation>
    <frame tileid="4968" duration="100"/>
    <frame tileid="4972" duration="100"/>

@@ -46,7 +46,8 @@ namespace Cauldron
         Kill_Ghost = 50,
         Kill_Seagull = 75,
         Kill_Shark = 25,
-        Kill_Plant = 100,
+        Kill_Plant_1 = 100,
+        Kill_Plant_2 = 100,
         Kill_Firebal = 75,
     }
 
@@ -57,7 +58,8 @@ namespace Cauldron
         Kill_Ghost = 15,
         Kill_Seagull = 15,
         Kill_Shark = 50,
-        Kill_Plant = 15,
+        Kill_Plant_1 = 15,
+        Kill_Plant_2 = 15,
         Kill_Firebal = 15,
         Flying = 1,
         Shoot = 1,
@@ -67,7 +69,9 @@ namespace Cauldron
     {
         Bat_1,
         Bat_2,
-        Ghost
+        Ghost,
+        Plant1,
+        Plant2
     }
 
     public enum MovingDirection : short
@@ -100,6 +104,7 @@ namespace Cauldron
         public int AnimationStep { get; set; }
         public int X { get; set; }
         public int Y { get; set; }
+        //public bool UsePattern { get; set; }
         public float[] Pattern { get; set; }
         public int PatternStep { get; set; }
         public int PatternDelay { get; set; }
