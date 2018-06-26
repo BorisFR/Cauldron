@@ -8,7 +8,7 @@
  </tile>
  <tile id="64">
   <properties>
-   <property name="item" value="key_purple"/>
+   <property name="item" value="key_red"/>
   </properties>
  </tile>
  <tile id="68">
@@ -74,15 +74,15 @@
  </tile>
  <tile id="264">
   <properties>
-   <property name="item" value="key_red"/>
+   <property name="item" value="key_purple"/>
   </properties>
  </tile>
- <tile id="270">
+ <tile id="269">
   <animation>
-   <frame tileid="270" duration="100"/>
-   <frame tileid="274" duration="100"/>
-   <frame tileid="278" duration="100"/>
-   <frame tileid="282" duration="100"/>
+   <frame tileid="269" duration="100"/>
+   <frame tileid="273" duration="100"/>
+   <frame tileid="277" duration="100"/>
+   <frame tileid="281" duration="100"/>
   </animation>
  </tile>
  <tile id="364">
