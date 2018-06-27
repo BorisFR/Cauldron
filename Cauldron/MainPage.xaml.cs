@@ -160,7 +160,7 @@ namespace Cauldron
             currentMapHeight = tiled.MapHeight;
             currentTerrain = tiled.Terrain;
             currentItems = tiled.Items;
-            startMapX = tiled.StartHouse - 6 + 800;// + 450;
+            startMapX = tiled.StartHouse - 6; // + 800;// + 450;
             All.Witch.X = All.MIDDLE_MAP;
             All.Witch.Y = (tiledHouse.StartHouse + 1) * All.TileHeight + 3;
             All.Witch.MinY = 1 * All.TileHeight;
