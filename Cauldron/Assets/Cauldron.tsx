@@ -141,6 +141,11 @@
    <frame tileid="394" duration="100"/>
   </animation>
  </tile>
+ <tile id="372">
+  <properties>
+   <property name="item" value="smoke_house"/>
+  </properties>
+ </tile>
  <tile id="468">
   <animation>
    <frame tileid="468" duration="100"/>
@@ -574,6 +579,49 @@
    <frame tileid="3098" duration="100"/>
   </animation>
  </tile>
+ <tile id="4400">
+  <properties>
+   <property name="item" value="water"/>
+  </properties>
+  <animation>
+   <frame tileid="4400" duration="100"/>
+   <frame tileid="4403" duration="100"/>
+   <frame tileid="4406" duration="100"/>
+   <frame tileid="4409" duration="100"/>
+   <frame tileid="4412" duration="100"/>
+   <frame tileid="4415" duration="100"/>
+   <frame tileid="4418" duration="100"/>
+   <frame tileid="4421" duration="100"/>
+   <frame tileid="4424" duration="100"/>
+   <frame tileid="4427" duration="100"/>
+   <frame tileid="4430" duration="100"/>
+   <frame tileid="4433" duration="100"/>
+   <frame tileid="4436" duration="100"/>
+   <frame tileid="4439" duration="100"/>
+   <frame tileid="4442" duration="100"/>
+   <frame tileid="4445" duration="100"/>
+  </animation>
+ </tile>
+ <tile id="4401">
+  <animation>
+   <frame tileid="4401" duration="100"/>
+   <frame tileid="4404" duration="100"/>
+   <frame tileid="4407" duration="100"/>
+   <frame tileid="4410" duration="100"/>
+   <frame tileid="4413" duration="100"/>
+   <frame tileid="4416" duration="100"/>
+   <frame tileid="4419" duration="100"/>
+   <frame tileid="4422" duration="100"/>
+   <frame tileid="4425" duration="100"/>
+   <frame tileid="4428" duration="100"/>
+   <frame tileid="4431" duration="100"/>
+   <frame tileid="4434" duration="100"/>
+   <frame tileid="4437" duration="100"/>
+   <frame tileid="4440" duration="100"/>
+   <frame tileid="4443" duration="100"/>
+   <frame tileid="4446" duration="100"/>
+  </animation>
+ </tile>
  <tile id="4468">
   <properties>
    <property name="item" value="plant1"/>
@@ -671,6 +719,46 @@
    <frame tileid="4591" duration="100"/>
    <frame tileid="4595" duration="100"/>
    <frame tileid="4599" duration="100"/>
+  </animation>
+ </tile>
+ <tile id="4600">
+  <animation>
+   <frame tileid="4600" duration="100"/>
+   <frame tileid="4603" duration="100"/>
+   <frame tileid="4606" duration="100"/>
+   <frame tileid="4609" duration="100"/>
+   <frame tileid="4612" duration="100"/>
+   <frame tileid="4615" duration="100"/>
+   <frame tileid="4618" duration="100"/>
+   <frame tileid="4621" duration="100"/>
+   <frame tileid="4624" duration="100"/>
+   <frame tileid="4627" duration="100"/>
+   <frame tileid="4630" duration="100"/>
+   <frame tileid="4633" duration="100"/>
+   <frame tileid="4636" duration="100"/>
+   <frame tileid="4639" duration="100"/>
+   <frame tileid="4642" duration="100"/>
+   <frame tileid="4645" duration="100"/>
+  </animation>
+ </tile>
+ <tile id="4601">
+  <animation>
+   <frame tileid="4601" duration="100"/>
+   <frame tileid="4604" duration="100"/>
+   <frame tileid="4607" duration="100"/>
+   <frame tileid="4610" duration="100"/>
+   <frame tileid="4613" duration="100"/>
+   <frame tileid="4616" duration="100"/>
+   <frame tileid="4619" duration="100"/>
+   <frame tileid="4622" duration="100"/>
+   <frame tileid="4625" duration="100"/>
+   <frame tileid="4628" duration="100"/>
+   <frame tileid="4631" duration="100"/>
+   <frame tileid="4634" duration="100"/>
+   <frame tileid="4637" duration="100"/>
+   <frame tileid="4640" duration="100"/>
+   <frame tileid="4643" duration="100"/>
+   <frame tileid="4646" duration="100"/>
   </animation>
  </tile>
  <tile id="4669">

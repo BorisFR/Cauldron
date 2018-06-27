@@ -1,7 +1,7 @@
 ﻿<Properties StartupConfiguration="{7A6F53FB-0BC4-4B13-A50E-C9813BBD2812}|Default">
   <MonoDevelop.Ide.Workbench ActiveDocument="Cauldron/MainPage.xaml.cs">
     <Files>
-      <File FileName="Cauldron/MainPage.xaml.cs" Line="163" Column="49" />
+      <File FileName="Cauldron/MainPage.xaml.cs" Line="589" Column="110" />
       <File FileName="Cauldron/Global.cs" Line="107" Column="11" />
       <File FileName="Cauldron/All.cs" Line="45" Column="42" />
       <File FileName="Cauldron/Monsters.cs" Line="253" Column="1" />

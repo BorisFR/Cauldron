@@ -160,7 +160,7 @@ namespace Cauldron
             currentMapHeight = tiled.MapHeight;
             currentTerrain = tiled.Terrain;
             currentItems = tiled.Items;
-            startMapX = tiled.StartHouse - 6; // + 800;// + 450;
+            startMapX = tiled.StartHouse - 6 + 800;// + 450;
             All.Witch.X = All.MIDDLE_MAP;
             All.Witch.Y = (tiledHouse.StartHouse + 1) * All.TileHeight + 3;
             All.Witch.MinY = 1 * All.TileHeight;
@@ -569,8 +569,11 @@ namespace Cauldron
                                         case "energy":
                                             spriteEnergy.Draw(canvas, x, y, scrollX);
                                             break;
-                                        case "smoke":
+                                        case "smoke_house":
                                             spritesSmoke[smokeIndex++].Draw(canvas, x, y - 3, scrollX);
+                                            break;
+                                        case "smoke":
+                                            spritesSmoke[smokeIndex++].Draw(canvas, x, y, scrollX);
                                             break;
                                         case "vial":
                                             break;
@@ -581,6 +584,9 @@ namespace Cauldron
                                             break;
                                         case "plant2":
                                             spritePlant2.Draw(canvas, x, y, scrollX);
+                                            break;
+                                        case "water":
+                                            spriteKeyPink.Draw(canvas, x, y, scrollX); // TODO: change gfx ;)
                                             break;
                                     }
                                     break;
