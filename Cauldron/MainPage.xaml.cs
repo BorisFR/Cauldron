@@ -19,13 +19,16 @@ namespace Cauldron
         int scrollX; // scroll horizontale
         DateTime lastScroll;
         TimeSpan scrollDelay = All.FREQUENCY;
-        int currentMapWidth;
+        int mapMinX;
+        int mapMaxX;
+        //int currentMapWidth;
         int currentMapHeight;
         Int16[,] currentTerrain;
         public Int16[,] currentItems;
         bool showSky;
 
         // Jeu en pause, on bloque les animations
+        bool blockDisplay;
         bool pausedGame;
         TimeSpan gameSpeed = All.FREQUENCY;
         DateTime lastGameAnim;
@@ -50,7 +53,7 @@ namespace Cauldron
         OneSprite spritePlant2;
 
         OneSprite spriteEnergy;
-        const int SMOKE_SPRITES_MAX = 1;
+        const int SMOKE_SPRITES_MAX = 2;
         OneSprite[] spritesSmoke = new OneSprite[SMOKE_SPRITES_MAX];
         int smokeIndex;
         Monsters monsters;
@@ -154,36 +157,44 @@ namespace Cauldron
 
         public void StartOutside()
         {
+            blockDisplay = true;
             map = Map.Outside;
             showSky = true;
-            currentMapWidth = tiled.MapWidth;
+            mapMinX = tiled.MapMinX;
+            mapMaxX = tiled.MapMaxX;
+            //currentMapWidth = mapMaxX - mapMinX; // tiled.MapWidth;
             currentMapHeight = tiled.MapHeight;
             currentTerrain = tiled.Terrain;
             currentItems = tiled.Items;
-            startMapX = tiled.StartHouse - 6 + 800;// + 450;
+            startMapX = tiled.StartHouse - 6;// + 800;// + 450;
             All.Witch.X = All.MIDDLE_MAP;
-            All.Witch.Y = (tiledHouse.StartHouse + 1) * All.TileHeight + 3;
+            All.Witch.Y = tiled.StartY * All.TileHeight + 3;
             All.Witch.MinY = 1 * All.TileHeight;
             All.Witch.MaxY = All.Witch.Y;
             All.Witch.CouldFly = true;
             All.Witch.DoWalk();
+            blockDisplay = false;
         }
 
         public void StartInHouse()
         {
+            blockDisplay = true;
             map = Map.InHouse;
             showSky = false;
-            currentMapWidth = tiledHouse.MapWidth;
+            mapMinX = tiledHouse.MapMinX;
+            mapMaxX = tiledHouse.MapMaxX;
+            //currentMapWidth = tiledHouse.MapWidth;
             currentMapHeight = tiledHouse.MapHeight;
             currentTerrain = tiledHouse.Terrain;
             currentItems = tiledHouse.Items;
-            startMapX = 0;
-            All.Witch.X = (tiledHouse.StartHouse - 1) * All.TileWidth - 2;
-            All.Witch.Y = (tiledHouse.StartY - 2) * All.TileHeight + 3;
+            startMapX = mapMinX;
+            All.Witch.X = tiledHouse.StartHouse * All.TileWidth - 2;
+            All.Witch.Y = tiledHouse.StartY * All.TileHeight + 3;
             All.Witch.MinY = All.Witch.Y;
             All.Witch.MaxY = All.Witch.Y;
             All.Witch.CouldFly = false;
             All.Witch.DoPotion();
+            blockDisplay = false;
         }
 
         // *********************************************************************
@@ -191,6 +202,7 @@ namespace Cauldron
         // *********************************************************************
         public void GameLoop()
         {
+            blockDisplay = false;
             var fps = TimeSpan.FromSeconds(1.0 / 60.0); // mais 1 fois sur 2
             bool even = false;
             Device.StartTimer(fps, () =>
@@ -317,21 +329,29 @@ namespace Cauldron
                     {
                         startMapX--;
                         scrollX -= All.TileWidthScale;
-                        if (startMapX < 0)
+                        if (startMapX <= mapMinX)// 0)
                         {
-                            startMapX = currentMapWidth - 1;
+                            startMapX = mapMaxX - 1; // currentMapWidth - 1;
                         }
                         monsters.MapScrollToRight();
+                        if (scrollX != 0)
+                        {
+                            System.Diagnostics.Debug.WriteLine(String.Format("*1 ScrollX: {0}", scrollX));
+                        }
                     }
                     while (scrollX <= -All.TileWidthScale)
                     {
                         startMapX++;
                         scrollX += All.TileWidthScale;
-                        if (startMapX >= currentMapWidth)
+                        if (startMapX >= mapMaxX) // currentMapWidth)
                         {
-                            startMapX = 0;
+                            startMapX = mapMinX + 1; // 0;
                         }
                         monsters.MapScrollToLeft();
+                        if (scrollX != 0)
+                        {
+                            System.Diagnostics.Debug.WriteLine(String.Format("*2 ScrollX: {0}", scrollX));
+                        }
                     }
 
 
@@ -399,7 +419,8 @@ namespace Cauldron
                     keyFireMustBeRelease = false;
                 }
 
-                theCanvas.InvalidateSurface();
+                if (!blockDisplay)
+                    theCanvas.InvalidateSurface();
                 return true;
             });
         }
@@ -423,6 +444,8 @@ namespace Cauldron
         // *********************************************************************
         public void OnPainting(object sender, SKPaintSurfaceEventArgs e)
         {
+            if (blockDisplay)
+                return;
             canvas = e.Surface.Canvas;
             canvas.Clear(SKColors.Black);
 
@@ -483,10 +506,10 @@ namespace Cauldron
             //Array.Clear(pixels, 0, MAX_WIDTH * MAX_HEIGHT);
             // on commence et termine l'affichage en dehors de l'écran => pour le scroll X que l'on fait de façon intermédiaire et pas par la taille d'une tile
             int currentX = startMapX - 1; // donc on commence une colonne avant
-            if (currentX < 0)
+            if (currentX <= mapMinX)
             {
                 // la carte boucle sur elle-même
-                currentX = currentMapWidth - 1;
+                currentX = mapMaxX - 1; // currentMapWidth - 1;
             }
             // pour chaque colonne
             for (int i = -1; i < (All.MAP_SHOW + 1); i++) // 1 colonne avant et après
@@ -516,23 +539,33 @@ namespace Cauldron
                 }
                 // colonne suivante
                 currentX++;
-                if (currentX >= currentMapWidth)
+                if (currentX >= mapMaxX)
                 {
                     // la carte boucle sur elle-même
-                    currentX = 0;
+                    currentX = mapMinX + 1;
                 }
             }
 
             // affichage des items
             smokeIndex = 0;
             currentX = startMapX - 1;
-            if (currentX < 0)
+            if (currentX <= mapMinX)
             {
-                // la carte boucle sur elle-même
-                currentX = currentMapWidth - 1;
+                currentX = mapMaxX - 1;
+            }
+            // à faire 3x pour éviter le popup des objets qui sont large
+            currentX--;
+            if (currentX <= mapMinX)
+            {
+                currentX = mapMaxX - 1;
+            }
+            currentX--;
+            if (currentX <= mapMinX)
+            {
+                currentX = mapMaxX - 1;
             }
             // pour chaque colonne
-            for (int i = -1; i < (All.MAP_SHOW + 1); i++)
+            for (int i = -3; i < (All.MAP_SHOW + 2); i++)
             {
                 // et chaque ligne
                 for (int j = 0; j < currentMapHeight; j++)
@@ -555,19 +588,19 @@ namespace Cauldron
                                     switch (t.Content)
                                     {
                                         case "key_purple":
-                                            spriteKeyPink.Draw(canvas, x, y, scrollX);
+                                            spriteKeyPink.Draw(canvas, x - All.TileWidth, y, scrollX);
                                             break;
                                         case "key_blue":
-                                            spriteKeyBlue.Draw(canvas, x, y, scrollX);
+                                            spriteKeyBlue.Draw(canvas, x - All.TileWidth, y, scrollX);
                                             break;
                                         case "key_red":
-                                            spriteKeyRed.Draw(canvas, x, y, scrollX);
+                                            spriteKeyRed.Draw(canvas, x - All.TileWidth, y, scrollX);
                                             break;
                                         case "key_green":
-                                            spriteKeyGreen.Draw(canvas, x, y, scrollX);
+                                            spriteKeyGreen.Draw(canvas, x - All.TileWidth, y, scrollX);
                                             break;
                                         case "energy":
-                                            spriteEnergy.Draw(canvas, x, y, scrollX);
+                                            spriteEnergy.Draw(canvas, x - All.TileWidth, y, scrollX);
                                             break;
                                         case "smoke_house":
                                             spritesSmoke[smokeIndex++].Draw(canvas, x, y - 3, scrollX);
@@ -580,10 +613,10 @@ namespace Cauldron
                                         case "chest":
                                             break;
                                         case "plant1":
-                                            spritePlant1.Draw(canvas, x, y, scrollX);
+                                            spritePlant1.Draw(canvas, x - All.TileWidth, y, scrollX);
                                             break;
                                         case "plant2":
-                                            spritePlant2.Draw(canvas, x, y, scrollX);
+                                            spritePlant2.Draw(canvas, x - All.TileWidth, y, scrollX);
                                             break;
                                         case "water":
                                             spriteKeyPink.Draw(canvas, x, y, scrollX); // TODO: change gfx ;)
@@ -596,22 +629,26 @@ namespace Cauldron
                 }
                 // colonne suivante
                 currentX++;
-                if (currentX >= currentMapWidth)
+                if (currentX >= mapMaxX)
                 {
-                    // la carte boucle sur elle-même
-                    currentX = 0;
+                    currentX = mapMinX + 1;
                 }
             }
 
             // gestion des monstres
             currentX = startMapX - 1;
-            if (currentX < 0)
+            if (currentX <= mapMinX)
             {
-                // la carte boucle sur elle-même
-                currentX = currentMapWidth - 1;
+                currentX = mapMaxX - 1;
+            }
+            // fait 2x pour les larges monstres comme les plant1 et 2
+            currentX--;
+            if (currentX <= mapMinX)
+            {
+                currentX = mapMaxX - 1;
             }
             // pour chaque colonne
-            for (int i = -1; i < (All.MAP_SHOW + 1); i++)
+            for (int i = -2; i < (All.MAP_SHOW + 2); i++)
             {
                 // et chaque ligne
                 for (int j = 0; j < currentMapHeight; j++)
@@ -649,10 +686,9 @@ namespace Cauldron
                 }
                 // colonne suivante
                 currentX++;
-                if (currentX >= currentMapWidth)
+                if (currentX >= mapMaxX)
                 {
-                    // la carte boucle sur elle-même
-                    currentX = 0;
+                    currentX = mapMinX + 1;
                 }
             }
             monsters.Draw(canvas, scrollX);

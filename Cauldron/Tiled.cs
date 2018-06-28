@@ -22,6 +22,8 @@ namespace Cauldron
 
         public int StartHouse { get; private set; }
         public int StartY { get; private set; }
+        public int MapMinX { get; private set; }
+        public int MapMaxX { get; private set; }
 
         public Int16[,] Terrain;
         public Int16[,] Items;
@@ -66,6 +68,8 @@ namespace Cauldron
             int x, y, width, height, index;
             string[] values;
             bool chunkPresent = false;
+            MapMinX = MapWidth;
+            MapMaxX = 0;
             foreach (XElement xChunk in element.Elements("chunk"))
             {
                 chunkPresent = true;
@@ -84,8 +88,20 @@ namespace Cauldron
                         if (values[index].Equals("701"))
                         {
                             StartHouse = x + i;
-                            StartY = y + j;
+                            StartY = y + j + 3;
                             System.Diagnostics.Debug.WriteLine(String.Format("House @ {0}x{1}", StartHouse, StartY));
+                        }
+                        else if (values[index].Equals("11")) // limite gauche/droite du terrain
+                        {
+                            if ((x + i) > MapMaxX)
+                            {
+                                MapMaxX = x + i;
+                            }
+                            else
+                            {
+                                if ((x + i) < MapMinX)
+                                    MapMinX = x + i;
+                            }
                         }
 
                         Terrain[x + i, y + j] = Convert.ToInt16(values[index]);
@@ -95,6 +111,8 @@ namespace Cauldron
             }
             if (!chunkPresent)
             {
+                MapMinX = MapWidth;
+                MapMaxX = 0;
                 values = element.Value.Replace("\n", "").Split(',');
                 index = 0;
                 for (int j = 0; j < MapHeight; j++)
@@ -104,15 +122,28 @@ namespace Cauldron
                         // position du pot dans la maison
                         if (values[index].Equals("1165"))
                         {
-                            StartHouse = i;
-                            StartY = j;
+                            StartHouse = i - 2;
+                            StartY = j - 2;
                             System.Diagnostics.Debug.WriteLine(String.Format("Vial @ {0}x{1}", StartHouse, StartY));
+                        }
+                        else if (values[index].Equals("11")) // limite gauche/droite du terrain
+                        {
+                            if (i > MapMaxX)
+                            {
+                                MapMaxX = i;
+                            }
+                            else
+                            {
+                                if (i < MapMinX)
+                                    MapMinX = i;
+                            }
                         }
                         Terrain[i, j] = Convert.ToInt16(values[index]);
                         index++;
                     }
                 }
             }
+            System.Diagnostics.Debug.WriteLine(String.Format("Map from {0} to {1}", MapMinX, MapMaxX));
         } // ProcessTerrain
 
         private void ProcessItems(XElement element)

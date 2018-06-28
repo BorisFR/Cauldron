@@ -6,15 +6,12 @@
    <property name="generator" value="bat_2"/>
   </properties>
  </tile>
- <tile id="64">
+ <tile id="65">
   <properties>
    <property name="item" value="key_red"/>
   </properties>
  </tile>
  <tile id="68">
-  <properties>
-   <property name="item" value="energy"/>
-  </properties>
   <animation>
    <frame tileid="68" duration="100"/>
    <frame tileid="72" duration="100"/>
@@ -23,6 +20,9 @@
   </animation>
  </tile>
  <tile id="69">
+  <properties>
+   <property name="item" value="energy"/>
+  </properties>
   <animation>
    <frame tileid="69" duration="100"/>
    <frame tileid="73" duration="100"/>
@@ -38,7 +38,7 @@
    <frame tileid="82" duration="100"/>
   </animation>
  </tile>
- <tile id="164">
+ <tile id="165">
   <properties>
    <property name="item" value="key_blue"/>
   </properties>
@@ -72,7 +72,7 @@
    <property name="generator" value="bat_1"/>
   </properties>
  </tile>
- <tile id="264">
+ <tile id="265">
   <properties>
    <property name="item" value="key_purple"/>
   </properties>
@@ -86,14 +86,14 @@
   </animation>
  </tile>
  <tile id="364">
-  <properties>
-   <property name="item" value="key_green"/>
-  </properties>
   <objectgroup draworder="index">
    <object id="1" x="0.96875" y="3" width="7.03125" height="4.9375"/>
   </objectgroup>
  </tile>
  <tile id="365">
+  <properties>
+   <property name="item" value="key_green"/>
+  </properties>
   <objectgroup draworder="index">
    <object id="1" x="0" y="3.9375" width="7.9375" height="1.09375"/>
   </objectgroup>
@@ -623,9 +623,6 @@
   </animation>
  </tile>
  <tile id="4468">
-  <properties>
-   <property name="item" value="plant1"/>
-  </properties>
   <animation>
    <frame tileid="4468" duration="100"/>
    <frame tileid="4472" duration="100"/>
@@ -638,6 +635,9 @@
   </animation>
  </tile>
  <tile id="4469">
+  <properties>
+   <property name="item" value="plant1"/>
+  </properties>
   <animation>
    <frame tileid="4469" duration="100"/>
    <frame tileid="4473" duration="100"/>
@@ -786,9 +786,6 @@
   </animation>
  </tile>
  <tile id="4968">
-  <properties>
-   <property name="item" value="plant2"/>
-  </properties>
   <animation>
    <frame tileid="4968" duration="100"/>
    <frame tileid="4972" duration="100"/>
@@ -801,6 +798,9 @@
   </animation>
  </tile>
  <tile id="4969">
+  <properties>
+   <property name="item" value="plant2"/>
+  </properties>
   <animation>
    <frame tileid="4969" duration="100"/>
    <frame tileid="4973" duration="100"/>
