@@ -37,7 +37,8 @@ namespace Cauldron
         RightFlyMax,
         EnteringDoor,
         ExitingDoor,
-        MakePotion
+        MakePotion,
+        Dying
     }
 
     public enum PointsType

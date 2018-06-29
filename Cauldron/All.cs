@@ -116,6 +116,7 @@ namespace Cauldron
             Lives--;
             if (Lives < 0)
                 Lives = 9;
+            Witch.DoDying();
         }
 
         // *********************************************************************
@@ -132,7 +133,10 @@ namespace Cauldron
         {
             Magic -= (int)amount;
             if (Magic < 0)
+            {
                 Magic = 99;
+                LooseLive();
+            }
             MagicText = String.Format("{0:00}%", Magic);
         }
 

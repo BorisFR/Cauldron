@@ -428,7 +428,7 @@ namespace Cauldron
                                     isDelete = true;
                                     All.AddPoints(PointsType.Kill_Bat_1);
                                     All.LooseMagic(MagicLoose.Kill_Bat_1);
-                                    All.LooseLive();
+                                    //All.LooseLive();
                                 }
                                 break;
                             case MonsterType.Bat_2:
@@ -438,7 +438,7 @@ namespace Cauldron
                                     isDelete = true;
                                     All.AddPoints(PointsType.Kill_Bat_2);
                                     All.LooseMagic(MagicLoose.Kill_Bat_2);
-                                    All.LooseLive();
+                                    //All.LooseLive();
                                 }
                                 break;
                             case MonsterType.Ghost:
@@ -448,16 +448,16 @@ namespace Cauldron
                                     isDelete = true;
                                     All.AddPoints(PointsType.Kill_Ghost);
                                     All.LooseMagic(MagicLoose.Kill_Ghost);
-                                    All.LooseLive();
+                                    //All.LooseLive();
                                 }
                                 break;
                             case MonsterType.Plant1:
                                 if (All.IsCollision(monster.X, monster.Y, spritesGhost[monster.AnimationStep].Source,
                                                     All.Witch.X, All.Witch.Y, All.Witch.Source))
                                 {
-                                    isDelete = true;
+                                    //isDelete = true;
                                     All.AddPoints(PointsType.Kill_Plant_1);
-                                    All.LooseMagic(MagicLoose.Kill_Plant_1);
+                                    //All.LooseMagic(MagicLoose.Kill_Plant_1);
                                     All.LooseLive();
                                 }
                                 break;
@@ -465,9 +465,9 @@ namespace Cauldron
                                 if (All.IsCollision(monster.X, monster.Y, spritesGhost[monster.AnimationStep].Source,
                                                     All.Witch.X, All.Witch.Y, All.Witch.Source))
                                 {
-                                    isDelete = true;
+                                    //isDelete = true;
                                     All.AddPoints(PointsType.Kill_Plant_2);
-                                    All.LooseMagic(MagicLoose.Kill_Plant_2);
+                                    //All.LooseMagic(MagicLoose.Kill_Plant_2);
                                     All.LooseLive();
                                 }
                                 break;
@@ -475,9 +475,9 @@ namespace Cauldron
                                 if (All.IsCollision(monster.X, monster.Y, spritesGhost[monster.AnimationStep].Source,
                                                     All.Witch.X, All.Witch.Y, All.Witch.Source))
                                 {
-                                    isDelete = true;
+                                    //isDelete = true;
                                     All.AddPoints(PointsType.Kill_Shark);
-                                    All.LooseMagic(MagicLoose.Kill_Shark);
+                                    //All.LooseMagic(MagicLoose.Kill_Shark);
                                     All.LooseLive();
                                 }
                                 break;

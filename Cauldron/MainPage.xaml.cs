@@ -178,6 +178,7 @@ namespace Cauldron
             All.Witch.MinY = 1 * All.TileHeight;
             All.Witch.MaxY = All.Witch.Y;
             All.Witch.CouldFly = true;
+            All.Witch.DoAlive();
             All.Witch.DoWalk();
             blockDisplay = false;
         }
@@ -199,6 +200,7 @@ namespace Cauldron
             All.Witch.MinY = All.Witch.Y;
             All.Witch.MaxY = All.Witch.Y;
             All.Witch.CouldFly = false;
+            All.Witch.DoAlive();
             All.Witch.DoPotion();
             blockDisplay = false;
         }
