@@ -387,6 +387,11 @@
    <frame tileid="1398" duration="85"/>
   </animation>
  </tile>
+ <tile id="1984">
+  <properties>
+   <property name="generator" value="shark"/>
+  </properties>
+ </tile>
  <tile id="2400">
   <animation>
    <frame tileid="2400" duration="100"/>

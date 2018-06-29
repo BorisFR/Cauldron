@@ -20,6 +20,8 @@ namespace Cauldron
         List<float[]> patternBat2 = new List<float[]>();
         // Ghost
         List<float[]> patternGhost = new List<float[]>();
+        // Shark
+        List<float[]> patternShark = new List<float[]>();
         TimeSpan gamePatternSpeed = All.FREQUENCY;
         DateTime lastPatternAnim;
 
@@ -36,6 +38,7 @@ namespace Cauldron
         OneSprite[] spritesBat2 = new OneSprite[BAT_SPRITES_MAX];
         const int GHOST_SPRITES_MAX = 8; // nombre d'animations d'un fantôme
         OneSprite[] spritesGhost = new OneSprite[GHOST_SPRITES_MAX];
+        OneSprite spriteShark;
 
         OneSprite spriteExplode;
         Dictionary<int, OneObject> explodes = new Dictionary<int, OneObject>();
@@ -69,6 +72,7 @@ namespace Cauldron
                 spritesGhost[i] = new OneSprite(11 * 100 + 100 - 32, SPRITE_WIDTH, SPRITE_HEIGHT, 8, 120);
                 spritesGhost[i].StepAnim = i % 8;
             }
+            spriteShark = new OneSprite(20 * 100 + 100 - 16, SPRITE_WIDTH, SPRITE_HEIGHT, 1, 0);
 
             // un pattern est constitué d'une suite de couple "mouvement/combien de case(0=infini)"
             // Chauve souris type 1
@@ -94,6 +98,11 @@ namespace Cauldron
             patternGhost.Add(pattern);
             pattern = new float[] { (short)MovingDirection.ToUp, 3.0f, (short)MovingDirection.DiagUpLeft, 1.0f, (short)MovingDirection.DiagDownRightSpeed, 0.8f, (short)MovingDirection.ToLeft, 2.0f, (short)MovingDirection.ToDownSpeed, 1.8f };
             patternGhost.Add(pattern);
+
+
+            // Requin
+            pattern = new float[] { (short)MovingDirection.DiagUpLeftSlow, 0.2f, (short)MovingDirection.ToLeft, 7.0f, (short)MovingDirection.DiagDownLeftSlow, 2.0f };
+            patternShark.Add(pattern);
 
             lastPatternAnim = DateTime.UtcNow;
         }
@@ -137,6 +146,9 @@ namespace Cauldron
                     break;
                 case MonsterType.Ghost:
                     monster.Pattern = patternGhost[All.RND(patternGhost.Count)];
+                    break;
+                case MonsterType.Shark:
+                    monster.Pattern = patternShark[All.RND(patternShark.Count)];
                     break;
             }
             //monster.UsePattern = true;
@@ -334,6 +346,9 @@ namespace Cauldron
                         case MovingDirection.DiagUpLeft:
                             MoveXY(monster, -stepX * 2, -stepY * 2);
                             break;
+                        case MovingDirection.DiagUpLeftSlow:
+                            MoveXY(monster, -stepX, -stepY);
+                            break;
                         case MovingDirection.DiagUpRightSpeed:
                             MoveXY(monster, 3 * stepX, -3 * stepY);
                             break;
@@ -345,6 +360,9 @@ namespace Cauldron
                             break;
                         case MovingDirection.DiagDownLeft:
                             MoveXY(monster, -stepX * 2, stepY * 2);
+                            break;
+                        case MovingDirection.DiagDownLeftSlow:
+                            MoveXY(monster, -stepX, stepY);
                             break;
                         case MovingDirection.DiagDownRightSpeed:
                             MoveXY(monster, 3 * stepX, 3 * stepY);
@@ -433,6 +451,36 @@ namespace Cauldron
                                     All.LooseLive();
                                 }
                                 break;
+                            case MonsterType.Plant1:
+                                if (All.IsCollision(monster.X, monster.Y, spritesGhost[monster.AnimationStep].Source,
+                                                    All.Witch.X, All.Witch.Y, All.Witch.Source))
+                                {
+                                    isDelete = true;
+                                    All.AddPoints(PointsType.Kill_Plant_1);
+                                    All.LooseMagic(MagicLoose.Kill_Plant_1);
+                                    All.LooseLive();
+                                }
+                                break;
+                            case MonsterType.Plant2:
+                                if (All.IsCollision(monster.X, monster.Y, spritesGhost[monster.AnimationStep].Source,
+                                                    All.Witch.X, All.Witch.Y, All.Witch.Source))
+                                {
+                                    isDelete = true;
+                                    All.AddPoints(PointsType.Kill_Plant_2);
+                                    All.LooseMagic(MagicLoose.Kill_Plant_2);
+                                    All.LooseLive();
+                                }
+                                break;
+                            case MonsterType.Shark:
+                                if (All.IsCollision(monster.X, monster.Y, spritesGhost[monster.AnimationStep].Source,
+                                                    All.Witch.X, All.Witch.Y, All.Witch.Source))
+                                {
+                                    isDelete = true;
+                                    All.AddPoints(PointsType.Kill_Shark);
+                                    All.LooseMagic(MagicLoose.Kill_Shark);
+                                    All.LooseLive();
+                                }
+                                break;
                         }
 
                         if (isDelete)
@@ -447,6 +495,30 @@ namespace Cauldron
                             temp.X = monster.X;
                             temp.Y = monster.Y;
                             temp.Moving = MovingDirection.None;
+                            SKColor color = SKColors.BlueViolet;
+                            switch (monster.Category)
+                            {
+                                case MonsterType.Bat_1:
+                                    color = SKColor.Parse("#7F7F7F");
+                                    break;
+                                case MonsterType.Bat_2:
+                                    color = SKColor.Parse("#636563");
+                                    break;
+                                case MonsterType.Ghost:
+                                    color = SKColor.Parse("#FFFFFF");
+                                    break;
+                                case MonsterType.Plant1:
+                                    color = SKColor.Parse("#007F00");
+                                    break;
+                                case MonsterType.Plant2:
+                                    color = SKColor.Parse("#FF00FF");
+                                    break;
+                                case MonsterType.Shark:
+                                    color = SKColor.Parse("#7F7F7F");
+                                    break;
+                            }
+                            SKColorFilter filter = SKColorFilter.CreateBlendMode(color, SKBlendMode.SrcIn);
+                            temp.paintColor = new SKPaint() { ColorFilter = filter };
                             explodes.Add(temp.ID, temp);
                         }
                     } // !isDelete
@@ -509,12 +581,24 @@ namespace Cauldron
                         break;
                 }
             }
+
             foreach (var kvp in explodes)
             {
                 spriteExplode.StepAnim = kvp.Value.Step;
-                spriteExplode.Draw(canvas, kvp.Value.X, kvp.Value.Y, scrollX);
+                spriteExplode.Draw(canvas, kvp.Value.X, kvp.Value.Y, scrollX, kvp.Value.paintColor);
             }
         } // Draw
 
-    }
+        public void DrawOnlyShark(SKCanvas canvas, int scrollX)
+        {
+            foreach (OneMonster monster in monsters)
+            {
+                if (monster.Category == MonsterType.Shark)
+                {
+                    spriteShark.Draw(canvas, monster.X, monster.Y, scrollX);
+                }
+            }
+        }
+    } // Draw
+
 }

@@ -4,6 +4,7 @@
 // */
 
 using System;
+using SkiaSharp;
 
 namespace Cauldron
 {
@@ -71,14 +72,17 @@ namespace Cauldron
         Bat_2,
         Ghost,
         Plant1,
-        Plant2
+        Plant2,
+        Shark
     }
 
     public enum MovingDirection : short
     {
         None,
+        DiagUpLeftSlow,
         DiagUpLeft,
         DiagUpLeftSpeed,
+        DiagDownLeftSlow,
         DiagDownLeft,
         DiagDownLeftSpeed,
         DiagUpRight,
@@ -120,6 +124,7 @@ namespace Cauldron
         public int Step { get; set; }
         public MovingDirection Moving { get; set; }
         public int TimeToLive { get; set; }
+        public SKPaint paintColor { get; set; }
     }
 
 

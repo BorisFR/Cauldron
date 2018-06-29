@@ -49,6 +49,9 @@ namespace Cauldron
         OneSprite spriteKeyGreen;
         OneSprite spriteKeyPink;
 
+        OneSprite spriteWater1;
+        OneSprite spriteWater2;
+
         OneSprite spritePlant1;
         OneSprite spritePlant2;
 
@@ -138,6 +141,9 @@ namespace Cauldron
             {
                 spritesSmoke[i] = new OneSprite(3 * 100 + 100 - 32, 3 * 8, 3 * 8, 7, 105);
             }
+            spriteWater1 = new OneSprite(44 * 100, 2 * All.TileWidth, 1 * All.TileHeight, 16, 100);
+            spriteWater2 = new OneSprite(46 * 100, 2 * All.TileWidth, 1 * All.TileHeight, 16, 100);
+
             spritePlant1 = new OneSprite(44 * 100 + 100 - 32, 4 * All.TileWidth, 3 * All.TileHeight, 8, 147, withSeparator: false);
             spritePlant2 = new OneSprite(49 * 100 + 100 - 32, 4 * All.TileWidth, 3 * All.TileHeight, 8, 135, withSeparator: false);
             monsters = new Monsters(stepX, stepY);
@@ -166,7 +172,7 @@ namespace Cauldron
             currentMapHeight = tiled.MapHeight;
             currentTerrain = tiled.Terrain;
             currentItems = tiled.Items;
-            startMapX = tiled.StartHouse - 6;// + 800;// + 450;
+            startMapX = tiled.StartHouse - 6 + 1100; // + 900;// + 450;
             All.Witch.X = All.MIDDLE_MAP;
             All.Witch.Y = tiled.StartY * All.TileHeight + 3;
             All.Witch.MinY = 1 * All.TileHeight;
@@ -246,6 +252,8 @@ namespace Cauldron
 
                 tempo = DateTime.UtcNow; // pour que tout soit bien synchronisé
                 spriteEnergy.DoAnim(tempo);
+                spriteWater1.DoAnim(tempo);
+                spriteWater2.DoAnim(tempo);
                 for (int i = 0; i < SMOKE_SPRITES_MAX; i++)
                     spritesSmoke[i].DoAnim(tempo);
                 monsters.DoAnim(tempo, All.Witch.X, All.Witch.Y);
@@ -511,6 +519,7 @@ namespace Cauldron
                 // la carte boucle sur elle-même
                 currentX = mapMaxX - 1; // currentMapWidth - 1;
             }
+            monsters.DrawOnlyShark(canvas, scrollX);
             // pour chaque colonne
             for (int i = -1; i < (All.MAP_SHOW + 1); i++) // 1 colonne avant et après
             {
@@ -525,16 +534,39 @@ namespace Cauldron
                         //CopyPixels(tile, i, j);
 
                         int x, y, a, b;
-                        // position de la source
-                        x = (tile % 100) * All.TileWidthScale;
-                        y = (tile / 100) * All.TileHeightScale;
-                        drawSource = new SKRect(x, y, x + All.TileWidthScale, y + All.TileHeightScale);
-                        // position de la cible
-                        a = i * All.TileWidthScale + All.DECAL_MAP_X + scrollX;
-                        b = j * All.TileHeightScale + All.DECAL_MAP_Y;
-                        drawDestination = new SKRect(a, b, a + All.TileWidthScale, b + All.TileHeightScale);
-                        // on effectue l'affichage
-                        canvas.DrawBitmap(All.TilesScale, drawSource, drawDestination);
+                        bool generator = false;
+
+                        // un attribut particulier sur la tile ?
+                        if (tiled.Tiles.ContainsKey(tile))
+                        {
+                            Tile t = tiled.Tiles[tile];
+                            switch (t.Name)
+                            {
+                                case "generator":
+                                    switch (t.Content)
+                                    {
+
+                                        case "shark":
+                                            monsters.Generator(MonsterType.Shark, currentX, i * All.TileWidth, j * All.TileHeight);
+                                            generator = true;
+                                            break;
+                                    }
+                                    break;
+                            }
+                        }
+                        if (!generator)
+                        {
+                            // position de la source
+                            x = (tile % 100) * All.TileWidthScale;
+                            y = (tile / 100) * All.TileHeightScale;
+                            drawSource = new SKRect(x, y, x + All.TileWidthScale, y + All.TileHeightScale);
+                            // position de la cible
+                            a = i * All.TileWidthScale + All.DECAL_MAP_X + scrollX;
+                            b = j * All.TileHeightScale + All.DECAL_MAP_Y;
+                            drawDestination = new SKRect(a, b, a + All.TileWidthScale, b + All.TileHeightScale);
+                            // on effectue l'affichage
+                            canvas.DrawBitmap(All.TilesScale, drawSource, drawDestination);
+                        }
                     }
                 }
                 // colonne suivante
@@ -619,7 +651,10 @@ namespace Cauldron
                                             spritePlant2.Draw(canvas, x - All.TileWidth, y, scrollX);
                                             break;
                                         case "water":
-                                            spriteKeyPink.Draw(canvas, x, y, scrollX); // TODO: change gfx ;)
+                                            spriteWater1.Draw(canvas, x, y, scrollX);
+                                            break;
+                                        case "shark":
+                                            monsters.Generator(MonsterType.Shark, currentX, x, y + 2 * All.TileHeight);
                                             break;
                                     }
                                     break;
