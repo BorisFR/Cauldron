@@ -21,6 +21,10 @@ namespace Cauldron
         public int TileHeight { get; private set; }
 
         public int StartHouse { get; private set; }
+        public int StartDoorGreen { get; private set; }
+        public int StartDoorBlue { get; private set; }
+        public int StartDoorRed { get; private set; }
+        public int StartDoorPurple { get; private set; }
         public int StartY { get; private set; }
         public int MapMinX { get; private set; }
         public int MapMaxX { get; private set; }
@@ -87,7 +91,7 @@ namespace Cauldron
                         // position de la maison
                         if (values[index].Equals("701"))
                         {
-                            StartHouse = x + i;
+                            StartHouse = x + i - 6;
                             StartY = y + j + 3;
                             System.Diagnostics.Debug.WriteLine(String.Format("House @ {0}x{1}", StartHouse, StartY));
                         }
@@ -106,6 +110,29 @@ namespace Cauldron
 
                         Terrain[x + i, y + j] = Convert.ToInt16(values[index]);
                         index++;
+                        if (Tiles.ContainsKey(Terrain[x + i, y + j]))
+                        {
+                            switch (Tiles[Terrain[x + i, y + j]].Name)
+                            {
+                                case "position":
+                                    switch (Tiles[Terrain[x + i, y + j]].Content)
+                                    {
+                                        case "door_red":
+                                            StartDoorRed = x + i - 11;
+                                            break;
+                                        case "door_blue":
+                                            StartDoorBlue = x + i - 11;
+                                            break;
+                                        case "door_green":
+                                            StartDoorGreen = x + i - 11;
+                                            break;
+                                        case "door_purple":
+                                            StartDoorPurple = x + i - 11;
+                                            break;
+                                    }
+                                    break;
+                            }
+                        }
                     }
                 }
             }

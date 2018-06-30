@@ -16,11 +16,13 @@ namespace Cauldron
         OneSprite toRight;
         OneSprite spriteMakePotion;
         OneSprite spriteDying;
+        OneSprite spriteExitingDoor;
         WitchState state;
         int currentStep;
         DateTime startAnim;
         TimeSpan animElaps;
         bool moving;
+        bool couldScroll;
 
         const float SPEED_SLOW = 1.6f;
         const float SPEED_MAX = 8.0f;
@@ -36,6 +38,7 @@ namespace Cauldron
         int stepY;
         int rightX;
         public bool CouldFly { get; set; }
+        bool exitDoorOk;
 
         const int ANIM_DELAY_WALK = 70;
         const int ANIM_DELAY_MOUNT = 80;
@@ -55,6 +58,7 @@ namespace Cauldron
             toRight = new OneSprite(24 * 100, 16, 21, 18, 100, true);
             spriteMakePotion = new OneSprite(32 * 100, 16, 21, 3, 80, true);
             spriteDying = new OneSprite(38 * 100, 16, 21, 8, 80, true);
+            spriteExitingDoor = new OneSprite(28 * 100 + 14, 16, 21, 3, 140, true);
             currentStep = 0;
             toRight.SetAnimSteps(currentStep, currentStep, 0);
             ChangeToState(WitchState.RightWalk);
@@ -182,6 +186,20 @@ namespace Cauldron
 
         // *********************************************************************
 
+        public void BlockScroll()
+        {
+            couldScroll = false;
+        }
+
+        // *********************************************************************
+
+        public void AuthorizeScroll()
+        {
+            couldScroll = true;
+        }
+
+        // *********************************************************************
+
         public void DoDying()
         {
             ChangeToState(WitchState.Dying);
@@ -192,6 +210,7 @@ namespace Cauldron
 
         public void DoAlive()
         {
+            couldScroll = true;
             state = WitchState.MakePotion;
             PrintState();
         }
@@ -203,6 +222,19 @@ namespace Cauldron
             ChangeToState(WitchState.MakePotion);
             PrintState();
         }
+
+        // *********************************************************************
+
+        public void DoExitDoor()
+        {
+            exitDoorOk = false;
+            ChangeToState(WitchState.ExitingDoor);
+            currentStep = 0;
+            spriteExitingDoor.SetAnimSteps(currentStep, currentStep, 0);
+            PrintState();
+        }
+
+        public bool IsExitDoorDone { get { return exitDoorOk; } }
 
         // *********************************************************************
 
@@ -268,15 +300,16 @@ namespace Cauldron
                     toRight.SetAnimSteps(10, 13, ANIM_DELAY_FLY_MAX);
                     animElaps = TimeSpan.FromMilliseconds(ANIM_DELAY_FLY_MAX);
                     break;
-                case WitchState.EnteringDoor:
-                    break;
-                case WitchState.ExitingDoor:
-                    break;
                 case WitchState.MakePotion:
                     animElaps = TimeSpan.FromMilliseconds(ANIM_DELAY_MAKE_POTION);
                     break;
                 case WitchState.Dying:
                     animElaps = TimeSpan.FromMilliseconds(ANIM_DELAY_DYING);
+                    break;
+                case WitchState.ExitingDoor:
+                    animElaps = TimeSpan.FromMilliseconds(ANIM_DELAY_MAKE_POTION);
+                    break;
+                case WitchState.EnteringDoor:
                     break;
             }
             state = newState;
@@ -363,6 +396,18 @@ namespace Cauldron
                 case WitchState.Dying:
                     spriteDying.DoAnim(time);
                     break;
+                case WitchState.ExitingDoor:
+                    spriteExitingDoor.DoAnim(time);
+                    currentStep = spriteExitingDoor.StepAnim;
+                    if (currentStep == 2)
+                        exitDoorOk = true;
+                    else
+                    {
+                        currentStep++;
+                        spriteExitingDoor.SetAnimSteps(currentStep, currentStep, 0);
+                        PrintState();
+                    }
+                    break;
             }
         }
 
@@ -393,6 +438,9 @@ namespace Cauldron
                     break;
                 case WitchState.Dying:
                     spriteDying.Draw(canvas, X, Y);
+                    break;
+                case WitchState.ExitingDoor:
+                    spriteExitingDoor.Draw(canvas, X, Y);
                     break;
             }
         }
@@ -498,6 +546,11 @@ namespace Cauldron
                         X += 1;
                         return 0.0f;
                     }
+                    if (!couldScroll)
+                    {
+                        X += 1;
+                        return 0.0f;
+                    }
                     // TODO: changer ça si on veut bloquer le scroll de la carte (sous terrain)
                     // faire plutôt X+=1 et retourner 0.0f
                     return SPEED_SLOW;
@@ -543,6 +596,11 @@ namespace Cauldron
             {
                 case WitchState.LeftWalk:
                     if (X > All.MIDDLE_MAP)
+                    {
+                        X -= 1;
+                        return 0.0f;
+                    }
+                    if (!couldScroll)
                     {
                         X -= 1;
                         return 0.0f;

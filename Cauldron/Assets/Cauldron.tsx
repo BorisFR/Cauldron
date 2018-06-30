@@ -168,6 +168,11 @@
    <frame tileid="493" duration="100"/>
   </animation>
  </tile>
+ <tile id="558">
+  <properties>
+   <property name="position" value="door_blue"/>
+  </properties>
+ </tile>
  <tile id="564">
   <properties>
    <property name="item" value="vial"/>
@@ -269,6 +274,11 @@
    <frame tileid="982" duration="80"/>
   </animation>
  </tile>
+ <tile id="1036">
+  <properties>
+   <property name="position" value="door_purple"/>
+  </properties>
+ </tile>
  <tile id="1164">
   <properties>
    <property name="position" value="pot"/>
@@ -313,6 +323,11 @@
  <tile id="1206">
   <properties>
    <property name="position" value="house"/>
+  </properties>
+ </tile>
+ <tile id="1223">
+  <properties>
+   <property name="position" value="door_green"/>
   </properties>
  </tile>
  <tile id="1268">
@@ -912,5 +927,10 @@
    <frame tileid="5194" duration="100"/>
    <frame tileid="5198" duration="100"/>
   </animation>
+ </tile>
+ <tile id="7283">
+  <properties>
+   <property name="position" value="door_red"/>
+  </properties>
  </tile>
 </tileset>

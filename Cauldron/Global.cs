@@ -41,7 +41,30 @@ namespace Cauldron
         Dying
     }
 
-    public enum PointsType
+    public enum GameLocation : byte
+    {
+        AtHouse,
+        AtGreenDoor,
+        AtBlueDoor,
+        AtRedDoor,
+        AtPurpleDoor
+    }
+
+    public enum ScriptState : byte
+    {
+        None,
+
+        // In House
+        WalkingToPotion,
+        MakingPotion,
+        ExitingHouse,
+
+        EnteringDoor,
+        ExitDoor,
+        WalkingToRight
+    }
+
+    public enum PointsType : byte
     {
         Kill_Bat_1 = 20,
         Kill_Bat_2 = 40,
@@ -53,7 +76,7 @@ namespace Cauldron
         Kill_Firebal = 75,
     }
 
-    public enum MagicLoose
+    public enum MagicLoose : byte
     {
         Kill_Bat_1 = 10,
         Kill_Bat_2 = 15,
@@ -67,7 +90,7 @@ namespace Cauldron
         Shoot = 1,
     }
 
-    public enum MonsterType
+    public enum MonsterType : byte
     {
         Bat_1,
         Bat_2,

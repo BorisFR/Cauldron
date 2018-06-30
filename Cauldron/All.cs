@@ -43,7 +43,7 @@ namespace Cauldron
         public static int SPEED_DELTA_X;
 
         public const int DECAL_MAP_X = -8; // 8; // 48;
-        public const int DECAL_MAP_Y = 5 * 8 * 1; // ** /!\ ** ce dernier doit être égal à GAME_SCALE...
+        public const int DECAL_MAP_Y = 5 * 8 * 1 - 2; // ** /!\ ** ce dernier doit être égal à GAME_SCALE...
         public const float GAME_SCALE = 1.0f;
 
         public static SKBitmap Tiles;

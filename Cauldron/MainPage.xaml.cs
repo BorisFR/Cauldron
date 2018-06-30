@@ -33,6 +33,10 @@ namespace Cauldron
         TimeSpan gameSpeed = All.FREQUENCY;
         DateTime lastGameAnim;
 
+        GameLocation gameLocation;
+        ScriptState scriptMode;
+        DateTime scriptLastTime;
+        int scriptValue;
 
         //SKColor[] pixels;
         //SKBitmap bmpPixels;
@@ -49,11 +53,7 @@ namespace Cauldron
         OneSprite spriteKeyGreen;
         OneSprite spriteKeyPink;
 
-        OneSprite spriteWater1;
-        OneSprite spriteWater2;
-        TimeSpan tsWater = TimeSpan.FromMilliseconds(2500);
-        DateTime lastChangeWater;
-        bool isWater1;
+        OneSprite spriteWater;
 
 
         OneSprite spritePlant1;
@@ -134,7 +134,8 @@ namespace Cauldron
             All.Witch.MaxY = All.Witch.Y;
             keyFireMustBeRelease = false;
 
-            spriteBullet = new OneSprite(0 * 100 + 100 - 16, 3 * 8, 3 * 8, 4, 40);
+            spriteEnergy = new OneSprite(0 * 100 + 100 - 16, 3 * 8, 3 * 8, 4, 20);
+            spriteBullet = new OneSprite(0 * 100 + 100 - 32, 3 * 8, 3 * 8, 4, 40);
             bulletDecalLeftFromWitch = Convert.ToInt32(3 * 8 / 2) + Convert.ToInt32(0.5f * 8 / 2);
             bulletDecalRightFromWitch = Convert.ToInt32(3 * 8 / 2) - Convert.ToInt32(0.5f * 8 / 2);
 
@@ -144,19 +145,17 @@ namespace Cauldron
             spriteKeyGreen = new OneSprite(3 * 100 + 64, 3 * 8, 1 * 8, 1, 0);
             spriteMoon = new OneSprite(15 * 100 + 30, 6 * 8, 5 * 8, 1, 0);
             spriteSheepSkin = new OneSprite(15 * 100 + 21, 7 * 8, 4 * 8, 1, 0);
-            spriteEnergy = new OneSprite(0 * 100 + 100 - 32, 3 * 8, 3 * 8, 4, 20);
             for (int i = 0; i < SMOKE_SPRITES_MAX; i++)
             {
                 spritesSmoke[i] = new OneSprite(3 * 100 + 100 - 32, 3 * 8, 3 * 8, 7, 105);
             }
-            spriteWater1 = new OneSprite(44 * 100, 2 * All.TileWidth, 1 * All.TileHeight, 16, 100);
-            spriteWater2 = new OneSprite(46 * 100, 2 * All.TileWidth, 1 * All.TileHeight, 16, 100);
-            isWater1 = true;
+            spriteWater = new OneSprite(44 * 100, 2 * All.TileWidth, 1 * All.TileHeight, 6, 140, withSeparator: false);
 
             spritePlant1 = new OneSprite(44 * 100 + 100 - 32, 4 * All.TileWidth, 3 * All.TileHeight, 8, 147, withSeparator: false);
             spritePlant2 = new OneSprite(49 * 100 + 100 - 32, 4 * All.TileWidth, 3 * All.TileHeight, 8, 135, withSeparator: false);
             monsters = new Monsters(stepX, stepY);
 
+            gameLocation = GameLocation.AtRedDoor;
 
             //StartInHouse();
             StartOutside();
@@ -166,7 +165,6 @@ namespace Cauldron
             lastScroll = DateTime.UtcNow;
             lastGameAnim = DateTime.UtcNow;
             lastFps = DateTime.UtcNow;
-            lastChangeWater = DateTime.UtcNow;
 
             GameLoop();
         }
@@ -197,7 +195,6 @@ namespace Cauldron
             System.Diagnostics.Debug.WriteLine(String.Format("Touched: {0}", e.Location));
         }
 
-
         public void StartOutside()
         {
             blockDisplay = true;
@@ -209,15 +206,40 @@ namespace Cauldron
             currentMapHeight = tiled.MapHeight;
             currentTerrain = tiled.Terrain;
             currentItems = tiled.Items;
-            startMapX = tiled.StartHouse - 6 + 1100; // + 900;// + 450;
-            All.Witch.X = All.MIDDLE_MAP;
+            switch (gameLocation)
+            {
+                case GameLocation.AtBlueDoor:
+                    startMapX = tiled.StartDoorBlue;
+                    gameLocation = GameLocation.AtGreenDoor;
+                    break;
+                case GameLocation.AtGreenDoor:
+                    startMapX = tiled.StartDoorGreen;
+                    gameLocation = GameLocation.AtPurpleDoor;
+                    break;
+                case GameLocation.AtPurpleDoor:
+                    startMapX = tiled.StartDoorPurple;
+                    gameLocation = GameLocation.AtRedDoor;
+                    break;
+                case GameLocation.AtRedDoor:
+                    startMapX = tiled.StartDoorRed;
+                    gameLocation = GameLocation.AtHouse;
+                    break;
+                case GameLocation.AtHouse:
+                    startMapX = tiled.StartHouse;
+                    gameLocation = GameLocation.AtBlueDoor;
+                    break;
+            }
+            All.Witch.X = 13 * All.TileWidth;
             All.Witch.Y = tiled.StartY * All.TileHeight + 3;
             All.Witch.MinY = 1 * All.TileHeight;
             All.Witch.MaxY = All.Witch.Y;
             All.Witch.CouldFly = true;
             All.Witch.DoAlive();
-            All.Witch.DoWalk();
+            All.Witch.DoExitDoor();
             blockDisplay = false;
+            scriptMode = ScriptState.ExitDoor;
+            scriptValue = All.Witch.X + 7 * All.TileWidth;
+            All.Witch.AuthorizeScroll();
         }
 
         public void StartInHouse()
@@ -232,14 +254,17 @@ namespace Cauldron
             currentTerrain = tiledHouse.Terrain;
             currentItems = tiledHouse.Items;
             startMapX = mapMinX;
-            All.Witch.X = tiledHouse.StartHouse * All.TileWidth - 2;
+            All.Witch.X = (tiledHouse.StartHouse - 5) * All.TileWidth;
             All.Witch.Y = tiledHouse.StartY * All.TileHeight + 3;
             All.Witch.MinY = All.Witch.Y;
             All.Witch.MaxY = All.Witch.Y;
             All.Witch.CouldFly = false;
             All.Witch.DoAlive();
-            All.Witch.DoPotion();
+            All.Witch.DoWalk();
             blockDisplay = false;
+            scriptMode = ScriptState.WalkingToPotion;
+            scriptValue = tiledHouse.StartHouse * All.TileWidth - 2; // potion to stop walking
+            All.Witch.BlockScroll();
         }
 
         // *********************************************************************
@@ -291,8 +316,7 @@ namespace Cauldron
 
                 tempo = DateTime.UtcNow; // pour que tout soit bien synchronisé
                 spriteEnergy.DoAnim(tempo);
-                spriteWater1.DoAnim(tempo);
-                spriteWater2.DoAnim(tempo);
+                spriteWater.DoAnim(tempo);
                 for (int i = 0; i < SMOKE_SPRITES_MAX; i++)
                     spritesSmoke[i].DoAnim(tempo);
                 monsters.DoAnim(tempo, All.Witch.X, All.Witch.Y);
@@ -300,11 +324,6 @@ namespace Cauldron
                 spritePlant1.DoAnim(tempo);
                 spritePlant2.DoAnim(tempo);
 
-                if ((tempo - lastChangeWater) > tsWater)
-                {
-                    lastChangeWater = tempo;
-                    isWater1 = !isWater1;
-                }
 
                 if ((tempo - lastScroll) >= scrollDelay)
                 {
@@ -339,26 +358,26 @@ namespace Cauldron
                         switch (kvp.Value.Moving)
                         {
                             case MovingDirection.ToLeft:
-                                bullets[kvp.Key].X -= stepX * 3;
+                                bullets[kvp.Key].X -= stepX * 6;
                                 break;
                             case MovingDirection.ToRight:
-                                bullets[kvp.Key].X += stepX * 3;
+                                bullets[kvp.Key].X += stepX * 6;
                                 break;
                             case MovingDirection.DiagUpLeft:
-                                bullets[kvp.Key].X -= stepX * 3;
-                                bullets[kvp.Key].Y -= stepX * 2;
+                                bullets[kvp.Key].X -= stepX * 6;
+                                bullets[kvp.Key].Y -= stepX * 4;
                                 break;
                             case MovingDirection.DiagDownLeft:
-                                bullets[kvp.Key].X -= stepX * 3;
-                                bullets[kvp.Key].Y += stepX * 2;
+                                bullets[kvp.Key].X -= stepX * 6;
+                                bullets[kvp.Key].Y += stepX * 4;
                                 break;
                             case MovingDirection.DiagUpRight:
-                                bullets[kvp.Key].X += stepX * 3;
-                                bullets[kvp.Key].Y -= stepX * 2;
+                                bullets[kvp.Key].X += stepX * 6;
+                                bullets[kvp.Key].Y -= stepX * 4;
                                 break;
                             case MovingDirection.DiagDownRight:
-                                bullets[kvp.Key].X += stepX * 3;
-                                bullets[kvp.Key].Y += stepX * 2;
+                                bullets[kvp.Key].X += stepX * 6;
+                                bullets[kvp.Key].Y += stepX * 4;
                                 break;
                         }
                         if ((tempo - kvp.Value.Start) < bulletElaps)
@@ -423,9 +442,81 @@ namespace Cauldron
                     }
 
 
+                    switch (scriptMode)
+                    {
+                        case ScriptState.ExitDoor:
+                            if (All.Witch.IsExitDoorDone)
+                            {
+                                System.Diagnostics.Debug.WriteLine("Stop exiting door, now walking to right");
+                                scriptMode = ScriptState.WalkingToRight;
+                                All.Witch.DoWalk();
+                                All.Witch.BlockScroll();
+                            }
+                            else
+                            {
+                                System.Diagnostics.Debug.WriteLine("Exiting door");
+                            }
+                            break;
+                        case ScriptState.WalkingToRight:
+                            if (All.Witch.X < scriptValue)
+                            {
+                                System.Diagnostics.Debug.WriteLine("Walking to right");
+                                All.Witch.MoveToRight();
+                            }
+                            else
+                            {
+                                System.Diagnostics.Debug.WriteLine("Finish!");
+                                scriptMode = ScriptState.None;
+                                All.Witch.AuthorizeScroll();
+                                All.Witch.MoveStop();
+                            }
+                            break;
+                        case ScriptState.WalkingToPotion:
+                            if (All.Witch.X < scriptValue)
+                            {
+                                System.Diagnostics.Debug.WriteLine("In House, walking to right");
+                                All.Witch.MoveToRight();
+                            }
+                            else
+                            {
+                                System.Diagnostics.Debug.WriteLine("In House, stop walking to right, now making potion");
+                                scriptMode = ScriptState.MakingPotion;
+                                All.Witch.DoPotion();
+                                scriptValue = 5000;
+                                scriptLastTime = tempo;
+                            }
+                            break;
+                        case ScriptState.MakingPotion:
+                            if ((tempo - scriptLastTime) > TimeSpan.FromMilliseconds(scriptValue))
+                            {
+                                System.Diagnostics.Debug.WriteLine("In House, stop making potion, start walking to left");
+                                scriptMode = ScriptState.ExitingHouse;
+                                scriptValue = (tiledHouse.StartHouse - 6) * All.TileWidth;
+                                All.Witch.DoWalk();
+                            }
+                            else
+                            {
+                                System.Diagnostics.Debug.WriteLine("In House, making potion");
+                            }
+                            break;
+                        case ScriptState.ExitingHouse:
+                            if (All.Witch.X > scriptValue)
+                            {
+                                System.Diagnostics.Debug.WriteLine("In House, walking to left");
+                                All.Witch.MoveToLeft();
+                            }
+                            else
+                            {
+                                System.Diagnostics.Debug.WriteLine("In House, finish!");
+                                StartOutside();
+                                return true;
+                            }
+                            break;
+                    }
+
                 } // lastGameAnim
 
-                if (!All.KeyLeft && !All.KeyRight)
+                if (!All.KeyLeft && !All.KeyRight && scriptMode == ScriptState.None)
                 {
                     All.Witch.MoveStop();
                 }
@@ -463,9 +554,11 @@ namespace Cauldron
                             else
                                 temp.X = All.Witch.BulletX - bulletDecalRightFromWitch;
                             if (temp.Moving != MovingDirection.None)
+                            {
                                 bullets.Add(temp.ID, temp);
+                                All.LooseMagic(MagicLoose.Shoot);
+                            }
                             keyFireMustBeRelease = true;
-                            All.LooseMagic(MagicLoose.Shoot);
                         }
                     }
                 }
@@ -726,10 +819,7 @@ namespace Cauldron
                                             spritePlant2.Draw(canvas, x - All.TileWidth, y, scrollX);
                                             break;
                                         case "water":
-                                            if (isWater1)
-                                                spriteWater1.Draw(canvas, x, y, scrollX);
-                                            else
-                                                spriteWater2.Draw(canvas, x, y, scrollX);
+                                            spriteWater.Draw(canvas, x, y, scrollX);
                                             break;
                                         case "shark":
                                             monsters.Generator(MonsterType.Shark, currentX, x, y + 2 * All.TileHeight);
@@ -835,14 +925,14 @@ namespace Cauldron
 
 
             // affichage des infos
-            spriteSheepSkin.Draw(canvas, 1 * All.TileWidth, -5 * All.TileHeight - 0);
-            spriteSheepSkin.Draw(canvas, (All.MAP_SHOW - 7 + 0) * All.TileWidth, -5 * All.TileHeight - 0);
+            spriteSheepSkin.Draw(canvas, 1 * All.TileWidth + 1, -5 * All.TileHeight + 3);
+            spriteSheepSkin.Draw(canvas, (All.MAP_SHOW - 7 + 0) * All.TileWidth - 1, -5 * All.TileHeight + 3);
 
-            typo.Write(canvas, "SCORE", 10 * All.TileWidth, -5 * All.TileHeight);
-            typo.Write(canvas, All.ScoreText, 8 * All.TileWidth, -4 * All.TileHeight + 1);
-            typo.Write(canvas, "MAGIC", 10 * All.TileWidth, -3 * All.TileHeight + 2);
-            typo.Write(canvas, All.MagicText, 10 * All.TileWidth, -2 * All.TileHeight + 3);
-            typo.Write(canvas, "HAGS", 28 * All.TileWidth, -5 * All.TileHeight);
+            typo.Write(canvas, "SCORE", 10 * All.TileWidth, -5 * All.TileHeight + 3);
+            typo.Write(canvas, All.ScoreText, 9 * All.TileWidth, -4 * All.TileHeight + 4);
+            typo.Write(canvas, "MAGIC", 10 * All.TileWidth, -3 * All.TileHeight + 5);
+            typo.Write(canvas, All.MagicText, 11 * All.TileWidth, -2 * All.TileHeight + 6);
+            typo.Write(canvas, "HAGS", 28 * All.TileWidth, -5 * All.TileHeight + 3);
 
             int xx, yy; float aa, bb;
             tile = 8; // tête de sorcière
@@ -859,7 +949,7 @@ namespace Cauldron
                     {
                         // position de la cible
                         aa = All.DECAL_MAP_X + (27 + ii * 2) * All.TileWidthScale + ii * All.GAME_SCALE;
-                        bb = All.DECAL_MAP_Y - (4 - jj) * All.TileHeightScale + jj * All.GAME_SCALE;
+                        bb = All.DECAL_MAP_Y - (4 - jj) * All.TileHeightScale + jj * All.GAME_SCALE + 3;
                         drawDestination = new SKRect(aa, bb, aa + All.TileWidthScale * 2, bb + All.TileHeightScale);
                         // on effectue l'affichage
                         //canvas.DrawBitmap(All.TilesScale, drawSource, drawDestination);
@@ -870,19 +960,19 @@ namespace Cauldron
             }
             if (All.HasKeyRed)
             {
-                spriteKeyRed.Draw(canvas, 17 * All.TileWidth, -5 * All.TileHeight);
+                spriteKeyRed.Draw(canvas, 17 * All.TileWidth, -5 * All.TileHeight + 3);
             }
             if (All.HasKeyPink)
             {
-                spriteKeyPink.Draw(canvas, 17 * All.TileWidth, -3 * All.TileHeight);
+                spriteKeyPink.Draw(canvas, 17 * All.TileWidth, -3 * All.TileHeight + 3);
             }
             if (All.HasKeyBlue)
             {
-                spriteKeyBlue.Draw(canvas, 23 * All.TileWidth, -5 * All.TileHeight);
+                spriteKeyBlue.Draw(canvas, 23 * All.TileWidth, -5 * All.TileHeight + 3);
             }
             if (All.HasKeyGreen)
             {
-                spriteKeyGreen.Draw(canvas, 23 * All.TileWidth, -3 * All.TileHeight);
+                spriteKeyGreen.Draw(canvas, 23 * All.TileWidth, -3 * All.TileHeight + 3);
             }
 
             if (All.HasPotion)
@@ -892,7 +982,7 @@ namespace Cauldron
                 yy = (tile / 100) * All.TileHeightScale;
                 drawSource = new SKRect(xx, yy, xx + All.TileWidthScale * 3, yy + All.TileHeightScale * 2);
                 aa = All.DECAL_MAP_X + (21) * All.TileWidthScale - 8 * All.GAME_SCALE;
-                bb = All.DECAL_MAP_Y - (5) * All.TileHeightScale;
+                bb = All.DECAL_MAP_Y - (5) * All.TileHeightScale + 3;
                 drawDestination = new SKRect(aa, bb, aa + All.TileWidthScale * 3, bb + All.TileHeightScale * 2);
                 //canvas.DrawBitmap(All.TilesScale, drawSource, drawDestination);
                 canvas.DrawImage(All.TilesScaleImage, drawSource, drawDestination);
@@ -904,7 +994,7 @@ namespace Cauldron
                 yy = (tile / 100) * All.TileHeightScale;
                 drawSource = new SKRect(xx, yy, xx + All.TileWidthScale * 3, yy + All.TileHeightScale * 2);
                 aa = All.DECAL_MAP_X + (21) * All.TileWidthScale - 8 * All.GAME_SCALE;
-                bb = All.DECAL_MAP_Y - (3) * All.TileHeightScale;
+                bb = All.DECAL_MAP_Y - (3) * All.TileHeightScale + 3;
                 drawDestination = new SKRect(aa, bb, aa + All.TileWidthScale * 3, bb + All.TileHeightScale * 2);
                 //canvas.DrawBitmap(All.TilesScale, drawSource, drawDestination);
                 canvas.DrawImage(All.TilesScaleImage, drawSource, drawDestination);
