@@ -51,12 +51,16 @@ namespace Cauldron
 
         OneSprite spriteWater1;
         OneSprite spriteWater2;
+        TimeSpan tsWater = TimeSpan.FromMilliseconds(2500);
+        DateTime lastChangeWater;
+        bool isWater1;
+
 
         OneSprite spritePlant1;
         OneSprite spritePlant2;
 
         OneSprite spriteEnergy;
-        const int SMOKE_SPRITES_MAX = 2;
+        const int SMOKE_SPRITES_MAX = 30; // visible en même temps
         OneSprite[] spritesSmoke = new OneSprite[SMOKE_SPRITES_MAX];
         int smokeIndex;
         Monsters monsters;
@@ -91,6 +95,9 @@ namespace Cauldron
         {
             InitializeComponent();
 
+            theCanvas.SizeChanged += TheCanvas_SizeChanged;
+            theCanvas.Touch += TheCanvas_Touch;
+
             //pixels = new SKColor[MAX_WIDTH * MAX_HEIGHT];
             //bmpPixels = new SKBitmap(MAX_WIDTH, MAX_HEIGHT);
 
@@ -105,9 +112,10 @@ namespace Cauldron
             SKImageInfo desiredInfo = new SKImageInfo(800, 800, SKImageInfo.PlatformColorType, SKAlphaType.Premul);
             SKManagedStream stream = new SKManagedStream(All.GetStream("tiles.png"));
             All.Tiles = SKBitmap.Decode(stream, desiredInfo);
+            All.TilesScaleImage = SKImage.FromBitmap(All.Tiles);
             // on scale cette image
-            SKImageInfo scaleInfo = new SKImageInfo(Convert.ToInt32(All.Tiles.Width * All.GAME_SCALE), Convert.ToInt32(All.Tiles.Height * All.GAME_SCALE));
-            All.TilesScale = All.Tiles.Resize(scaleInfo, SKBitmapResizeMethod.Box); // pas d'amélioration graphique
+            //SKImageInfo scaleInfo = new SKImageInfo(Convert.ToInt32(All.Tiles.Width * All.GAME_SCALE), Convert.ToInt32(All.Tiles.Height * All.GAME_SCALE));
+            //All.TilesScale = All.Tiles.Resize(scaleInfo, SKBitmapResizeMethod.Box); // pas d'amélioration graphique
             // dimension d'un tile
             All.TileWidth = tiled.TileWidth;
             All.TileHeight = tiled.TileHeight;
@@ -143,6 +151,7 @@ namespace Cauldron
             }
             spriteWater1 = new OneSprite(44 * 100, 2 * All.TileWidth, 1 * All.TileHeight, 16, 100);
             spriteWater2 = new OneSprite(46 * 100, 2 * All.TileWidth, 1 * All.TileHeight, 16, 100);
+            isWater1 = true;
 
             spritePlant1 = new OneSprite(44 * 100 + 100 - 32, 4 * All.TileWidth, 3 * All.TileHeight, 8, 147, withSeparator: false);
             spritePlant2 = new OneSprite(49 * 100 + 100 - 32, 4 * All.TileWidth, 3 * All.TileHeight, 8, 135, withSeparator: false);
@@ -157,9 +166,37 @@ namespace Cauldron
             lastScroll = DateTime.UtcNow;
             lastGameAnim = DateTime.UtcNow;
             lastFps = DateTime.UtcNow;
+            lastChangeWater = DateTime.UtcNow;
 
             GameLoop();
         }
+
+        void TheCanvas_SizeChanged(object sender, EventArgs e)
+        {
+            //1600 - 40 * 8 - 34 * 8 = 1600 -320 - 272 = 1008
+            float tempX = 1.0f * (float)theCanvas.Width / 320.0f;
+            // 998 - 23 * 8 - 23 * 8 - 3 = 998 - 184 - 3 = 811
+            float tempY = 1.0f * (float)theCanvas.Height / (200.0f + 22.0f);
+            if (tempX < tempY)
+            {
+                theScale = tempX;
+                System.Diagnostics.Debug.WriteLine(String.Format("SizeChanged: {0}x{1} => X {2} ({3})", theCanvas.Width, theCanvas.Height, tempX, tempY));
+            }
+            else
+            {
+                theScale = tempY;
+                // MAP_SHOW standard à 38, avec 1 de chaque côté, soit 40 au total
+                System.Diagnostics.Debug.WriteLine(String.Format("SizeChanged: {0}x{1} => Y {3} ({2})", theCanvas.Width, theCanvas.Height, tempX, tempY));
+            }
+            int deltaTiles = Convert.ToInt32((theCanvas.Width) / (8.0f * theScale));
+            All.MAP_SHOW = deltaTiles + 1; // -2 => debord de 1 de chaque côté
+        }
+
+        void TheCanvas_Touch(object sender, SKTouchEventArgs e)
+        {
+            System.Diagnostics.Debug.WriteLine(String.Format("Touched: {0}", e.Location));
+        }
+
 
         public void StartOutside()
         {
@@ -263,6 +300,11 @@ namespace Cauldron
                 spritePlant1.DoAnim(tempo);
                 spritePlant2.DoAnim(tempo);
 
+                if ((tempo - lastChangeWater) > tsWater)
+                {
+                    lastChangeWater = tempo;
+                    isWater1 = !isWater1;
+                }
 
                 if ((tempo - lastScroll) >= scrollDelay)
                 {
@@ -280,7 +322,7 @@ namespace Cauldron
                 }
 
 
-                if ((tempo - lastGameAnim) > gameSpeed)
+                if ((tempo - lastGameAnim) >= gameSpeed)
                 {
                     lastGameAnim = tempo;
 
@@ -335,22 +377,25 @@ namespace Cauldron
                     if (All.Witch.IsWalking)
                         scrollSpeed = 0;
 
+                    //System.Diagnostics.Debug.WriteLine(String.Format("ScrollX: {0} + {1} ({2})", startMapX, scrollX, scrollSpeed));
                     while (scrollX >= All.TileWidthScale)
                     {
                         startMapX--;
                         scrollX -= All.TileWidthScale;
+                        //System.Diagnostics.Debug.WriteLine(String.Format("* ScrollX: {0} + {1} ({2})", startMapX, scrollX, scrollSpeed));
                         if (startMapX <= mapMinX)// 0)
                         {
                             startMapX = mapMaxX - 1; // currentMapWidth - 1;
                         }
                         monsters.MapScrollToRight();
-                        if (scrollX != 0)
+                        /*if (scrollX != 0)
                         {
-                            System.Diagnostics.Debug.WriteLine(String.Format("*1 ScrollX: {0}", scrollX));
-                        }
+                            System.Diagnostics.Debug.WriteLine(String.Format("> *1 ScrollX: {0}", scrollX));
+                        }*/
                     }
                     while (scrollX <= -All.TileWidthScale)
                     {
+                        //System.Diagnostics.Debug.WriteLine(String.Format("*2 ScrollX: {0}", scrollX));
                         startMapX++;
                         scrollX += All.TileWidthScale;
                         if (startMapX >= mapMaxX) // currentMapWidth)
@@ -358,10 +403,10 @@ namespace Cauldron
                             startMapX = mapMinX + 1; // 0;
                         }
                         monsters.MapScrollToLeft();
-                        if (scrollX != 0)
+                        /*if (scrollX != 0)
                         {
-                            System.Diagnostics.Debug.WriteLine(String.Format("*2 ScrollX: {0}", scrollX));
-                        }
+                            System.Diagnostics.Debug.WriteLine(String.Format("> *2 ScrollX: {0}", scrollX));
+                        }*/
                     }
 
 
@@ -449,6 +494,11 @@ namespace Cauldron
             TextSize = 20
         };
 
+
+        double baseWidth = 0;
+        bool isFirst = true;
+        float theScale = 1.0f;
+
         // *********************************************************************
         // Draw the entire screen (each game loop), so need to be optimized too!
         // *********************************************************************
@@ -459,6 +509,28 @@ namespace Cauldron
             canvas = e.Surface.Canvas;
             canvas.Clear(SKColors.Black);
 
+            /*SKSurface aa = SKSurface.Create(320, 200, SKColorType.Rgba8888, SKAlphaType.Premul, new SKSurfaceProps() { PixelGeometry = SKPixelGeometry.RgbHorizontal });
+            SKCanvas zz = aa.Canvas;
+            // make all the draw on this canvas
+            SKImage ee = aa.Snapshot();
+            SKBitmap rr = SKBitmap.FromImage(ee);
+            // do a resize of the bitmap
+            canvas.DrawBitmap of the resize*/
+
+
+            if (isFirst)
+            {
+                isFirst = false;
+                System.Diagnostics.Debug.WriteLine(String.Format("START WIDTH from {0} to {1}", baseWidth, theCanvas.Width));
+                baseWidth = theCanvas.Width;
+            }
+            if (theCanvas.Width != baseWidth)
+            {
+                System.Diagnostics.Debug.WriteLine(String.Format("WIDTH from {0} to {1}", baseWidth, theCanvas.Width));
+                baseWidth = theCanvas.Width;
+            }
+
+            canvas.Scale(theScale);
             /*canvas.DrawRect(All.DECAL_MAP_X,
                             All.DECAL_MAP_Y,
                             All.MAP_SHOW * All.TileWidth * All.GAME_SCALE,
@@ -567,7 +639,8 @@ namespace Cauldron
                             b = j * All.TileHeightScale + All.DECAL_MAP_Y;
                             drawDestination = new SKRect(a, b, a + All.TileWidthScale, b + All.TileHeightScale);
                             // on effectue l'affichage
-                            canvas.DrawBitmap(All.TilesScale, drawSource, drawDestination);
+                            //canvas.DrawBitmap(All.TilesScale, drawSource, drawDestination);
+                            canvas.DrawImage(All.TilesScaleImage, drawSource, drawDestination);
                         }
                     }
                 }
@@ -653,7 +726,10 @@ namespace Cauldron
                                             spritePlant2.Draw(canvas, x - All.TileWidth, y, scrollX);
                                             break;
                                         case "water":
-                                            spriteWater1.Draw(canvas, x, y, scrollX);
+                                            if (isWater1)
+                                                spriteWater1.Draw(canvas, x, y, scrollX);
+                                            else
+                                                spriteWater2.Draw(canvas, x, y, scrollX);
                                             break;
                                         case "shark":
                                             monsters.Generator(MonsterType.Shark, currentX, x, y + 2 * All.TileHeight);
@@ -747,27 +823,26 @@ namespace Cauldron
             canvas.DrawLine(All.SPEED_RIGHT_MAX * All.GAME_SCALE + All.DECAL_MAP_X, 0, All.SPEED_RIGHT_MAX * All.GAME_SCALE + All.DECAL_MAP_X, 1000, textFPS);*/
 
             // pour cacher le débordement du scroll
-            canvas.DrawRect(All.DECAL_MAP_X - 2 * All.TileWidthScale, All.DECAL_MAP_Y,
-                            2 * All.TileWidthScale, 23 * All.TileHeightScale,
+            /*canvas.DrawRect(All.DECAL_MAP_X - 2 * All.TileWidthScale, All.DECAL_MAP_Y,
+                            3 * All.TileWidthScale, 23 * All.TileHeightScale,
                             paintBlack);
             canvas.DrawRect(All.DECAL_MAP_X + All.MAP_SHOW * All.TileWidthScale, All.DECAL_MAP_Y,
-                             2 * All.TileWidthScale, 23 * All.TileHeightScale,
-                            paintBlack);
+                             4 * All.TileWidthScale, 23 * All.TileHeightScale,
+                            paintBlack);*/
+
+            //canvas.DrawLine(0 * All.GAME_SCALE + All.DECAL_MAP_X, All.DECAL_MAP_Y, 0 * All.GAME_SCALE + All.DECAL_MAP_X, 1000, paintRed);
+            //canvas.DrawLine(All.MAP_SHOW * All.TileWidth * All.GAME_SCALE + All.DECAL_MAP_X, All.DECAL_MAP_Y, All.MAP_SHOW * All.TileWidth * All.GAME_SCALE + All.DECAL_MAP_X, 1000, paintRed);
 
 
             // affichage des infos
-            spriteSheepSkin.Draw(canvas, -1 * All.TileWidth, -4 * All.TileHeight - 0);
-            spriteSheepSkin.Draw(canvas, (All.MAP_SHOW - 7 + 1) * All.TileWidth, -4 * All.TileHeight - 0);
+            spriteSheepSkin.Draw(canvas, 1 * All.TileWidth, -5 * All.TileHeight - 0);
+            spriteSheepSkin.Draw(canvas, (All.MAP_SHOW - 7 + 0) * All.TileWidth, -5 * All.TileHeight - 0);
 
-
-            canvas.DrawLine(0 * All.GAME_SCALE + All.DECAL_MAP_X, All.DECAL_MAP_Y, 0 * All.GAME_SCALE + All.DECAL_MAP_X, 1000, paintRed);
-            canvas.DrawLine(All.MAP_SHOW * All.TileWidth * All.GAME_SCALE + All.DECAL_MAP_X, All.DECAL_MAP_Y, All.MAP_SHOW * All.TileWidth * All.GAME_SCALE + All.DECAL_MAP_X, 1000, paintRed);
-
-            typo.Write(canvas, "SCORE", 8 * All.TileWidth, -4 * All.TileHeight);
-            typo.Write(canvas, All.ScoreText, 7 * All.TileWidth, -3 * All.TileHeight + 1);
-            typo.Write(canvas, "MAGIC", 8 * All.TileWidth, -2 * All.TileHeight + 2);
-            typo.Write(canvas, All.MagicText, 9 * All.TileWidth, -1 * All.TileHeight + 3);
-            typo.Write(canvas, "HAGS", 26 * All.TileWidth, -4 * All.TileHeight);
+            typo.Write(canvas, "SCORE", 10 * All.TileWidth, -5 * All.TileHeight);
+            typo.Write(canvas, All.ScoreText, 8 * All.TileWidth, -4 * All.TileHeight + 1);
+            typo.Write(canvas, "MAGIC", 10 * All.TileWidth, -3 * All.TileHeight + 2);
+            typo.Write(canvas, All.MagicText, 10 * All.TileWidth, -2 * All.TileHeight + 3);
+            typo.Write(canvas, "HAGS", 28 * All.TileWidth, -5 * All.TileHeight);
 
             int xx, yy; float aa, bb;
             tile = 8; // tête de sorcière
@@ -783,62 +858,31 @@ namespace Cauldron
                     if (count > 0)
                     {
                         // position de la cible
-                        aa = All.DECAL_MAP_X + (25 + ii * 2) * All.TileWidthScale + ii * All.GAME_SCALE;
-                        bb = All.DECAL_MAP_Y - (3 - jj) * All.TileHeightScale + jj * All.GAME_SCALE;
+                        aa = All.DECAL_MAP_X + (27 + ii * 2) * All.TileWidthScale + ii * All.GAME_SCALE;
+                        bb = All.DECAL_MAP_Y - (4 - jj) * All.TileHeightScale + jj * All.GAME_SCALE;
                         drawDestination = new SKRect(aa, bb, aa + All.TileWidthScale * 2, bb + All.TileHeightScale);
                         // on effectue l'affichage
-                        canvas.DrawBitmap(All.TilesScale, drawSource, drawDestination);
+                        //canvas.DrawBitmap(All.TilesScale, drawSource, drawDestination);
+                        canvas.DrawImage(All.TilesScaleImage, drawSource, drawDestination);
                         count--;
                     }
                 }
             }
             if (All.HasKeyRed)
             {
-                spriteKeyRed.Draw(canvas, 15 * All.TileWidth, -4 * All.TileHeight);
-                /*tile = 64;
-                xx = (tile % 100) * All.TileWidthScale;
-                yy = (tile / 100) * All.TileHeightScale;
-                drawSource = new SKRect(xx, yy, xx + All.TileWidthScale * 3, yy + All.TileHeightScale);
-                aa = All.DECAL_MAP_X + (15) * All.TileWidthScale;
-                bb = All.DECAL_MAP_Y - (4) * All.TileHeightScale;
-                drawDestination = new SKRect(aa, bb, aa + All.TileWidthScale * 3, bb + All.TileHeightScale);
-                canvas.DrawBitmap(All.TilesScale, drawSource, drawDestination);*/
+                spriteKeyRed.Draw(canvas, 17 * All.TileWidth, -5 * All.TileHeight);
             }
             if (All.HasKeyPink)
             {
-                spriteKeyPink.Draw(canvas, 15 * All.TileWidth, -2 * All.TileHeight);
-                /*tile = 264;
-                xx = (tile % 100) * All.TileWidthScale;
-                yy = (tile / 100) * All.TileHeightScale;
-                drawSource = new SKRect(xx, yy, xx + All.TileWidthScale * 3, yy + All.TileHeightScale);
-                aa = All.DECAL_MAP_X + (15) * All.TileWidthScale;
-                bb = All.DECAL_MAP_Y - (2) * All.TileHeightScale;
-                drawDestination = new SKRect(aa, bb, aa + All.TileWidthScale * 3, bb + All.TileHeightScale);
-                canvas.DrawBitmap(All.TilesScale, drawSource, drawDestination);*/
+                spriteKeyPink.Draw(canvas, 17 * All.TileWidth, -3 * All.TileHeight);
             }
             if (All.HasKeyBlue)
             {
-                spriteKeyBlue.Draw(canvas, 21 * All.TileWidth, -4 * All.TileHeight);
-                /*tile = 164;
-                xx = (tile % 100) * All.TileWidthScale;
-                yy = (tile / 100) * All.TileHeightScale;
-                drawSource = new SKRect(xx, yy, xx + All.TileWidthScale * 3, yy + All.TileHeightScale);
-                aa = All.DECAL_MAP_X + (21) * All.TileWidthScale;
-                bb = All.DECAL_MAP_Y - (4) * All.TileHeightScale;
-                drawDestination = new SKRect(aa, bb, aa + All.TileWidthScale * 3, bb + All.TileHeightScale);
-                canvas.DrawBitmap(All.TilesScale, drawSource, drawDestination);*/
+                spriteKeyBlue.Draw(canvas, 23 * All.TileWidth, -5 * All.TileHeight);
             }
             if (All.HasKeyGreen)
             {
-                spriteKeyGreen.Draw(canvas, 21 * All.TileWidth, -2 * All.TileHeight);
-                /*tile = 364;
-                xx = (tile % 100) * All.TileWidthScale;
-                yy = (tile / 100) * All.TileHeightScale;
-                drawSource = new SKRect(xx, yy, xx + All.TileWidthScale * 3, yy + All.TileHeightScale);
-                aa = All.DECAL_MAP_X + (21) * All.TileWidthScale;
-                bb = All.DECAL_MAP_Y - (2) * All.TileHeightScale;
-                drawDestination = new SKRect(aa, bb, aa + All.TileWidthScale * 3, bb + All.TileHeightScale);
-                canvas.DrawBitmap(All.TilesScale, drawSource, drawDestination);*/
+                spriteKeyGreen.Draw(canvas, 23 * All.TileWidth, -3 * All.TileHeight);
             }
 
             if (All.HasPotion)
@@ -847,10 +891,11 @@ namespace Cauldron
                 xx = (tile % 100) * All.TileWidthScale;
                 yy = (tile / 100) * All.TileHeightScale;
                 drawSource = new SKRect(xx, yy, xx + All.TileWidthScale * 3, yy + All.TileHeightScale * 2);
-                aa = All.DECAL_MAP_X + (19) * All.TileWidthScale - 8 * All.GAME_SCALE;
-                bb = All.DECAL_MAP_Y - (4) * All.TileHeightScale;
+                aa = All.DECAL_MAP_X + (21) * All.TileWidthScale - 8 * All.GAME_SCALE;
+                bb = All.DECAL_MAP_Y - (5) * All.TileHeightScale;
                 drawDestination = new SKRect(aa, bb, aa + All.TileWidthScale * 3, bb + All.TileHeightScale * 2);
-                canvas.DrawBitmap(All.TilesScale, drawSource, drawDestination);
+                //canvas.DrawBitmap(All.TilesScale, drawSource, drawDestination);
+                canvas.DrawImage(All.TilesScaleImage, drawSource, drawDestination);
             }
             if (All.HasChest)
             {
@@ -858,10 +903,11 @@ namespace Cauldron
                 xx = (tile % 100) * All.TileWidthScale;
                 yy = (tile / 100) * All.TileHeightScale;
                 drawSource = new SKRect(xx, yy, xx + All.TileWidthScale * 3, yy + All.TileHeightScale * 2);
-                aa = All.DECAL_MAP_X + (19) * All.TileWidthScale - 8 * All.GAME_SCALE;
-                bb = All.DECAL_MAP_Y - (2) * All.TileHeightScale;
+                aa = All.DECAL_MAP_X + (21) * All.TileWidthScale - 8 * All.GAME_SCALE;
+                bb = All.DECAL_MAP_Y - (3) * All.TileHeightScale;
                 drawDestination = new SKRect(aa, bb, aa + All.TileWidthScale * 3, bb + All.TileHeightScale * 2);
-                canvas.DrawBitmap(All.TilesScale, drawSource, drawDestination);
+                //canvas.DrawBitmap(All.TilesScale, drawSource, drawDestination);
+                canvas.DrawImage(All.TilesScaleImage, drawSource, drawDestination);
             }
 
             if ((tempo - lastFps) >= All.ONE_SECOND)

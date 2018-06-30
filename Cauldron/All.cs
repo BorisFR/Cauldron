@@ -42,12 +42,13 @@ namespace Cauldron
         public static int SPEED_RIGHT_MAX;
         public static int SPEED_DELTA_X;
 
-        public const int DECAL_MAP_X = 48;
-        public const int DECAL_MAP_Y = 4 * 8 * 3; // ** /!\ ** ce dernier doit être égal à GAME_SCALE...
-        public const float GAME_SCALE = 3.0f;
+        public const int DECAL_MAP_X = -8; // 8; // 48;
+        public const int DECAL_MAP_Y = 5 * 8 * 1; // ** /!\ ** ce dernier doit être égal à GAME_SCALE...
+        public const float GAME_SCALE = 1.0f;
 
         public static SKBitmap Tiles;
-        public static SKBitmap TilesScale;
+        //public static SKBitmap TilesScale;
+        public static SKImage TilesScaleImage;
         public static int TileWidth;
         public static int TileHeight;
         public static int TileWidthScale;
@@ -113,6 +114,7 @@ namespace Cauldron
 
         public static void LooseLive()
         {
+            if (Witch.IsDying) return;
             Lives--;
             if (Lives < 0)
                 Lives = 9;

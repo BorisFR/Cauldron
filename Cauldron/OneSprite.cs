@@ -173,13 +173,15 @@ namespace Cauldron
 
         SKRect tempSKRect;
         float scaleX, scaleY;
+        //SKPaint resize = new SKPaint() { IsAntialias = false, FilterQuality = SKFilterQuality.High };
 
         public void Draw(SKCanvas canvas, int x, int y, int scrollX = 0, SKPaint paint = null)
         {
             scaleX = x * All.GAME_SCALE;
             scaleY = y * All.GAME_SCALE;
             tempSKRect = new SKRect(All.DECAL_MAP_X + scaleX + scrollX, All.DECAL_MAP_Y + scaleY, All.DECAL_MAP_X + scaleX + WidthScale + scrollX, All.DECAL_MAP_Y + scaleY + HeightScale);
-            canvas.DrawBitmap(All.TilesScale, sourcesScale[StepAnim], tempSKRect, paint);
+            //canvas.DrawBitmap(All.TilesScale, sourcesScale[StepAnim], tempSKRect, paint);
+            canvas.DrawImage(All.TilesScaleImage, sourcesScale[StepAnim], tempSKRect, paint);
         }
 
         public void DrawNoDecal(SKCanvas canvas, int x, int y)
@@ -187,7 +189,8 @@ namespace Cauldron
             scaleX = x * All.GAME_SCALE;
             scaleY = y * All.GAME_SCALE;
             tempSKRect = new SKRect(scaleX, scaleY, scaleX + WidthScale, scaleY + HeightScale);
-            canvas.DrawBitmap(All.TilesScale, sourcesScale[StepAnim], tempSKRect);
+            //canvas.DrawBitmap(All.TilesScale, sourcesScale[StepAnim], tempSKRect);
+            canvas.DrawImage(All.TilesScaleImage, sourcesScale[StepAnim], tempSKRect);
         }
 
     }

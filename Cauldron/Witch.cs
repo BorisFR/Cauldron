@@ -136,6 +136,10 @@ namespace Cauldron
 
         // *********************************************************************
 
+        public bool IsDying { get { if (state == WitchState.Dying) return true; return false; } }
+
+        // *********************************************************************
+
         public MovingDirection Direction
         {
             get
