@@ -15,6 +15,7 @@ namespace Cauldron
         Tiled tiled = new Tiled();
         Tiled tiledHouse = new Tiled();
         Tiled tiledGreen = new Tiled();
+        Tiled tiledRed = new Tiled();
         Map map;
         int startMapX; // colonne de départ d'affichage de la map
         int scrollX; // scroll horizontale
@@ -110,6 +111,8 @@ namespace Cauldron
             tiledHouse.Load(All.GetStream("Cauldron_House.tmx"));
             // on charge la grotte verte
             tiledGreen.Load(All.GetStream("Cauldron_Cave_Green.tmx"));
+            // on charge la grotte rouge
+            tiledRed.Load(All.GetStream("Cauldron_Cave_Red.tmx"));
 
             // on charge l'image de tiles
             SKImageInfo desiredInfo = new SKImageInfo(800, 800, SKImageInfo.PlatformColorType, SKAlphaType.Premul);
@@ -288,6 +291,29 @@ namespace Cauldron
             All.Witch.AuthorizeScroll();
         }
 
+        public void StartRed()
+        {
+            blockDisplay = true;
+            map = Map.RedCave;
+            showSky = false;
+            mapMinX = tiledRed.MapMinX;
+            mapMaxX = tiledRed.MapMaxX;
+            currentMapHeight = tiledRed.MapHeight;
+            currentTerrain = tiledRed.Terrain;
+            currentItems = tiledRed.Items;
+            startMapX = mapMinX;
+            All.Witch.X = 0;
+            All.Witch.Y = 5 * All.TileHeight + 3;
+            All.Witch.MinY = All.Witch.Y;
+            All.Witch.MaxY = All.Witch.Y;
+            All.Witch.CouldFly = false;
+            All.Witch.DoAlive();
+            All.Witch.DoWalk();
+            blockDisplay = false;
+            scriptMode = ScriptState.None;
+            All.Witch.AuthorizeScroll();
+        }
+
         // *********************************************************************
         // Game logic, proc need to be very optimized!
         // *********************************************************************
@@ -348,6 +374,9 @@ namespace Cauldron
                             }
                             return true;
                         case Map.GreenCave:
+                            StartOutside();
+                            return true;
+                        case Map.RedCave:
                             StartOutside();
                             return true;
                     }
@@ -586,7 +615,7 @@ namespace Cauldron
                                         StartInHouse();
                                         break;
                                     case GameLocation.AtRedDoor:
-                                        StartInHouse();
+                                        StartRed();
                                         break;
                                     case GameLocation.AtPurpleDoor:
                                         StartInHouse();

@@ -13,7 +13,8 @@ namespace Cauldron
     {
         Outside,
         InHouse,
-        GreenCave
+        GreenCave,
+        RedCave
     }
 
     public class Tile
