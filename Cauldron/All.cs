@@ -118,7 +118,7 @@ namespace Cauldron
             Lives--;
             if (Lives < 0)
                 Lives = 9;
-            Witch.DoDying();
+            //Witch.DoDying();
         }
 
         // *********************************************************************

@@ -38,6 +38,16 @@
    <frame tileid="82" duration="100"/>
   </animation>
  </tile>
+ <tile id="101">
+  <properties>
+   <property name="zone" value="landing"/>
+  </properties>
+ </tile>
+ <tile id="102">
+  <properties>
+   <property name="zone" value="blocking"/>
+  </properties>
+ </tile>
  <tile id="165">
   <properties>
    <property name="item" value="key_blue"/>

@@ -35,7 +35,7 @@ namespace Cauldron
         RightFlySlow,
         RightFlyMiddle,
         RightFlyMax,
-        EnteringDoor,
+        EnterDoor,
         ExitingDoor,
         MakePotion,
         Dying
@@ -59,9 +59,11 @@ namespace Cauldron
         MakingPotion,
         ExitingHouse,
 
+        OpeningDoor,
         EnteringDoor,
         ExitDoor,
-        WalkingToRight
+        WalkingToRight,
+        WalkingToDoor
     }
 
     public enum PointsType : byte

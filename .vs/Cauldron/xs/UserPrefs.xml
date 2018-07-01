@@ -1,12 +1,10 @@
 ﻿<Properties StartupConfiguration="{7A6F53FB-0BC4-4B13-A50E-C9813BBD2812}|Default">
-  <MonoDevelop.Ide.Workbench ActiveDocument="Cauldron.MacOS/AppDelegate.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Cauldron/Witch.cs">
     <Files>
-      <File FileName="Cauldron/MainPage.xaml.cs" Line="232" Column="46" />
+      <File FileName="Cauldron/MainPage.xaml.cs" Line="997" Column="69" />
       <File FileName="Cauldron/Global.cs" Line="39" Column="20" />
-      <File FileName="Cauldron/All.cs" Line="38" Column="27" />
-      <File FileName="Cauldron/Witch.cs" Line="61" Column="49" />
-      <File FileName="Cauldron/Tiled.cs" Line="130" Column="73" />
-      <File FileName="Cauldron.MacOS/AppDelegate.cs" Line="17" Column="106" />
+      <File FileName="Cauldron/All.cs" Line="46" Column="53" />
+      <File FileName="Cauldron/Witch.cs" Line="20" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />

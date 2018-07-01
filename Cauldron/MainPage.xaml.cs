@@ -327,13 +327,13 @@ namespace Cauldron
 
                 if ((tempo - lastScroll) >= scrollDelay)
                 {
-                    if (All.KeyLeft && !All.KeyRight)
+                    if (All.KeyLeft && !All.KeyRight && scriptMode == ScriptState.None)
                     {
                         lastScroll = tempo;
                         scrollSpeed = Convert.ToInt32(All.Witch.MoveToLeft() * All.GAME_SCALE);
                     }
 
-                    if (All.KeyRight && !All.KeyLeft)
+                    if (All.KeyRight && !All.KeyLeft && scriptMode == ScriptState.None)
                     {
                         lastScroll = tempo;
                         scrollSpeed = Convert.ToInt32(-All.Witch.MoveToRight() * All.GAME_SCALE);
@@ -429,13 +429,13 @@ namespace Cauldron
                     }
 
 
-                    if (All.KeyUp && !All.KeyDown && !All.KeySpace && !keyFireMustBeRelease)
+                    if (All.KeyUp && !All.KeyDown && !All.KeySpace && !keyFireMustBeRelease && scriptMode == ScriptState.None)
                     {
                         //if (All.Witch.CouldFly)
                         All.Witch.MoveToUp();
                     }
 
-                    if (All.KeyDown && !All.KeyUp && !All.KeySpace & !keyFireMustBeRelease)
+                    if (All.KeyDown && !All.KeyUp && !All.KeySpace & !keyFireMustBeRelease && scriptMode == ScriptState.None)
                     {
                         //if (All.Witch.CouldFly)
                         All.Witch.MoveToDown();
@@ -457,7 +457,7 @@ namespace Cauldron
                                 System.Diagnostics.Debug.WriteLine("Exiting door");
                             }
                             break;
-                        case ScriptState.WalkingToRight:
+                        case ScriptState.WalkingToRight: // TODO: with animation of closing door
                             if (All.Witch.X < scriptValue)
                             {
                                 System.Diagnostics.Debug.WriteLine("Walking to right");
@@ -512,59 +512,134 @@ namespace Cauldron
                                 return true;
                             }
                             break;
+                        case ScriptState.WalkingToDoor:
+                            if (All.Witch.X > scriptValue)
+                            {
+                                System.Diagnostics.Debug.WriteLine("Walking to door");
+                                All.Witch.MoveToLeft();
+                            }
+                            else
+                            {
+                                System.Diagnostics.Debug.WriteLine("At door, opening door");
+                                scriptMode = ScriptState.OpeningDoor;
+                            }
+                            break;
+                        case ScriptState.OpeningDoor: // TODO:  animation of opening door
+                            System.Diagnostics.Debug.WriteLine("Opening door");
+                            scriptMode = ScriptState.EnteringDoor;
+                            All.Witch.DoEnterDoor();
+                            break;
+                        case ScriptState.EnteringDoor:
+                            if (All.Witch.IsEnterDoorDone)
+                            {
+                                StartInHouse();
+                            }
+                            else
+                            {
+                                System.Diagnostics.Debug.WriteLine("Entering door");
+                            }
+                            break;
+                        case ScriptState.None:
+                            if (map == Map.Outside) // en exérieur
+                            {
+                                if (All.Witch.IsWalkingToLeft) // on marche vers la gauche ... proche d'une porte ?
+                                {
+                                    if ((tiled.StartDoorRed - startMapX) == 1)
+                                    {
+                                        System.Diagnostics.Debug.WriteLine("Going in door red");
+                                        All.Witch.BlockScroll();
+                                        scriptMode = ScriptState.WalkingToDoor;
+                                        scriptValue = All.Witch.X - 4 * All.TileWidth;
+                                    }
+                                    if ((tiled.StartDoorBlue - startMapX) == 1)
+                                    {
+                                        System.Diagnostics.Debug.WriteLine("Going in door blue");
+                                        All.Witch.BlockScroll();
+                                        scriptMode = ScriptState.WalkingToDoor;
+                                        scriptValue = All.Witch.X - 4 * All.TileWidth;
+                                    }
+                                    if ((tiled.StartDoorGreen - startMapX) == 1)
+                                    {
+                                        System.Diagnostics.Debug.WriteLine("Going in door green");
+                                        All.Witch.BlockScroll();
+                                        scriptMode = ScriptState.WalkingToDoor;
+                                        scriptValue = All.Witch.X - 4 * All.TileWidth;
+                                    }
+                                    if ((tiled.StartDoorPurple - startMapX) == 1)
+                                    {
+                                        System.Diagnostics.Debug.WriteLine("Going in door purple");
+                                        All.Witch.BlockScroll();
+                                        scriptMode = ScriptState.WalkingToDoor;
+                                        scriptValue = All.Witch.X - 4 * All.TileWidth;
+                                    }
+                                    if ((tiled.StartHouse - startMapX) == 1)
+                                    {
+                                        System.Diagnostics.Debug.WriteLine("Going in house");
+                                        All.Witch.BlockScroll();
+                                        scriptMode = ScriptState.WalkingToDoor;
+                                        scriptValue = All.Witch.X - 4 * All.TileWidth;
+                                    }
+                                }
+                            }
+                            break;
                     }
 
                 } // lastGameAnim
 
-                if (!All.KeyLeft && !All.KeyRight && scriptMode == ScriptState.None)
-                {
-                    All.Witch.MoveStop();
-                }
 
-                if (All.KeySpace)
+                if (scriptMode == ScriptState.None) // inter action si pas en script
                 {
-                    if (All.Witch.IsFlying)
+
+                    if (!All.KeyLeft && !All.KeyRight)
                     {
-                        if (!keyFireMustBeRelease)
+                        All.Witch.MoveStop();
+                    }
+
+                    if (All.KeySpace)
+                    {
+                        if (All.Witch.IsFlying)
                         {
-                            // génération d'un tir de la sorcière
-                            OneObject temp = new OneObject();
-                            temp.ID = idBullet++;
-                            temp.TimeToLive = 60;
-                            temp.Start = tempo;
-                            temp.Step = 0;
-                            temp.Y = All.Witch.Y;
-                            temp.Moving = All.Witch.Direction;
-                            if (All.KeyUp)
+                            if (!keyFireMustBeRelease)
                             {
+                                // génération d'un tir de la sorcière
+                                OneObject temp = new OneObject();
+                                temp.ID = idBullet++;
+                                temp.TimeToLive = 60;
+                                temp.Start = tempo;
+                                temp.Step = 0;
+                                temp.Y = All.Witch.Y;
+                                temp.Moving = All.Witch.Direction;
+                                if (All.KeyUp)
+                                {
+                                    if (temp.Moving == MovingDirection.ToLeft)
+                                        temp.Moving = MovingDirection.DiagUpLeft;
+                                    else
+                                        temp.Moving = MovingDirection.DiagUpRight;
+                                }
+                                if (All.KeyDown)
+                                {
+                                    if (temp.Moving == MovingDirection.ToLeft)
+                                        temp.Moving = MovingDirection.DiagDownLeft;
+                                    else
+                                        temp.Moving = MovingDirection.DiagDownRight;
+                                }
                                 if (temp.Moving == MovingDirection.ToLeft)
-                                    temp.Moving = MovingDirection.DiagUpLeft;
+                                    temp.X = All.Witch.BulletX - bulletDecalLeftFromWitch;
                                 else
-                                    temp.Moving = MovingDirection.DiagUpRight;
+                                    temp.X = All.Witch.BulletX - bulletDecalRightFromWitch;
+                                if (temp.Moving != MovingDirection.None)
+                                {
+                                    bullets.Add(temp.ID, temp);
+                                    All.LooseMagic(MagicLoose.Shoot);
+                                }
+                                keyFireMustBeRelease = true;
                             }
-                            if (All.KeyDown)
-                            {
-                                if (temp.Moving == MovingDirection.ToLeft)
-                                    temp.Moving = MovingDirection.DiagDownLeft;
-                                else
-                                    temp.Moving = MovingDirection.DiagDownRight;
-                            }
-                            if (temp.Moving == MovingDirection.ToLeft)
-                                temp.X = All.Witch.BulletX - bulletDecalLeftFromWitch;
-                            else
-                                temp.X = All.Witch.BulletX - bulletDecalRightFromWitch;
-                            if (temp.Moving != MovingDirection.None)
-                            {
-                                bullets.Add(temp.ID, temp);
-                                All.LooseMagic(MagicLoose.Shoot);
-                            }
-                            keyFireMustBeRelease = true;
                         }
                     }
-                }
-                else
-                {
-                    keyFireMustBeRelease = false;
+                    else
+                    {
+                        keyFireMustBeRelease = false;
+                    }
                 }
 
                 if (!blockDisplay)
