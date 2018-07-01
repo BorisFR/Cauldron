@@ -14,6 +14,7 @@ namespace Cauldron
         // Gestion de la carte de jeu
         Tiled tiled = new Tiled();
         Tiled tiledHouse = new Tiled();
+        Tiled tiledGreen = new Tiled();
         Map map;
         int startMapX; // colonne de départ d'affichage de la map
         int scrollX; // scroll horizontale
@@ -107,6 +108,8 @@ namespace Cauldron
             tiled.Load(All.GetStream("Cauldron.tmx"));
             // on charge la maison
             tiledHouse.Load(All.GetStream("Cauldron_House.tmx"));
+            // on charge la grotte verte
+            tiledGreen.Load(All.GetStream("Cauldron_Cave_Green.tmx"));
 
             // on charge l'image de tiles
             SKImageInfo desiredInfo = new SKImageInfo(800, 800, SKImageInfo.PlatformColorType, SKAlphaType.Premul);
@@ -155,7 +158,7 @@ namespace Cauldron
             spritePlant2 = new OneSprite(49 * 100 + 100 - 32, 4 * All.TileWidth, 3 * All.TileHeight, 8, 135, withSeparator: false);
             monsters = new Monsters(stepX, stepY);
 
-            gameLocation = GameLocation.AtRedDoor;
+            gameLocation = GameLocation.AtHouse;
 
             //StartInHouse();
             StartOutside();
@@ -210,23 +213,18 @@ namespace Cauldron
             {
                 case GameLocation.AtBlueDoor:
                     startMapX = tiled.StartDoorBlue;
-                    gameLocation = GameLocation.AtGreenDoor;
                     break;
                 case GameLocation.AtGreenDoor:
                     startMapX = tiled.StartDoorGreen;
-                    gameLocation = GameLocation.AtPurpleDoor;
                     break;
                 case GameLocation.AtPurpleDoor:
                     startMapX = tiled.StartDoorPurple;
-                    gameLocation = GameLocation.AtRedDoor;
                     break;
                 case GameLocation.AtRedDoor:
                     startMapX = tiled.StartDoorRed;
-                    gameLocation = GameLocation.AtHouse;
                     break;
                 case GameLocation.AtHouse:
                     startMapX = tiled.StartHouse;
-                    gameLocation = GameLocation.AtBlueDoor;
                     break;
             }
             All.Witch.X = 13 * All.TileWidth;
@@ -267,6 +265,29 @@ namespace Cauldron
             All.Witch.BlockScroll();
         }
 
+        public void StartGreen()
+        {
+            blockDisplay = true;
+            map = Map.GreenCave;
+            showSky = false;
+            mapMinX = tiledGreen.MapMinX;
+            mapMaxX = tiledGreen.MapMaxX;
+            currentMapHeight = tiledGreen.MapHeight;
+            currentTerrain = tiledGreen.Terrain;
+            currentItems = tiledGreen.Items;
+            startMapX = mapMinX;
+            All.Witch.X = 0; // (tiledGreen.StartHouse - 5) * All.TileWidth;
+            All.Witch.Y = 5 * All.TileHeight + 3;
+            All.Witch.MinY = All.Witch.Y;
+            All.Witch.MaxY = All.Witch.Y;
+            All.Witch.CouldFly = false;
+            All.Witch.DoAlive();
+            All.Witch.DoWalk();
+            blockDisplay = false;
+            scriptMode = ScriptState.None;
+            All.Witch.AuthorizeScroll();
+        }
+
         // *********************************************************************
         // Game logic, proc need to be very optimized!
         // *********************************************************************
@@ -294,13 +315,40 @@ namespace Cauldron
                     scrollX = 0;
                     scrollSpeed = 0;
                     monsters.RemoveMonsters();
+
+                    // on change de lieu
                     switch (map)
                     {
                         case Map.InHouse:
                             StartOutside();
                             return true;
                         case Map.Outside:
-                            StartInHouse();
+                            switch (gameLocation)
+                            {
+                                case GameLocation.AtBlueDoor:
+                                    gameLocation = GameLocation.AtGreenDoor;
+                                    StartOutside();
+                                    return true;
+                                case GameLocation.AtGreenDoor:
+                                    gameLocation = GameLocation.AtPurpleDoor;
+                                    StartOutside();
+                                    return true;
+                                case GameLocation.AtPurpleDoor:
+                                    gameLocation = GameLocation.AtRedDoor;
+                                    StartOutside();
+                                    return true;
+                                case GameLocation.AtRedDoor:
+                                    gameLocation = GameLocation.AtHouse;
+                                    StartOutside();
+                                    return true;
+                                case GameLocation.AtHouse:
+                                    gameLocation = GameLocation.AtBlueDoor;
+                                    StartOutside();
+                                    return true;
+                            }
+                            return true;
+                        case Map.GreenCave:
+                            StartOutside();
                             return true;
                     }
                 }
@@ -532,7 +580,24 @@ namespace Cauldron
                         case ScriptState.EnteringDoor:
                             if (All.Witch.IsEnterDoorDone)
                             {
-                                StartInHouse();
+                                switch (gameLocation)
+                                {
+                                    case GameLocation.AtBlueDoor:
+                                        StartInHouse();
+                                        break;
+                                    case GameLocation.AtRedDoor:
+                                        StartInHouse();
+                                        break;
+                                    case GameLocation.AtPurpleDoor:
+                                        StartInHouse();
+                                        break;
+                                    case GameLocation.AtGreenDoor:
+                                        StartGreen();
+                                        break;
+                                    case GameLocation.AtHouse:
+                                        StartInHouse();
+                                        break;
+                                }
                             }
                             else
                             {
@@ -540,7 +605,7 @@ namespace Cauldron
                             }
                             break;
                         case ScriptState.None:
-                            if (map == Map.Outside) // en exérieur
+                            if (map == Map.Outside) // en extérieur
                             {
                                 if (All.Witch.IsWalkingToLeft) // on marche vers la gauche ... proche d'une porte ?
                                 {
@@ -550,6 +615,7 @@ namespace Cauldron
                                         All.Witch.BlockScroll();
                                         scriptMode = ScriptState.WalkingToDoor;
                                         scriptValue = All.Witch.X - 4 * All.TileWidth;
+                                        gameLocation = GameLocation.AtRedDoor;
                                     }
                                     if ((tiled.StartDoorBlue - startMapX) == 1)
                                     {
@@ -557,6 +623,7 @@ namespace Cauldron
                                         All.Witch.BlockScroll();
                                         scriptMode = ScriptState.WalkingToDoor;
                                         scriptValue = All.Witch.X - 4 * All.TileWidth;
+                                        gameLocation = GameLocation.AtBlueDoor;
                                     }
                                     if ((tiled.StartDoorGreen - startMapX) == 1)
                                     {
@@ -564,6 +631,7 @@ namespace Cauldron
                                         All.Witch.BlockScroll();
                                         scriptMode = ScriptState.WalkingToDoor;
                                         scriptValue = All.Witch.X - 4 * All.TileWidth;
+                                        gameLocation = GameLocation.AtGreenDoor;
                                     }
                                     if ((tiled.StartDoorPurple - startMapX) == 1)
                                     {
@@ -571,6 +639,7 @@ namespace Cauldron
                                         All.Witch.BlockScroll();
                                         scriptMode = ScriptState.WalkingToDoor;
                                         scriptValue = All.Witch.X - 4 * All.TileWidth;
+                                        gameLocation = GameLocation.AtPurpleDoor;
                                     }
                                     if ((tiled.StartHouse - startMapX) == 1)
                                     {
@@ -578,6 +647,7 @@ namespace Cauldron
                                         All.Witch.BlockScroll();
                                         scriptMode = ScriptState.WalkingToDoor;
                                         scriptValue = All.Witch.X - 4 * All.TileWidth;
+                                        gameLocation = GameLocation.AtHouse;
                                     }
                                 }
                             }

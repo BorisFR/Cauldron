@@ -417,6 +417,51 @@
    <property name="generator" value="shark"/>
   </properties>
  </tile>
+ <tile id="2054">
+  <properties>
+   <property name="item" value="broom"/>
+  </properties>
+  <animation>
+   <frame tileid="2054" duration="100"/>
+   <frame tileid="2058" duration="100"/>
+   <frame tileid="2062" duration="100"/>
+  </animation>
+ </tile>
+ <tile id="2055">
+  <animation>
+   <frame tileid="2055" duration="100"/>
+   <frame tileid="2059" duration="100"/>
+   <frame tileid="2063" duration="100"/>
+  </animation>
+ </tile>
+ <tile id="2154">
+  <animation>
+   <frame tileid="2154" duration="100"/>
+   <frame tileid="2158" duration="100"/>
+   <frame tileid="2162" duration="100"/>
+  </animation>
+ </tile>
+ <tile id="2155">
+  <animation>
+   <frame tileid="2155" duration="100"/>
+   <frame tileid="2159" duration="100"/>
+   <frame tileid="2163" duration="100"/>
+  </animation>
+ </tile>
+ <tile id="2255">
+  <animation>
+   <frame tileid="2255" duration="100"/>
+   <frame tileid="2259" duration="100"/>
+   <frame tileid="2263" duration="100"/>
+  </animation>
+ </tile>
+ <tile id="2256">
+  <animation>
+   <frame tileid="2256" duration="100"/>
+   <frame tileid="2260" duration="100"/>
+   <frame tileid="2264" duration="100"/>
+  </animation>
+ </tile>
  <tile id="2400">
   <animation>
    <frame tileid="2400" duration="100"/>

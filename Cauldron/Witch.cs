@@ -727,7 +727,7 @@ namespace Cauldron
             switch (state)
             {
                 case WitchState.LeftWalk:
-                    if (!moving)
+                    if (!moving && CouldFly)
                         ChangeToState(WitchState.LeftMount);
                     break;
                 case WitchState.LeftMount:
@@ -745,7 +745,7 @@ namespace Cauldron
                     }
                     break;
                 case WitchState.RightWalk:
-                    if (!moving)
+                    if (!moving && CouldFly)
                         ChangeToState(WitchState.RightMount);
                     break;
                 case WitchState.RightMount:

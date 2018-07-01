@@ -12,7 +12,8 @@ namespace Cauldron
     public enum Map
     {
         Outside,
-        InHouse
+        InHouse,
+        GreenCave
     }
 
     public class Tile
