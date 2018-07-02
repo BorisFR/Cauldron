@@ -20,6 +20,8 @@ namespace Cauldron
         public static TimeSpan FREQUENCY = TimeSpan.FromSeconds(1.0 / 30.0);// 60x par seconde = 17ms, 30x = 33ms
         public static TimeSpan ONE_SECOND = TimeSpan.FromSeconds(1);
 
+        public static Tiled tiled = new Tiled();
+
         public static int Lives;
         public static int Score;
         public static string ScoreText;
@@ -78,6 +80,8 @@ namespace Cauldron
             assembly = typeof(All).GetTypeInfo().Assembly;
             resources = assembly.GetManifestResourceNames();
             rnd = new Random(DateTime.UtcNow.Millisecond);
+            // on charge la définition des tiles
+            tiled.ProcessTileSet(GetStream("Cauldron.tsx"));
             TileWidth = 8; // Bouh...
             double part = MAP_SHOW * TileWidth / 10;
             SPEED_LEFT_MAX = Convert.ToInt32(part - 16);
@@ -161,6 +165,7 @@ namespace Cauldron
 
         public static Stream GetStream(string name)
         {
+            System.Diagnostics.Debug.WriteLine(String.Format("Reading file {0}", name));
             name = resources.FirstOrDefault(n => n.EndsWith(name));
 
             Stream stream = null;

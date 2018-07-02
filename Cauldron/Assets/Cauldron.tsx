@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <tileset name="Cauldron" tilewidth="8" tileheight="8" tilecount="10000" columns="100" backgroundcolor="#000000">
  <image source="../../PNG/tiles.png" width="800" height="800"/>
+ <tile id="10">
+  <properties>
+   <property name="zone" value="border"/>
+  </properties>
+ </tile>
  <tile id="19">
   <properties>
    <property name="generator" value="bat_2"/>
@@ -46,6 +51,11 @@
  <tile id="102">
   <properties>
    <property name="zone" value="blocking"/>
+  </properties>
+ </tile>
+ <tile id="103">
+  <properties>
+   <property name="zone" value="spawn"/>
   </properties>
  </tile>
  <tile id="165">
@@ -582,6 +592,11 @@
    <frame tileid="2898" duration="100"/>
   </animation>
  </tile>
+ <tile id="2872">
+  <properties>
+   <property name="item" value="fireball"/>
+  </properties>
+ </tile>
  <tile id="2968">
   <animation>
    <frame tileid="2968" duration="100"/>
@@ -660,41 +675,21 @@
   </properties>
   <animation>
    <frame tileid="4400" duration="100"/>
-   <frame tileid="4403" duration="100"/>
+   <frame tileid="4402" duration="100"/>
+   <frame tileid="4404" duration="100"/>
    <frame tileid="4406" duration="100"/>
-   <frame tileid="4409" duration="100"/>
-   <frame tileid="4412" duration="100"/>
-   <frame tileid="4415" duration="100"/>
-   <frame tileid="4418" duration="100"/>
-   <frame tileid="4421" duration="100"/>
-   <frame tileid="4424" duration="100"/>
-   <frame tileid="4427" duration="100"/>
-   <frame tileid="4430" duration="100"/>
-   <frame tileid="4433" duration="100"/>
-   <frame tileid="4436" duration="100"/>
-   <frame tileid="4439" duration="100"/>
-   <frame tileid="4442" duration="100"/>
-   <frame tileid="4445" duration="100"/>
+   <frame tileid="4408" duration="100"/>
+   <frame tileid="4410" duration="100"/>
   </animation>
  </tile>
  <tile id="4401">
   <animation>
    <frame tileid="4401" duration="100"/>
-   <frame tileid="4404" duration="100"/>
+   <frame tileid="4403" duration="100"/>
+   <frame tileid="4405" duration="100"/>
    <frame tileid="4407" duration="100"/>
-   <frame tileid="4410" duration="100"/>
-   <frame tileid="4413" duration="100"/>
-   <frame tileid="4416" duration="100"/>
-   <frame tileid="4419" duration="100"/>
-   <frame tileid="4422" duration="100"/>
-   <frame tileid="4425" duration="100"/>
-   <frame tileid="4428" duration="100"/>
-   <frame tileid="4431" duration="100"/>
-   <frame tileid="4434" duration="100"/>
-   <frame tileid="4437" duration="100"/>
-   <frame tileid="4440" duration="100"/>
-   <frame tileid="4443" duration="100"/>
-   <frame tileid="4446" duration="100"/>
+   <frame tileid="4409" duration="100"/>
+   <frame tileid="4411" duration="100"/>
   </animation>
  </tile>
  <tile id="4468">
@@ -794,46 +789,6 @@
    <frame tileid="4591" duration="100"/>
    <frame tileid="4595" duration="100"/>
    <frame tileid="4599" duration="100"/>
-  </animation>
- </tile>
- <tile id="4600">
-  <animation>
-   <frame tileid="4600" duration="100"/>
-   <frame tileid="4603" duration="100"/>
-   <frame tileid="4606" duration="100"/>
-   <frame tileid="4609" duration="100"/>
-   <frame tileid="4612" duration="100"/>
-   <frame tileid="4615" duration="100"/>
-   <frame tileid="4618" duration="100"/>
-   <frame tileid="4621" duration="100"/>
-   <frame tileid="4624" duration="100"/>
-   <frame tileid="4627" duration="100"/>
-   <frame tileid="4630" duration="100"/>
-   <frame tileid="4633" duration="100"/>
-   <frame tileid="4636" duration="100"/>
-   <frame tileid="4639" duration="100"/>
-   <frame tileid="4642" duration="100"/>
-   <frame tileid="4645" duration="100"/>
-  </animation>
- </tile>
- <tile id="4601">
-  <animation>
-   <frame tileid="4601" duration="100"/>
-   <frame tileid="4604" duration="100"/>
-   <frame tileid="4607" duration="100"/>
-   <frame tileid="4610" duration="100"/>
-   <frame tileid="4613" duration="100"/>
-   <frame tileid="4616" duration="100"/>
-   <frame tileid="4619" duration="100"/>
-   <frame tileid="4622" duration="100"/>
-   <frame tileid="4625" duration="100"/>
-   <frame tileid="4628" duration="100"/>
-   <frame tileid="4631" duration="100"/>
-   <frame tileid="4634" duration="100"/>
-   <frame tileid="4637" duration="100"/>
-   <frame tileid="4640" duration="100"/>
-   <frame tileid="4643" duration="100"/>
-   <frame tileid="4646" duration="100"/>
   </animation>
  </tile>
  <tile id="4669">

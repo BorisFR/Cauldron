@@ -103,8 +103,6 @@ namespace Cauldron
             //pixels = new SKColor[MAX_WIDTH * MAX_HEIGHT];
             //bmpPixels = new SKBitmap(MAX_WIDTH, MAX_HEIGHT);
 
-            // on charge la définition des tiles
-            tiled.ProcessTileSet(All.GetStream("Cauldron.tsx"));
             // on charge le plan TILED
             tiled.Load(All.GetStream("Cauldron.tmx"));
             // on charge la maison
@@ -1167,7 +1165,7 @@ namespace Cauldron
                 xx = (tile % 100) * All.TileWidthScale;
                 yy = (tile / 100) * All.TileHeightScale;
                 drawSource = new SKRect(xx, yy, xx + All.TileWidthScale * 3, yy + All.TileHeightScale * 2);
-                aa = All.DECAL_MAP_X + (21) * All.TileWidthScale - 8 * All.GAME_SCALE;
+                aa = All.DECAL_MAP_X + (21) * All.TileWidthScale - (8 + 4) * All.GAME_SCALE;
                 bb = All.DECAL_MAP_Y - (3) * All.TileHeightScale + 3;
                 drawDestination = new SKRect(aa, bb, aa + All.TileWidthScale * 3, bb + All.TileHeightScale * 2);
                 //canvas.DrawBitmap(All.TilesScale, drawSource, drawDestination);

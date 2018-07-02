@@ -156,4 +156,10 @@ namespace Cauldron
     }
 
 
+    public class Respawn
+    {
+        public int X { get; set; }
+        public int Y { get; set; }
+    }
+
 }

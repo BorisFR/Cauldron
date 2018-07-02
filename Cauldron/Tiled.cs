@@ -25,6 +25,7 @@ namespace Cauldron
         public int StartDoorBlue { get; private set; }
         public int StartDoorRed { get; private set; }
         public int StartDoorPurple { get; private set; }
+        public List<Respawn> Respawns = new List<Respawn>();
         public int StartY { get; private set; }
         public int MapMinX { get; private set; }
         public int MapMaxX { get; private set; }
@@ -104,32 +105,43 @@ namespace Cauldron
                             else
                             {
                                 if ((x + i) < MapMinX)
-                                    MapMinX = x + i;
+                                    MapMinX = x + i - 1;
                             }
                         }
 
                         Terrain[x + i, y + j] = Convert.ToInt16(values[index]);
                         index++;
-                        if (Tiles.ContainsKey(Terrain[x + i, y + j]))
+                        if (All.tiled.Tiles.ContainsKey(Terrain[x + i, y + j] - 1))
                         {
-                            switch (Tiles[Terrain[x + i, y + j]].Name)
+                            switch (All.tiled.Tiles[Terrain[x + i, y + j] - 1].Name)
                             {
+                                case "zone":
                                 case "position":
-                                    switch (Tiles[Terrain[x + i, y + j]].Content)
+                                case "generator":
+                                    break;
+                                case "position":
+                                    switch (All.tiled.Tiles[Terrain[x + i, y + j] - 1].Content)
                                     {
                                         case "door_red":
                                             StartDoorRed = x + i - 11;
+                                            System.Diagnostics.Debug.WriteLine(String.Format("Red door @ {0}", x + i));
                                             break;
                                         case "door_blue":
                                             StartDoorBlue = x + i - 11;
+                                            System.Diagnostics.Debug.WriteLine(String.Format("Blue door @ {0}", x + i));
                                             break;
                                         case "door_green":
                                             StartDoorGreen = x + i - 11;
+                                            System.Diagnostics.Debug.WriteLine(String.Format("Green door @ {0}", x + i));
                                             break;
                                         case "door_purple":
                                             StartDoorPurple = x + i - 11;
+                                            System.Diagnostics.Debug.WriteLine(String.Format("Purple door @ {0}", x + i));
                                             break;
                                     }
+                                    break;
+                                default:
+                                    System.Diagnostics.Debug.WriteLine(String.Format("ERROR @ {0}x{1}, name: {2}", x + i, y + j, All.tiled.Tiles[Terrain[x + i, y + j] - 1].Name));
                                     break;
                             }
                         }
@@ -153,7 +165,7 @@ namespace Cauldron
                             StartY = j - 2;
                             System.Diagnostics.Debug.WriteLine(String.Format("Vial @ {0}x{1}", StartHouse, StartY));
                         }
-                        else if (values[index].Equals("11")) // limite gauche/droite du terrain
+                        /*else if (values[index].Equals("11")) // limite gauche/droite du terrain
                         {
                             if (i > MapMaxX)
                             {
@@ -162,10 +174,44 @@ namespace Cauldron
                             else
                             {
                                 if (i < MapMinX)
-                                    MapMinX = i;
+                                    MapMinX = i - 1;
+                            }
+                        }*/
+                        Terrain[i, j] = Convert.ToInt16(values[index]);
+                        if (All.tiled.Tiles.ContainsKey(Terrain[i, j] - 1))
+                        {
+                            switch (All.tiled.Tiles[Terrain[i, j] - 1].Name)
+                            {
+                                case "zone":
+                                    switch (All.tiled.Tiles[Terrain[i, j] - 1].Content)
+                                    {
+                                        case "border":
+                                            if (i > MapMaxX)
+                                            {
+                                                MapMaxX = i;
+                                            }
+                                            else
+                                            {
+                                                if (i < MapMinX)
+                                                    MapMinX = i - 1;
+                                            }
+                                            break;
+                                        case "landing":
+                                            break;
+                                        case "spawn":
+                                            Respawns.Add(new Respawn() { X = i, Y = j });
+                                            System.Diagnostics.Debug.WriteLine(String.Format("Spawn @ {0}x{1}", i, j));
+                                            break;
+                                        default:
+                                            System.Diagnostics.Debug.WriteLine(String.Format("ERROR @ {0}x{1}, Zone Content: {2}", i, j, All.tiled.Tiles[Terrain[i, j] - 1].Content));
+                                            break;
+                                    }
+                                    break;
+                                default:
+                                    System.Diagnostics.Debug.WriteLine(String.Format("ERROR @ {0}x{1}, name: {2}", i, j, All.tiled.Tiles[Terrain[i, j] - 1].Name));
+                                    break;
                             }
                         }
-                        Terrain[i, j] = Convert.ToInt16(values[index]);
                         index++;
                     }
                 }
