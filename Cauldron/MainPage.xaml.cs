@@ -18,11 +18,14 @@ namespace Cauldron
         Tiled tiledRed = new Tiled();
         Map map;
         int startMapX; // colonne de départ d'affichage de la map
+        int startMapY;
         int scrollX; // scroll horizontale
         DateTime lastScroll;
         TimeSpan scrollDelay = All.FREQUENCY;
         int mapMinX;
         int mapMaxX;
+        int mapMinY;
+        int mapMaxY;
         //int currentMapWidth;
         int currentMapHeight;
         Int16[,] currentTerrain;
@@ -206,8 +209,10 @@ namespace Cauldron
             showSky = true;
             mapMinX = tiled.MapMinX;
             mapMaxX = tiled.MapMaxX;
+            mapMinY = tiled.MapMinY;
+            mapMaxY = tiled.MapMaxY;
             //currentMapWidth = mapMaxX - mapMinX; // tiled.MapWidth;
-            currentMapHeight = tiled.MapHeight;
+            currentMapHeight = mapMaxY; //tiled.MapHeight;
             currentTerrain = tiled.Terrain;
             currentItems = tiled.Items;
             switch (gameLocation)
@@ -228,6 +233,7 @@ namespace Cauldron
                     startMapX = tiled.StartHouse;
                     break;
             }
+            startMapY = 0; //mapMinY;
             All.Witch.X = 13 * All.TileWidth;
             All.Witch.Y = tiled.StartY * All.TileHeight + 3;
             All.Witch.MinY = 1 * All.TileHeight;
@@ -248,13 +254,15 @@ namespace Cauldron
             showSky = false;
             mapMinX = tiledHouse.MapMinX;
             mapMaxX = tiledHouse.MapMaxX;
-            //currentMapWidth = tiledHouse.MapWidth;
-            currentMapHeight = tiledHouse.MapHeight;
+            mapMinY = tiledHouse.MapMinY;
+            mapMaxY = tiledHouse.MapMaxY;
+            currentMapHeight = mapMaxY - mapMinY;
             currentTerrain = tiledHouse.Terrain;
             currentItems = tiledHouse.Items;
             startMapX = mapMinX;
-            All.Witch.X = (tiledHouse.StartHouse - 5) * All.TileWidth;
-            All.Witch.Y = tiledHouse.StartY * All.TileHeight + 3;
+            startMapY = mapMinY;
+            All.Witch.X = (tiledHouse.Respawns[0].X - startMapX) * All.TileWidth;
+            All.Witch.Y = (tiledHouse.Respawns[0].Y - startMapY) * All.TileHeight + 3;
             All.Witch.MinY = All.Witch.Y;
             All.Witch.MaxY = All.Witch.Y;
             All.Witch.CouldFly = false;
@@ -262,7 +270,7 @@ namespace Cauldron
             All.Witch.DoWalk();
             blockDisplay = false;
             scriptMode = ScriptState.WalkingToPotion;
-            scriptValue = tiledHouse.StartHouse * All.TileWidth - 2; // potion to stop walking
+            scriptValue = (tiledHouse.Respawns[1].X - startMapX) * All.TileWidth - 2; // potion to stop walking
             All.Witch.BlockScroll();
         }
 
@@ -273,12 +281,15 @@ namespace Cauldron
             showSky = false;
             mapMinX = tiledGreen.MapMinX;
             mapMaxX = tiledGreen.MapMaxX;
-            currentMapHeight = tiledGreen.MapHeight;
+            mapMinY = tiledGreen.MapMinY;
+            mapMaxY = tiledGreen.MapMaxY;
+            currentMapHeight = 20; // tiledGreen.MapHeight;
             currentTerrain = tiledGreen.Terrain;
             currentItems = tiledGreen.Items;
             startMapX = mapMinX;
-            All.Witch.X = 0; // (tiledGreen.StartHouse - 5) * All.TileWidth;
-            All.Witch.Y = 5 * All.TileHeight + 3;
+            startMapY = mapMinY + 1;
+            All.Witch.X = (tiledGreen.Respawns[0].X - startMapX) * All.TileWidth;
+            All.Witch.Y = (tiledGreen.Respawns[0].Y - startMapY) * All.TileHeight + 3;
             All.Witch.MinY = All.Witch.Y;
             All.Witch.MaxY = All.Witch.Y;
             All.Witch.CouldFly = false;
@@ -296,12 +307,15 @@ namespace Cauldron
             showSky = false;
             mapMinX = tiledRed.MapMinX;
             mapMaxX = tiledRed.MapMaxX;
-            currentMapHeight = tiledRed.MapHeight;
+            mapMinY = tiledRed.MapMinY;
+            mapMaxY = tiledRed.MapMaxY;
+            currentMapHeight = 23;
             currentTerrain = tiledRed.Terrain;
             currentItems = tiledRed.Items;
             startMapX = mapMinX;
-            All.Witch.X = 0;
-            All.Witch.Y = 5 * All.TileHeight + 3;
+            startMapY = mapMinY + 1;
+            All.Witch.X = (tiledRed.Respawns[0].X - startMapX) * All.TileWidth;
+            All.Witch.Y = (tiledRed.Respawns[0].Y - startMapY) * All.TileHeight + 3;
             All.Witch.MinY = All.Witch.Y;
             All.Witch.MaxY = All.Witch.Y;
             All.Witch.CouldFly = false;
@@ -566,7 +580,7 @@ namespace Cauldron
                             {
                                 System.Diagnostics.Debug.WriteLine("In House, stop making potion, start walking to left");
                                 scriptMode = ScriptState.ExitingHouse;
-                                scriptValue = (tiledHouse.StartHouse - 6) * All.TileWidth;
+                                scriptValue = (tiledHouse.Respawns[0].X - startMapX) * All.TileWidth;
                                 All.Witch.DoWalk();
                             }
                             else
@@ -866,7 +880,7 @@ namespace Cauldron
                 for (int j = 0; j < currentMapHeight; j++)
                 {
                     // le tile en cours
-                    tile = currentTerrain[currentX, j];
+                    tile = currentTerrain[currentX, j + startMapY];
                     if (tile > 0)
                     {
                         tile--;
@@ -876,9 +890,9 @@ namespace Cauldron
                         bool generator = false;
 
                         // un attribut particulier sur la tile ?
-                        if (tiled.Tiles.ContainsKey(tile))
+                        if (All.tiled.Tiles.ContainsKey(tile + 1))
                         {
-                            Tile t = tiled.Tiles[tile];
+                            Tile t = All.tiled.Tiles[tile + 1];
                             switch (t.Name)
                             {
                                 case "generator":
@@ -943,7 +957,7 @@ namespace Cauldron
                 for (int j = 0; j < currentMapHeight; j++)
                 {
                     // le tile en cours
-                    tile = currentItems[currentX, j];
+                    tile = currentItems[currentX, j + startMapY];
                     if (tile > 0)
                     {
                         tile--;
@@ -951,9 +965,9 @@ namespace Cauldron
                         int y = j * All.TileHeight;
 
                         // un attribut particulier sur la tile ?
-                        if (tiled.Tiles.ContainsKey(tile))
+                        if (All.tiled.Tiles.ContainsKey(tile + 1))
                         {
-                            Tile t = tiled.Tiles[tile];
+                            Tile t = All.tiled.Tiles[tile + 1];
                             switch (t.Name)
                             {
                                 case "item":
@@ -1029,16 +1043,16 @@ namespace Cauldron
                 for (int j = 0; j < currentMapHeight; j++)
                 {
                     // le tile en cours
-                    tile = currentTerrain[currentX, j];
+                    tile = currentTerrain[currentX, j + startMapY];
                     if (tile > 0)
                     {
                         tile--;
                         int x = i * All.TileWidth;
                         int y = j * All.TileHeight;
                         // un attribut particulier sur la tile ?
-                        if (tiled.Tiles.ContainsKey(tile))
+                        if (All.tiled.Tiles.ContainsKey(tile + 1))
                         {
-                            Tile t = tiled.Tiles[tile];
+                            Tile t = All.tiled.Tiles[tile + 1];
                             switch (t.Name)
                             {
                                 case "generator":

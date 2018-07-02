@@ -29,6 +29,8 @@ namespace Cauldron
         public int StartY { get; private set; }
         public int MapMinX { get; private set; }
         public int MapMaxX { get; private set; }
+        public int MapMinY { get; private set; }
+        public int MapMaxY { get; private set; }
 
         public Int16[,] Terrain;
         public Int16[,] Items;
@@ -73,8 +75,6 @@ namespace Cauldron
             int x, y, width, height, index;
             string[] values;
             bool chunkPresent = false;
-            MapMinX = MapWidth;
-            MapMaxX = 0;
             foreach (XElement xChunk in element.Elements("chunk"))
             {
                 chunkPresent = true;
@@ -90,68 +90,20 @@ namespace Cauldron
                     for (int i = 0; i < width; i++)
                     {
                         // position de la maison
-                        if (values[index].Equals("701"))
+                        /*if (values[index].Equals("701"))
                         {
                             StartHouse = x + i - 6;
                             StartY = y + j + 3;
                             System.Diagnostics.Debug.WriteLine(String.Format("House @ {0}x{1}", StartHouse, StartY));
-                        }
-                        else if (values[index].Equals("11")) // limite gauche/droite du terrain
-                        {
-                            if ((x + i) > MapMaxX)
-                            {
-                                MapMaxX = x + i;
-                            }
-                            else
-                            {
-                                if ((x + i) < MapMinX)
-                                    MapMinX = x + i - 1;
-                            }
-                        }
-
+                        }*/
                         Terrain[x + i, y + j] = Convert.ToInt16(values[index]);
                         index++;
-                        if (All.tiled.Tiles.ContainsKey(Terrain[x + i, y + j] - 1))
-                        {
-                            switch (All.tiled.Tiles[Terrain[x + i, y + j] - 1].Name)
-                            {
-                                case "zone":
-                                case "position":
-                                case "generator":
-                                    break;
-                                case "position":
-                                    switch (All.tiled.Tiles[Terrain[x + i, y + j] - 1].Content)
-                                    {
-                                        case "door_red":
-                                            StartDoorRed = x + i - 11;
-                                            System.Diagnostics.Debug.WriteLine(String.Format("Red door @ {0}", x + i));
-                                            break;
-                                        case "door_blue":
-                                            StartDoorBlue = x + i - 11;
-                                            System.Diagnostics.Debug.WriteLine(String.Format("Blue door @ {0}", x + i));
-                                            break;
-                                        case "door_green":
-                                            StartDoorGreen = x + i - 11;
-                                            System.Diagnostics.Debug.WriteLine(String.Format("Green door @ {0}", x + i));
-                                            break;
-                                        case "door_purple":
-                                            StartDoorPurple = x + i - 11;
-                                            System.Diagnostics.Debug.WriteLine(String.Format("Purple door @ {0}", x + i));
-                                            break;
-                                    }
-                                    break;
-                                default:
-                                    System.Diagnostics.Debug.WriteLine(String.Format("ERROR @ {0}x{1}, name: {2}", x + i, y + j, All.tiled.Tiles[Terrain[x + i, y + j] - 1].Name));
-                                    break;
-                            }
-                        }
+                        DoCheckTerrain(x + i, y + j);
                     }
                 }
             }
             if (!chunkPresent)
             {
-                MapMinX = MapWidth;
-                MapMaxX = 0;
                 values = element.Value.Replace("\n", "").Split(',');
                 index = 0;
                 for (int j = 0; j < MapHeight; j++)
@@ -161,70 +113,71 @@ namespace Cauldron
                         // position du pot dans la maison
                         if (values[index].Equals("1165"))
                         {
-                            StartHouse = i - 2;
-                            StartY = j - 2;
-                            System.Diagnostics.Debug.WriteLine(String.Format("Vial @ {0}x{1}", StartHouse, StartY));
+                            //StartHouse = i - 2;
+                            //StartY = j - 2;
+                            System.Diagnostics.Debug.WriteLine(String.Format("Vial @ {0}x{1}", i - 2, j - 2));
                         }
-                        /*else if (values[index].Equals("11")) // limite gauche/droite du terrain
-                        {
-                            if (i > MapMaxX)
-                            {
-                                MapMaxX = i;
-                            }
-                            else
-                            {
-                                if (i < MapMinX)
-                                    MapMinX = i - 1;
-                            }
-                        }*/
                         Terrain[i, j] = Convert.ToInt16(values[index]);
-                        if (All.tiled.Tiles.ContainsKey(Terrain[i, j] - 1))
-                        {
-                            switch (All.tiled.Tiles[Terrain[i, j] - 1].Name)
-                            {
-                                case "zone":
-                                    switch (All.tiled.Tiles[Terrain[i, j] - 1].Content)
-                                    {
-                                        case "border":
-                                            if (i > MapMaxX)
-                                            {
-                                                MapMaxX = i;
-                                            }
-                                            else
-                                            {
-                                                if (i < MapMinX)
-                                                    MapMinX = i - 1;
-                                            }
-                                            break;
-                                        case "landing":
-                                            break;
-                                        case "spawn":
-                                            Respawns.Add(new Respawn() { X = i, Y = j });
-                                            System.Diagnostics.Debug.WriteLine(String.Format("Spawn @ {0}x{1}", i, j));
-                                            break;
-                                        default:
-                                            System.Diagnostics.Debug.WriteLine(String.Format("ERROR @ {0}x{1}, Zone Content: {2}", i, j, All.tiled.Tiles[Terrain[i, j] - 1].Content));
-                                            break;
-                                    }
-                                    break;
-                                default:
-                                    System.Diagnostics.Debug.WriteLine(String.Format("ERROR @ {0}x{1}, name: {2}", i, j, All.tiled.Tiles[Terrain[i, j] - 1].Name));
-                                    break;
-                            }
-                        }
                         index++;
+                        DoCheckTerrain(i, j);
                     }
                 }
             }
-            System.Diagnostics.Debug.WriteLine(String.Format("Map from {0} to {1}", MapMinX, MapMaxX));
         } // ProcessTerrain
+
+        private void DoCheckTerrain(int x, int y)
+        {
+            if (All.tiled.Tiles.ContainsKey(Terrain[x, y]))
+            {
+                switch (All.tiled.Tiles[Terrain[x, y]].Name)
+                {
+                    case "generator": // use when drawing screen
+                        break;
+                    case "position":
+                        switch (All.tiled.Tiles[Terrain[x, y]].Content)
+                        {
+                            case "door_red":
+                                StartDoorRed = x - 11;
+                                System.Diagnostics.Debug.WriteLine(String.Format("Red door @ {0}", x));
+                                break;
+                            case "door_blue":
+                                StartDoorBlue = x - 11;
+                                System.Diagnostics.Debug.WriteLine(String.Format("Blue door @ {0}", x));
+                                break;
+                            case "door_green":
+                                StartDoorGreen = x - 12;
+                                System.Diagnostics.Debug.WriteLine(String.Format("Green door @ {0}", x));
+                                break;
+                            case "door_purple":
+                                StartDoorPurple = x - 12;
+                                System.Diagnostics.Debug.WriteLine(String.Format("Purple door @ {0}", x));
+                                break;
+                            case "house":
+                                StartHouse = x - 12;
+                                StartY = y - 2;
+                                System.Diagnostics.Debug.WriteLine(String.Format("House @ {0}x{1}", StartHouse, StartY));
+                                break;
+                        }
+                        break;
+                    default:
+                        System.Diagnostics.Debug.WriteLine(String.Format("ERROR terrain @ {0}x{1}, name: {2}/{3}", x, y, All.tiled.Tiles[Terrain[x, y]].Name, All.tiled.Tiles[Terrain[x, y]].Content));
+                        break;
+                }
+            }
+        }
 
         private void ProcessItems(XElement element)
         {
+            MapMinX = MapWidth;
+            MapMaxX = 0;
+            MapMinY = MapHeight;
+            MapMaxY = 0;
             int x, y, width, height, index;
             string[] values;
+            bool chunkPresent = false;
             foreach (XElement xChunk in element.Elements("chunk"))
             {
+                chunkPresent = true;
                 x = (int)xChunk.Attribute("x");
                 y = (int)xChunk.Attribute("y");
                 width = (int)xChunk.Attribute("width");
@@ -238,12 +191,76 @@ namespace Cauldron
                         if (!values[index].Equals("0"))
                         {
                             Items[x + i, y + j] = Convert.ToInt16(values[index]);
+                            DoCheckItems(x + i, y + j);
                         }
                         index++;
                     }
                 }
             }
+            if (!chunkPresent)
+            {
+                values = element.Value.Replace("\n", "").Split(',');
+                index = 0;
+                for (int j = 0; j < MapHeight; j++)
+                {
+                    for (int i = 0; i < MapWidth; i++)
+                    {
+                        if (!values[index].Equals("0"))
+                        {
+                            Items[i, j] = Convert.ToInt16(values[index]);
+                            DoCheckItems(i, j);
+                        }
+                        index++;
+                    }
+                }
+            }
+            System.Diagnostics.Debug.WriteLine(String.Format("Map from {0}/{1} to {2}/{3}", MapMinX, MapMinY, MapMaxX, MapMaxY));
         } // ProcessItems
+
+        private void DoCheckItems(int x, int y)
+        {
+            if (All.tiled.Tiles.ContainsKey(Items[x, y]))
+            {
+                switch (All.tiled.Tiles[Items[x, y]].Name)
+                {
+                    case "zone":
+                        switch (All.tiled.Tiles[Items[x, y]].Content)
+                        {
+                            case "border":
+                                if (x > MapMaxX)
+                                {
+                                    MapMaxX = x;
+                                }
+                                else
+                                {
+                                    if (x < MapMinX)
+                                        MapMinX = x;
+                                }
+                                if (y > MapMaxY)
+                                    MapMaxY = y;
+                                else if (y < MapMinY)
+                                    MapMinY = y;
+                                break;
+                            case "blocking":
+                            case "landing":
+                                break;
+                            case "spawn":
+                                Respawns.Add(new Respawn() { X = x, Y = y - 2 });
+                                System.Diagnostics.Debug.WriteLine(String.Format("Spawn @ {0}x{1}", x, y));
+                                break;
+                            default:
+                                System.Diagnostics.Debug.WriteLine(String.Format("ERROR @ {0}x{1}, Zone Content: {2}", x, y, All.tiled.Tiles[Items[x, y]].Content));
+                                break;
+                        }
+                        break;
+                    case "item":
+                        break;
+                    default:
+                        System.Diagnostics.Debug.WriteLine(String.Format("ERROR items @ {0}x{1}, name: {2}/{3}", x, y, All.tiled.Tiles[Items[x, y]].Name, All.tiled.Tiles[Items[x, y]].Content));
+                        break;
+                }
+            }
+        }
 
         public void ProcessTileSet(Stream stream)
         {
@@ -253,7 +270,7 @@ namespace Cauldron
             XElement xTileSet = xDoc.Element("tileset");
             foreach (XElement xTile in xTileSet.Elements("tile"))
             {
-                i = (int)xTile.Attribute("id");
+                i = 1 + (int)xTile.Attribute("id");
                 foreach (XElement xProperties in xTile.Elements("properties"))
                 {
                     foreach (XElement xProperty in xProperties.Elements("property"))
