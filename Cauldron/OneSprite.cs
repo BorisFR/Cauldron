@@ -104,6 +104,7 @@ namespace Cauldron
             animElaps = TimeSpan.FromMilliseconds(animDelay);
             StepAnim = from;
             this.animStop = animStop;
+            startAnim = DateTime.UtcNow;
         }
 
         // *********************************************************************

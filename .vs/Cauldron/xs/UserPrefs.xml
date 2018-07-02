@@ -1,10 +1,10 @@
 ﻿<Properties StartupConfiguration="{7A6F53FB-0BC4-4B13-A50E-C9813BBD2812}|Default">
-  <MonoDevelop.Ide.Workbench ActiveDocument="Cauldron/Tiled.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Cauldron/MainPage.xaml.cs">
     <Files>
       <File FileName="Cauldron/MainPage.xaml.cs" Line="631" Column="33" />
       <File FileName="Cauldron/Global.cs" Line="17" Column="16" />
       <File FileName="Cauldron/All.cs" Line="121" Column="15" />
-      <File FileName="Cauldron/Witch.cs" Line="733" Column="43" />
+      <File FileName="Cauldron/Witch.cs" Line="316" Column="38" />
       <File FileName="Cauldron/Tiled.cs" Line="111" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
