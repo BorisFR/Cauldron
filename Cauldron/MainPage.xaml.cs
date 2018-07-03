@@ -283,11 +283,11 @@ namespace Cauldron
             mapMaxX = tiledGreen.MapMaxX;
             mapMinY = tiledGreen.MapMinY;
             mapMaxY = tiledGreen.MapMaxY;
-            currentMapHeight = 20; // tiledGreen.MapHeight;
+            currentMapHeight = mapMaxY - mapMinY;
             currentTerrain = tiledGreen.Terrain;
             currentItems = tiledGreen.Items;
             startMapX = mapMinX;
-            startMapY = mapMinY + 1;
+            startMapY = mapMinY;
             All.Witch.X = (tiledGreen.Respawns[0].X - startMapX) * All.TileWidth;
             All.Witch.Y = (tiledGreen.Respawns[0].Y - startMapY) * All.TileHeight + 3;
             All.Witch.MinY = All.Witch.Y;
