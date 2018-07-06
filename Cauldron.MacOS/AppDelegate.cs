@@ -17,15 +17,26 @@ namespace Cauldron.MacOS
 
             var rect = new CoreGraphics.CGRect(200, NSScreen.MainScreen.VisibleFrame.Size.Height - 100, 4 * 320, 4 * 222 - 22); // 1600 - 40 * 8 - 34 * 8, 998 - 23 * 8 - 23 * 8 - 3);
             _window = new NSWindow(rect, style, NSBackingStore.Buffered, false);
-            _window.Title = "Cauldron";
+            _window.Title = "Cauldron by Boris";
             //_window.TitleVisibility = NSWindowTitleVisibility.Hidden;
+            All.ScreenSize.ChangeSize += MyScreen_ChangeSize;
         }
 
-        /*public void ChangeSize(float width, float height)
+        void MyScreen_ChangeSize(int scale)
         {
-            CGSize aSize = new CGSize(width, height);
+            if ((scale * 320) > NSScreen.MainScreen.VisibleFrame.Size.Width)
+            {
+                All.ScreenSize.Scale = 1;
+                return;
+            }
+            if ((scale * 222 - 22) > NSScreen.MainScreen.VisibleFrame.Size.Height)
+            {
+                All.ScreenSize.Scale = 1;
+                return;
+            }
+            CGSize aSize = new CGSize(scale * 320, scale * 222 - 22);
             _window.SetContentSize(aSize);
-        }*/
+        }
 
         public override NSWindow MainWindow
         {

@@ -403,6 +403,12 @@ namespace Cauldron
                 if (pausedGame)
                     return true;
 
+                if (All.KeyS)
+                {
+                    All.ClearKeyS();
+                    All.ScreenSize.Scale++;
+                }
+
                 tempo = DateTime.UtcNow; // pour que tout soit bien synchronisé
                 spriteEnergy.DoAnim(tempo);
                 spriteWater.DoAnim(tempo);
@@ -1091,6 +1097,45 @@ namespace Cauldron
 
 
             All.Witch.Draw(canvas);
+
+
+
+            // /////////////////////////////////////////////////////////////////
+            // Ecran settings
+            // /////////////////////////////////////////////////////////////////
+
+
+            // display
+
+            // taille 1:1 / x2 / x3 / x4
+
+            // filtre : aucun
+
+
+            // vies
+
+            // ne peut pas mourrir
+
+            // ou vies infini
+
+
+            // magie
+
+            // voler ne consomme pas
+
+            // tirer ne consomme pas
+
+
+            // gameplay
+
+            // voler dans les grottes
+
+            // démarre avec toutes les clés
+
+            // démarre avec tous les objets
+
+
+
 
             /*canvas.DrawLine(All.SPEED_LEFT_MAX * All.GAME_SCALE + All.DECAL_MAP_X, 0, All.SPEED_LEFT_MAX * All.GAME_SCALE + All.DECAL_MAP_X, 1000, textFPS);
             canvas.DrawLine(All.SPEED_LEFT_MIDDLE * All.GAME_SCALE + All.DECAL_MAP_X, 0, All.SPEED_LEFT_MIDDLE * All.GAME_SCALE + All.DECAL_MAP_X, 1000, paintCyan);

@@ -68,10 +68,14 @@ namespace Cauldron
         public static void ClearKeyPause() { KeyPause = false; }
         public static bool KeyMap { get; private set; }
         public static void ClearKeyMap() { KeyMap = false; }
+        public static bool KeyS { get; private set; }
+        public static void ClearKeyS() { KeyS = false; }
         public static bool KeyEsc { get; private set; }
 
         private static int lastKey;
         private static Random rnd;
+
+        public static ChangeScreenSize ScreenSize = new ChangeScreenSize();
 
         // *********************************************************************
 
@@ -91,6 +95,8 @@ namespace Cauldron
             SPEED_RIGHT_MAX = Convert.ToInt32(part * 9);
 
             SPEED_DELTA_X = Convert.ToInt32(part * 3);
+
+            ScreenSize.Scale = 4;
 
             InitNewGame();
         }
@@ -184,6 +190,9 @@ namespace Cauldron
             lastKey = keyCode;
             switch (keyCode)
             {
+                case 1: // S
+                    KeyS = true;
+                    break;
                 case 35: // P
                     KeyPause = true;
                     break;
@@ -224,6 +233,9 @@ namespace Cauldron
             lastKey = 0;
             switch (keyCode)
             {
+                case 1: // S
+                    KeyS = false;
+                    break;
                 case 35: // P
                     KeyPause = false;
                     break;
