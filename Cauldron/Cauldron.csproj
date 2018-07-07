@@ -28,6 +28,9 @@
     <EmbeddedResource Include="Assets\Cauldron_Cave_Green.tmx" />
     <EmbeddedResource Include="Assets\Cauldron_Cave_Red.tmx" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CaudronDll\CaudronDll.csproj" />
+  </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>
       <Properties>

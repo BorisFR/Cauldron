@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using CaudronDll;
 using SkiaSharp;
 using SkiaSharp.Views.Forms;
 using Xamarin.Forms;
@@ -10,6 +11,7 @@ namespace Cauldron
 {
     public partial class MainPage : ContentPage
     {
+        CauldronMain cauldronMain;
 
         // Gestion de la carte de jeu
         Tiled tiled = new Tiled();
@@ -99,6 +101,10 @@ namespace Cauldron
         public MainPage()
         {
             InitializeComponent();
+
+            cauldronMain = new CauldronMain();
+            //cauldronMain.Doupdate();
+
 
             theCanvas.SizeChanged += TheCanvas_SizeChanged;
             theCanvas.Touch += TheCanvas_Touch;
@@ -1099,6 +1105,8 @@ namespace Cauldron
             All.Witch.Draw(canvas);
 
 
+            //cauldronMain.DoDraw();
+            //theImage.Source = ImageSource.FromStream(() => cauldronMain.Image);
 
             // /////////////////////////////////////////////////////////////////
             // Ecran settings

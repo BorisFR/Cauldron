@@ -3,5 +3,6 @@
              xmlns:views="clr-namespace:SkiaSharp.Views.Forms;assembly=SkiaSharp.Views.Forms">
     <Grid>
         <views:SKCanvasView x:Name="theCanvas" PaintSurface="OnPainting" />
+        <!--<Image x:Name="theImage" Margin="0" />-->
     </Grid>
 </ContentPage>
