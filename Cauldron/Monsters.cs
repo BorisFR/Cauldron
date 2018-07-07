@@ -14,6 +14,7 @@ namespace Cauldron
     public class Monsters
     {
 
+        List<float[]> patternStatic = new List<float[]>();
         // Bat 1
         List<float[]> patternBat1 = new List<float[]>();
         // Bat 2
@@ -39,6 +40,24 @@ namespace Cauldron
         const int GHOST_SPRITES_MAX = 8; // nombre d'animations d'un fantôme
         OneSprite[] spritesGhost = new OneSprite[GHOST_SPRITES_MAX];
         OneSprite spriteShark;
+        const int SEAGULL_SPRITES_MAX = 4; // nombre d'animations 
+        OneSprite[] spritesSeagull = new OneSprite[SEAGULL_SPRITES_MAX];
+        const int SKULL_SPRITES_MAX = 3; // nombre d'animations 
+        OneSprite[] spritesSkull = new OneSprite[SKULL_SPRITES_MAX];
+        const int BONES_SPRITES_MAX = 3; // nombre d'animations 
+        OneSprite[] spritesBones = new OneSprite[BONES_SPRITES_MAX];
+        const int FIREBALL_SPRITES_MAX = 8; // nombre d'animations 
+        OneSprite[] spritesFireball = new OneSprite[FIREBALL_SPRITES_MAX];
+        const int RIBCAGE_SPRITES_MAX = 5; // nombre d'animations 
+        OneSprite[] spritesRibcage = new OneSprite[RIBCAGE_SPRITES_MAX];
+        const int SNAPPER_SPRITES_MAX = 8; // nombre d'animations 
+        OneSprite[] spritesSnapper = new OneSprite[SNAPPER_SPRITES_MAX];
+        const int MANDRAGORA_SPRITES_MAX = 9; // nombre d'animations 
+        OneSprite[] spritesMandragora = new OneSprite[MANDRAGORA_SPRITES_MAX];
+        const int PUMPKIN_SPRITES_MAX = 6; // nombre d'animations 
+        OneSprite[] spritesPumpkin = new OneSprite[PUMPKIN_SPRITES_MAX];
+        const int PUMPKING_SPRITES_MAX = 3; // nombre d'animations 
+        OneSprite[] spritesPumpKing = new OneSprite[PUMPKING_SPRITES_MAX];
 
         OneSprite spriteExplode;
         Dictionary<int, OneObject> explodes = new Dictionary<int, OneObject>();
@@ -62,17 +81,62 @@ namespace Cauldron
 
             for (int i = 0; i < BAT_SPRITES_MAX; i++)
             {
-                spritesBat1[i] = new OneSprite(7 * 100 + 100 - 32, SPRITE_WIDTH, SPRITE_HEIGHT, 4, 120, animBack: true);
-                spritesBat1[i].StepAnim = i % 4;
-                spritesBat2[i] = new OneSprite(7 * 100 + 100 - 16, SPRITE_WIDTH, SPRITE_HEIGHT, 4, 120, animBack: true);
-                spritesBat2[i].StepAnim = i % 4;
+                spritesBat1[i] = new OneSprite(7 * 100 + 100 - 32, SPRITE_WIDTH, SPRITE_HEIGHT, BAT_SPRITES_MAX, 120, animBack: true);
+                spritesBat1[i].StepAnim = i % BAT_SPRITES_MAX;
+                spritesBat2[i] = new OneSprite(7 * 100 + 100 - 16, SPRITE_WIDTH, SPRITE_HEIGHT, BAT_SPRITES_MAX, 120, animBack: true);
+                spritesBat2[i].StepAnim = i % BAT_SPRITES_MAX;
             }
             for (int i = 0; i < GHOST_SPRITES_MAX; i++)
             {
-                spritesGhost[i] = new OneSprite(11 * 100 + 100 - 32, SPRITE_WIDTH, SPRITE_HEIGHT, 8, 120);
-                spritesGhost[i].StepAnim = i % 8;
+                spritesGhost[i] = new OneSprite(11 * 100 + 100 - 32, SPRITE_WIDTH, SPRITE_HEIGHT, GHOST_SPRITES_MAX, 120);
+                spritesGhost[i].StepAnim = i % GHOST_SPRITES_MAX;
             }
             spriteShark = new OneSprite(20 * 100 + 100 - 16, SPRITE_WIDTH, SPRITE_HEIGHT, 1, 0);
+            for (int i = 0; i < SEAGULL_SPRITES_MAX; i++)
+            {
+                spritesSeagull[i] = new OneSprite(20 * 100 + 100 - 32, SPRITE_WIDTH, SPRITE_HEIGHT, SEAGULL_SPRITES_MAX, 120);
+                spritesSeagull[i].StepAnim = i % SEAGULL_SPRITES_MAX;
+            }
+            for (int i = 0; i < SKULL_SPRITES_MAX; i++)
+            {
+                spritesSkull[i] = new OneSprite(20 * 100 + 100 - 12, SPRITE_WIDTH, SPRITE_HEIGHT, SKULL_SPRITES_MAX, 120, animBack: true);
+                spritesSkull[i].StepAnim = i % SKULL_SPRITES_MAX;
+            }
+            for (int i = 0; i < BONES_SPRITES_MAX; i++)
+            {
+                spritesBones[i] = new OneSprite(24 * 100 + 100 - 32, SPRITE_WIDTH, SPRITE_HEIGHT, BONES_SPRITES_MAX, 120, animBack: true);
+                spritesBones[i].StepAnim = i % 3;
+            }
+            for (int i = 0; i < FIREBALL_SPRITES_MAX; i++)
+            {
+                spritesFireball[i] = new OneSprite(28 * 100 + 100 - 32, SPRITE_WIDTH, SPRITE_HEIGHT, FIREBALL_SPRITES_MAX, 120);
+                spritesFireball[i].StepAnim = i % FIREBALL_SPRITES_MAX;
+            }
+            for (int i = 0; i < RIBCAGE_SPRITES_MAX; i++)
+            {
+                spritesRibcage[i] = new OneSprite(36 * 100 + 100 - 32, SPRITE_WIDTH, SPRITE_HEIGHT, RIBCAGE_SPRITES_MAX, 120, animBack: true);
+                spritesRibcage[i].StepAnim = i % RIBCAGE_SPRITES_MAX;
+            }
+            for (int i = 0; i < SNAPPER_SPRITES_MAX; i++)
+            {
+                spritesSnapper[i] = new OneSprite(40 * 100 + 100 - 32, SPRITE_WIDTH, SPRITE_HEIGHT, SNAPPER_SPRITES_MAX, 120);
+                spritesSnapper[i].StepAnim = i % SNAPPER_SPRITES_MAX;
+            }
+            for (int i = 0; i < MANDRAGORA_SPRITES_MAX; i++)
+            {
+                spritesMandragora[i] = new OneSprite(32 * 100 + 100 - 36, SPRITE_WIDTH, SPRITE_HEIGHT, MANDRAGORA_SPRITES_MAX, 120, animBack: true);
+                spritesMandragora[i].StepAnim = i % MANDRAGORA_SPRITES_MAX;
+            }
+            for (int i = 0; i < PUMPKIN_SPRITES_MAX; i++)
+            {
+                spritesPumpkin[i] = new OneSprite(36 * 100 + 100 - 32 - 24, SPRITE_WIDTH, SPRITE_HEIGHT, PUMPKIN_SPRITES_MAX, 120);
+                spritesPumpkin[i].StepAnim = i % PUMPKIN_SPRITES_MAX;
+            }
+            for (int i = 0; i < PUMPKING_SPRITES_MAX; i++)
+            {
+                spritesPumpKing[i] = new OneSprite(24 * 100 + 100 - 20, SPRITE_WIDTH, SPRITE_HEIGHT, PUMPKING_SPRITES_MAX, 120, animBack: true);
+                spritesPumpKing[i].StepAnim = i % PUMPKING_SPRITES_MAX;
+            }
 
             // un pattern est constitué d'une suite de couple "mouvement/combien de case(0=infini)"
             // Chauve souris type 1
@@ -104,6 +168,9 @@ namespace Cauldron
             pattern = new float[] { (short)MovingDirection.DiagUpLeftSlow, 0.2f, (short)MovingDirection.ToLeft, 7.0f, (short)MovingDirection.DiagDownLeftSlow, 2.0f };
             patternShark.Add(pattern);
 
+            pattern = new float[] { (short)MovingDirection.None, 0 };
+            patternStatic.Add(pattern);
+
             lastPatternAnim = DateTime.UtcNow;
         }
 
@@ -112,6 +179,7 @@ namespace Cauldron
         public void RemoveMonsters()
         {
             monsters.Clear();
+            inhibeGeneratorID.Clear();
         }
 
         // *********************************************************************
@@ -162,6 +230,27 @@ namespace Cauldron
             inhibeGeneratorID.Add(idGenerator, generatorInhibeDelay);
         }
 
+        public void GeneratorStatic(MonsterType category, int idGenerator, int x, int y)
+        {
+            if (inhibeGeneratorID.ContainsKey(idGenerator))
+                return;
+            OneMonster monster = new OneMonster();
+            monster.Category = category;
+            monster.ID = idGenerator;
+            monster.X = x;
+            monster.Y = y;
+            monster.AnimationStep = 0;
+            monster.Pattern = patternStatic[0];
+            monster.PatternStep = 0;
+            monster.PatternDelay = 0;
+            if (monster.PatternDelay == 0)
+                monster.PatternNonStop = true;
+            monsters.Add(monster);
+            System.Diagnostics.Debug.WriteLine(String.Format("Static Monster #{3}: {0} at {1}/{2}", category, x, y, monsters.Count));
+            // on rend inactif ce générateur
+            inhibeGeneratorID.Add(idGenerator, -1); // toppé pour ne pas être supprimé
+        }
+
         // *********************************************************************
 
         /// <summary>
@@ -180,7 +269,14 @@ namespace Cauldron
                 }
             }
             foreach (OneMonster m in toDelete)
+            {
+                if (inhibeGeneratorID.ContainsKey(m.ID))
+                {
+                    if (inhibeGeneratorID[m.ID] == -1)
+                        inhibeGeneratorID.Remove(m.ID);
+                }
                 monsters.Remove(m);
+            }
 
             foreach (var kvp in explodes.ToList<KeyValuePair<int, OneObject>>())
             {
@@ -206,7 +302,14 @@ namespace Cauldron
                 }
             }
             foreach (OneMonster m in toDelete)
+            {
+                if (inhibeGeneratorID.ContainsKey(m.ID))
+                {
+                    if (inhibeGeneratorID[m.ID] == -1)
+                        inhibeGeneratorID.Remove(m.ID);
+                }
                 monsters.Remove(m);
+            }
 
             foreach (var kvp in explodes.ToList<KeyValuePair<int, OneObject>>())
             {
@@ -262,6 +365,24 @@ namespace Cauldron
             }
             for (int i = 0; i < GHOST_SPRITES_MAX; i++)
                 spritesGhost[i].DoAnim(time);
+            for (int i = 0; i < SEAGULL_SPRITES_MAX; i++)
+                spritesSeagull[i].DoAnim(time);
+            for (int i = 0; i < FIREBALL_SPRITES_MAX; i++)
+                spritesFireball[i].DoAnim(time);
+            for (int i = 0; i < SKULL_SPRITES_MAX; i++)
+                spritesSkull[i].DoAnim(time);
+            for (int i = 0; i < BONES_SPRITES_MAX; i++)
+                spritesBones[i].DoAnim(time);
+            for (int i = 0; i < RIBCAGE_SPRITES_MAX; i++)
+                spritesRibcage[i].DoAnim(time);
+            for (int i = 0; i < SNAPPER_SPRITES_MAX; i++)
+                spritesSnapper[i].DoAnim(time);
+            for (int i = 0; i < MANDRAGORA_SPRITES_MAX; i++)
+                spritesMandragora[i].DoAnim(time);
+            for (int i = 0; i < PUMPKIN_SPRITES_MAX; i++)
+                spritesPumpkin[i].DoAnim(time);
+            for (int i = 0; i < PUMPKING_SPRITES_MAX; i++)
+                spritesPumpKing[i].DoAnim(time);
 
             List<int> deleteList = new List<int>();
 
@@ -369,6 +490,8 @@ namespace Cauldron
                             break;
                         case MovingDirection.DiagDownLeftSpeed:
                             MoveXY(monster, -3 * stepX, 3 * stepY);
+                            break;
+                        case MovingDirection.None:
                             break;
                         default:
                             System.Diagnostics.Debug.WriteLine(String.Format("Pattern: {0}", (MovingDirection)monster.Pattern[monster.PatternStep]));
@@ -526,12 +649,22 @@ namespace Cauldron
                 } // foreach monster
 
                 foreach (OneMonster m in toDelete)
+                {
+                    //System.Diagnostics.Debug.WriteLine(String.Format("Remove monster {0}", m.Category));
+                    if (inhibeGeneratorID.ContainsKey(m.ID))
+                    {
+                        if (inhibeGeneratorID[m.ID] == -1)
+                            deleteList.Add(m.ID);
+                    }
                     monsters.Remove(m);
+                }
 
 
                 // traitement de l'inhibition des générateurs
                 foreach (var kvp in inhibeGeneratorID.ToList<KeyValuePair<int, int>>())
                 {
+                    if (inhibeGeneratorID[kvp.Key] == -1) // on ne le supprime jamais
+                        continue;
                     inhibeGeneratorID[kvp.Key]--;
                     if (inhibeGeneratorID[kvp.Key] < 0)
                         deleteList.Add(kvp.Key); // on peut rendre actif ce générateur
@@ -578,6 +711,33 @@ namespace Cauldron
                         break;
                     case MonsterType.Ghost:
                         spritesGhost[monster.AnimationStep].Draw(canvas, monster.X, monster.Y, scrollX);
+                        break;
+                    case MonsterType.Seagull:
+                        spritesSeagull[monster.AnimationStep].Draw(canvas, monster.X, monster.Y, scrollX);
+                        break;
+                    case MonsterType.Fireball:
+                        spritesFireball[monster.AnimationStep].Draw(canvas, monster.X, monster.Y, scrollX);
+                        break;
+                    case MonsterType.Skull:
+                        spritesSkull[monster.AnimationStep].Draw(canvas, monster.X, monster.Y, scrollX);
+                        break;
+                    case MonsterType.Bones:
+                        spritesBones[monster.AnimationStep].Draw(canvas, monster.X, monster.Y, scrollX);
+                        break;
+                    case MonsterType.Ribcage:
+                        spritesRibcage[monster.AnimationStep].Draw(canvas, monster.X, monster.Y, scrollX);
+                        break;
+                    case MonsterType.Snapper:
+                        spritesSnapper[monster.AnimationStep].Draw(canvas, monster.X, monster.Y, scrollX);
+                        break;
+                    case MonsterType.Mandragora:
+                        spritesMandragora[monster.AnimationStep].Draw(canvas, monster.X, monster.Y, scrollX);
+                        break;
+                    case MonsterType.Pumpkin:
+                        spritesPumpkin[monster.AnimationStep].Draw(canvas, monster.X, monster.Y, scrollX);
+                        break;
+                    case MonsterType.PumpKing:
+                        spritesPumpKing[monster.AnimationStep].Draw(canvas, monster.X, monster.Y, scrollX);
                         break;
                 }
             }

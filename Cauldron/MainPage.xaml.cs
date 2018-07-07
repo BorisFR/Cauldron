@@ -15,6 +15,7 @@ namespace Cauldron
 
         // Gestion de la carte de jeu
         Tiled tiled = new Tiled();
+        Tiled tiledStartScreen = new Tiled();
         Tiled tiledHouse = new Tiled();
         Tiled tiledGreen = new Tiled();
         Tiled tiledRed = new Tiled();
@@ -112,6 +113,8 @@ namespace Cauldron
             //pixels = new SKColor[MAX_WIDTH * MAX_HEIGHT];
             //bmpPixels = new SKBitmap(MAX_WIDTH, MAX_HEIGHT);
 
+            // on charge l'écran d'accueil
+            tiledStartScreen.Load(All.GetStream("Cauldron_Start_Screen.tmx"));
             // on charge le plan TILED
             tiled.Load(All.GetStream("Cauldron.tmx"));
             // on charge la maison
@@ -170,8 +173,9 @@ namespace Cauldron
 
             gameLocation = GameLocation.AtHouse;
 
+            StartScreen();
             //StartInHouse();
-            StartOutside();
+            //StartOutside();
 
 
             scrollX = 0;
@@ -250,6 +254,33 @@ namespace Cauldron
             blockDisplay = false;
             scriptMode = ScriptState.ExitDoor;
             scriptValue = All.Witch.X + 7 * All.TileWidth;
+            All.Witch.AuthorizeScroll();
+        }
+
+        public void StartScreen()
+        {
+            blockDisplay = true;
+            map = Map.StartScreen;
+            showSky = false;
+            mapMinX = tiledStartScreen.MapMinX;
+            mapMaxX = tiledStartScreen.MapMaxX;
+            mapMinY = tiledStartScreen.MapMinY;
+            mapMaxY = tiledStartScreen.MapMaxY;
+            currentMapHeight = mapMaxY - mapMinY;
+            currentTerrain = tiledStartScreen.Terrain;
+            currentItems = tiledStartScreen.Items;
+            startMapX = mapMinX;
+            startMapY = mapMinY;
+            All.Witch.X = (tiledStartScreen.Respawns[0].X - startMapX) * All.TileWidth;
+            All.Witch.Y = (tiledStartScreen.Respawns[0].Y - startMapY) * All.TileHeight + 3;
+            All.Witch.MinY = All.Witch.Y;
+            All.Witch.MaxY = All.Witch.Y;
+            All.Witch.CouldFly = true;
+            All.Witch.DoAlive();
+            All.Witch.DoFly();
+            blockDisplay = false;
+            scriptMode = ScriptState.None;
+            //scriptValue = (tiledStartScreen.Respawns[1].X - startMapX) * All.TileWidth - 2; // potion to stop walking
             All.Witch.AuthorizeScroll();
         }
 
@@ -1024,6 +1055,64 @@ namespace Cauldron
                                             break;
                                     }
                                     break;
+                                case "static":
+                                    switch (t.Content)
+                                    {
+                                        case "bat_1":
+                                            monsters.GeneratorStatic(MonsterType.Bat_1, currentX + 1000 * j, x, y);
+                                            break;
+                                        case "bat_2":
+                                            monsters.GeneratorStatic(MonsterType.Bat_2, currentX + 1000 * j, x, y);
+                                            break;
+                                        case "ghost":
+                                            monsters.GeneratorStatic(MonsterType.Ghost, currentX + 1000 * j, x, y);
+                                            break;
+                                        case "seagull":
+                                            monsters.GeneratorStatic(MonsterType.Seagull, currentX + 1000 * j, x, y);
+                                            break;
+                                        case "fireball":
+                                            monsters.GeneratorStatic(MonsterType.Fireball, currentX + 1000 * j, x, y);
+                                            break;
+                                        case "skull":
+                                            monsters.GeneratorStatic(MonsterType.Skull, currentX + 1000 * j, x, y);
+                                            break;
+                                        case "ribcage":
+                                            monsters.GeneratorStatic(MonsterType.Ribcage, currentX + 1000 * j, x, y);
+                                            break;
+                                        case "bones":
+                                            monsters.GeneratorStatic(MonsterType.Bones, currentX + 1000 * j, x, y);
+                                            break;
+                                        case "snapper":
+                                            monsters.GeneratorStatic(MonsterType.Snapper, currentX + 1000 * j, x, y);
+                                            break;
+                                        case "mandragora":
+                                            monsters.GeneratorStatic(MonsterType.Mandragora, currentX + 1000 * j, x, y);
+                                            break;
+                                        case "pumpkin":
+                                            monsters.GeneratorStatic(MonsterType.Pumpkin, currentX + 1000 * j, x, y);
+                                            break;
+                                        case "pumpking":
+                                            monsters.GeneratorStatic(MonsterType.PumpKing, currentX + 1000 * j, x, y);
+                                            break;
+                                    }
+                                    break;
+                                case "magic":
+                                    switch (t.Content)
+                                    {
+                                        case "toad":
+                                            break;
+                                        case "newt":
+                                            break;
+                                        case "fireball":
+                                            break;
+                                        case "ribcage":
+                                            break;
+                                        case "bat":
+                                            break;
+                                        case "mandragora":
+                                            break;
+                                    }
+                                    break;
                             }
                         }
                     }
@@ -1132,6 +1221,8 @@ namespace Cauldron
             // voler ne consomme pas
 
             // tirer ne consomme pas
+
+            // touch enemy costs normal / 5% / nothing 
 
 
             // gameplay

@@ -19,6 +19,7 @@
     <None Remove="Assets\Cauldron_House.tmx" />
     <None Remove="Assets\Cauldron_Cave_Green.tmx" />
     <None Remove="Assets\Cauldron_Cave_Red.tmx" />
+    <None Remove="Assets\Cauldron_Start_Screen.tmx" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Assets\Cauldron.tmx" />
@@ -27,6 +28,7 @@
     <EmbeddedResource Include="Assets\Cauldron_House.tmx" />
     <EmbeddedResource Include="Assets\Cauldron_Cave_Green.tmx" />
     <EmbeddedResource Include="Assets\Cauldron_Cave_Red.tmx" />
+    <EmbeddedResource Include="Assets\Cauldron_Start_Screen.tmx" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CaudronDll\CaudronDll.csproj" />

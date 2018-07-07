@@ -1,7 +1,13 @@
 ﻿<Properties StartupConfiguration="{7A6F53FB-0BC4-4B13-A50E-C9813BBD2812}|Default">
-  <MonoDevelop.Ide.Workbench ActiveDocument="Cauldron/MainPage.xaml.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Cauldron/OneSprite.cs">
     <Files>
-      <File FileName="Cauldron/MainPage.xaml.cs" Line="1109" Column="15" />
+      <File FileName="Cauldron/MainPage.xaml.cs" Line="1062" Column="62" />
+      <File FileName="Cauldron/Global.cs" Line="106" Column="17" />
+      <File FileName="Cauldron/Witch.cs" Line="276" Column="1" />
+      <File FileName="Cauldron/Tiled.cs" Line="259" Column="31" />
+      <File FileName="Cauldron/All.cs" Line="1" Column="1" />
+      <File FileName="Cauldron/Monsters.cs" Line="102" Column="137" />
+      <File FileName="Cauldron/OneSprite.cs" Line="1" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />

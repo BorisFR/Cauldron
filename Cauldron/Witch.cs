@@ -270,6 +270,14 @@ namespace Cauldron
 
         // *********************************************************************
 
+        public void DoFly()
+        {
+            ChangeToState(WitchState.RightFlySlow);
+            PrintState();
+        }
+
+        // *********************************************************************
+
         public void DoWalk()
         {
             ChangeToState(WitchState.RightWalk);

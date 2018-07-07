@@ -147,23 +147,13 @@ namespace Cauldron
                 for (int i = 0; i < missedAnim; i++)
                 {
                     StepAnim--;
-                    if (StepAnim < animTo)
+                    if (StepAnim < animFrom)
                     {
-                        if (animBack)
+                        StepAnim = animFrom + 1;
+                        animIncrease = true;
+                        if (animStop)
                         {
-                            StepAnim = animFrom + 1;
-                            animIncrease = true;
-                        }
-                        else
-                        {
-                            if (animStop)
-                            {
-                                StepAnim++;
-                            }
-                            else
-                            {
-                                StepAnim = animFrom;
-                            }
+                            StepAnim = animFrom;
                         }
                     }
                 }

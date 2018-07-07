@@ -255,6 +255,10 @@ namespace Cauldron
                         break;
                     case "item":
                         break;
+                    case "static":
+                        break;
+                    case "magic":
+                        break;
                     default:
                         System.Diagnostics.Debug.WriteLine(String.Format("ERROR items @ {0}x{1}, name: {2}/{3}", x, y, All.tiled.Tiles[Items[x, y]].Name, All.tiled.Tiles[Items[x, y]].Content));
                         break;

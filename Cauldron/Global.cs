@@ -11,6 +11,7 @@ namespace Cauldron
 
     public enum Map
     {
+        StartScreen,
         Outside,
         InHouse,
         GreenCave,
@@ -77,7 +78,7 @@ namespace Cauldron
         Kill_Shark = 25,
         Kill_Plant_1 = 100,
         Kill_Plant_2 = 100,
-        Kill_Firebal = 75,
+        Kill_Fireball = 75,
     }
 
     public enum MagicLoose : byte
@@ -89,7 +90,7 @@ namespace Cauldron
         Kill_Shark = 50,
         Kill_Plant_1 = 15,
         Kill_Plant_2 = 15,
-        Kill_Firebal = 15,
+        Kill_Fireball = 15,
         Flying = 1,
         Shoot = 1,
     }
@@ -101,7 +102,16 @@ namespace Cauldron
         Ghost,
         Plant1,
         Plant2,
-        Shark
+        Shark,
+        Seagull,
+        Fireball,
+        Skull,
+        Ribcage,
+        Bones,
+        Snapper,
+        Mandragora,
+        Pumpkin,
+        PumpKing
     }
 
     public enum MovingDirection : short
